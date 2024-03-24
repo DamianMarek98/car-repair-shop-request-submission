@@ -7,3 +7,6 @@ App will containt:
 Tech stack: backend spring boot modular monolith folowing ddd practices:
 -> submission module
 -> notification module (asynchronous communication)
+
+First design level event storming done:
+![image](https://github.com/DamianMarek98/car-repair-shop-request-submission/assets/43189598/a6771d67-e291-424d-90ed-6750a00d0610)
