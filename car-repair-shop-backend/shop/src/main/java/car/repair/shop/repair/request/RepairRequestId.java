@@ -1,4 +1,4 @@
-package car.repair.shop.request;
+package car.repair.shop.repair.request;
 
 import java.util.UUID;
 
