@@ -1,4 +1,4 @@
-package car.repair.shop.repair.request;
+package car.repair.shop.repair.request.model;
 
 
 class NewRepairRequest extends RepairRequestState {

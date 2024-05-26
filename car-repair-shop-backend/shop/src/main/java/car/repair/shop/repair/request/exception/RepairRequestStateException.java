@@ -1,4 +1,4 @@
-package car.repair.shop.repair.request;
+package car.repair.shop.repair.request.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

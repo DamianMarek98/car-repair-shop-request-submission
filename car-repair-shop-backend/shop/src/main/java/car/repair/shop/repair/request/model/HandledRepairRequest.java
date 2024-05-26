@@ -1,4 +1,6 @@
-package car.repair.shop.repair.request;
+package car.repair.shop.repair.request.model;
+
+import car.repair.shop.repair.request.exception.RepairRequestStateException;
 
 class HandledRepairRequest extends RepairRequestState {
     public HandledRepairRequest(RepairRequest repairRequest) {

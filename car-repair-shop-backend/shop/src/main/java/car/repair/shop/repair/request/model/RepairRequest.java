@@ -1,6 +1,5 @@
-package car.repair.shop.repair.request;
+package car.repair.shop.repair.request.model;
 
-import car.repair.shop.commons.aggregate.PreferredVisitWindow;
 import lombok.AccessLevel;
 import lombok.Getter;
 
