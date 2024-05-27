@@ -1,5 +1,6 @@
-package car.repair.shop.repair.request.model;
+package car.repair.shop.repair.request;
 
+import car.repair.shop.repair.request.controller.dto.SubmitRepairRequestDto;
 import lombok.AccessLevel;
 import lombok.Getter;
 
@@ -11,13 +12,20 @@ class RepairRequest {
     private RepairRequestId repairRequestId;
     private String vin;
     private String issueDescription;
-    private String name;
+    private String submitterFirstName;
+    private String submitterLastName;
     private String email;
     private String phoneNumber;
     private List<PreferredVisitWindow> preferredVisitWindows;
     private LocalDateTime submittedAt;
     private LocalDateTime handledAt;
     private RepairRequestStatus repairRequestStatus;
+
+    static RepairRequest from(SubmitRepairRequestDto submitRepairRequestDto) {
+        var repairRequest = new RepairRequest();
+        //todo
+        return repairRequest;
+    }
 
     protected void markAsHandled() {
         handledAt = LocalDateTime.now();

@@ -1,4 +1,4 @@
-package car.repair.shop.repair.request.model;
+package car.repair.shop.repair.request;
 
 import org.springframework.lang.NonNull;
 
