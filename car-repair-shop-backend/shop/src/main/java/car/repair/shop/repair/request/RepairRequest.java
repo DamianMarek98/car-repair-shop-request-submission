@@ -7,6 +7,7 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 import java.util.List;
 
+//todo either private setters for @document or AllArgsConstructor
 @Getter(AccessLevel.PACKAGE)
 class RepairRequest {
     private RepairRequestId repairRequestId;
