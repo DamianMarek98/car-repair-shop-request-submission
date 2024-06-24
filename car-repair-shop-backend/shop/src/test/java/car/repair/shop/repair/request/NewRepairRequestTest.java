@@ -1,8 +1,5 @@
-package car.repair.shop.repair.request.model;
+package car.repair.shop.repair.request;
 
-import car.repair.shop.repair.request.NewRepairRequest;
-import car.repair.shop.repair.request.RepairRequest;
-import car.repair.shop.repair.request.RepairRequestStatus;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
