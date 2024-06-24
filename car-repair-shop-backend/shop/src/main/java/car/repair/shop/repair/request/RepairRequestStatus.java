@@ -1,6 +1,6 @@
 package car.repair.shop.repair.request;
 
-enum RepairRequestStatus {
+public enum RepairRequestStatus {
     NEW,
     APPOINTMENT_MADE,
     HANDLED

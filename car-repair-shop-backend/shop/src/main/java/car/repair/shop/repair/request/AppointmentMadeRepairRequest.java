@@ -2,7 +2,7 @@ package car.repair.shop.repair.request;
 
 import car.repair.shop.repair.request.exception.RepairRequestStateException;
 
-class AppointmentMadeRepairRequest extends  RepairRequestState {
+class AppointmentMadeRepairRequest extends RepairRequestState {
     public AppointmentMadeRepairRequest(RepairRequest repairRequest) {
         super(repairRequest);
     }

@@ -24,6 +24,6 @@ class HandledRepairRequestTest {
         handledRepairRequest.markAsAppointmentMade();
 
         assertNull(repairRequest.getHandledAt());
-        assertThat(repairRequest.getRepairRequestStatus()).isEqualTo(RepairRequestStatus.APPOINTMENT_MADE);
+        assertThat(repairRequest.getStatus()).isEqualTo(RepairRequestStatus.APPOINTMENT_MADE);
     }
 }
