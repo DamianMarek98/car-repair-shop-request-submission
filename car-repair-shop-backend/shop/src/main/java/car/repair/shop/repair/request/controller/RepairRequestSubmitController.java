@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/repair-request")
-public class RepairRequestController {
+public class RepairRequestSubmitController {
 
     @PostMapping("/submit")
     public void submitRepairRequest(@RequestBody SubmitRepairRequestDto submitRepairRequestDto) {

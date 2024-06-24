@@ -12,10 +12,10 @@ public record SubmitRepairRequestDto(@NotNull @Size(min = 17, max = 17, message 
                                      @NotNull String lastName,
                                      @NotNull String email,
                                      @NotNull String phoneNumber,
-                                     List<TimeSlot> timeSlots,
+                                     List<TimeSlotDto> timeSlots,
                                      boolean asap) {
 
-    public record TimeSlot(@NotNull LocalDate date, LocalTime from, LocalTime to) {
+    public record TimeSlotDto(@NotNull LocalDate date, LocalTime from, LocalTime to) {
 
     }
 }
