@@ -14,6 +14,7 @@ public class SubmitNewRepairRequestHandler {
     private final ApplicationEventPublisher eventPublisher;
     private final RepairRequestRepository repairRequestRepository;
 
+    //todo write integration test with testcontainers for happy path, maybe add validation for email, phone number but don't waste time on testing each validation for now
     public void handle(SubmitRepairRequestDto submitRepairRequestDto) {
         var repairRequest = RepairRequest.from(submitRepairRequestDto);
         repairRequest = repairRequestRepository.save(repairRequest);
