@@ -2,11 +2,12 @@ package car.repair.shop.repair.request.controller;
 
 import car.repair.shop.repair.request.SubmitNewRepairRequestHandler;
 import car.repair.shop.repair.request.controller.dto.SubmitRepairRequestDto;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
+
 
 @RestController
 @RequestMapping("/api/repair-request")
@@ -16,7 +17,7 @@ public class RepairRequestSubmitController {
 
     @PostMapping("/submit")
     @ResponseStatus(code = HttpStatus.CREATED)
-    public void submitRepairRequest(@RequestBody @Valid SubmitRepairRequestDto submitRepairRequestDto) {
+    public void submitRepairRequest(@Valid @RequestBody SubmitRepairRequestDto submitRepairRequestDto) {
         submitNewRepairRequestHandler.handle(submitRepairRequestDto);
     }
 }

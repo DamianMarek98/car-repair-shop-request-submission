@@ -37,7 +37,7 @@ public class RepairRequest {
     private String phoneNumber;
 
     @DynamoDBAttribute(attributeName = "preferred_visit_windows")
-    @DynamoDBTypeConvertedJson
+    @DynamoDBTypeConverted(converter = PreferredVisitWindowConverter.class)
     private List<PreferredVisitWindow> preferredVisitWindows;
 
     @DynamoDBAttribute(attributeName = "submitted_at")
