@@ -1,0 +1,14 @@
+mat-form-field {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+mat-card {
+  margin: auto;
+  padding: 16px;
+  background-color: rgb(245, 245, 242);
+}
+
+mat-card-title {
+  margin-bottom: 16px;
+}

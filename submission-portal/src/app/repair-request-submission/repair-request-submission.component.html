@@ -1,0 +1,92 @@
+<div class="example-container" style="padding: 2%;">
+  <div class="form-container">
+    <form [formGroup]="repairForm">
+      <mat-form-field appearance="outline">
+        <mat-label>VIN</mat-label>
+        <input matInput formControlName="vin" required>
+        <mat-error *ngIf="repairForm.get('vin')?.hasError('required')"><span>Numer VIN jest wymagany!</span></mat-error>
+        <mat-error
+          *ngIf="repairForm.get('vin')?.hasError('minlength') || repairForm.get('vin')?.hasError('maxlength')"><span>Nieprawidłowa
+            długość numeru VIN!</span></mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Opis zgłoszenia</mat-label>
+        <textarea matInput formControlName="issueDescription" required></textarea>
+        <mat-error *ngIf="repairForm.get('issueDescription')?.hasError('required')"><span>To pole jest
+            wymagane!</span></mat-error>
+        <mat-error *ngIf="repairForm.get('issueDescription')?.hasError('maxlength')"><span>Max 500
+            znaków!</span></mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="form-field" appearance="outline">
+        <mat-label> Imię
+        </mat-label>
+        <input matInput formControlName="firstName" required>
+        <mat-error *ngIf="repairForm.get('firstName')?.hasError && repairForm.get('firstName')?.invalid">
+          <span>To pole jest wymagane.</span>
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="form-field" appearance="outline">
+        <mat-label> Nazwisko
+        </mat-label>
+        <input matInput formControlName="lastName" required>
+        <mat-error *ngIf="repairForm.get('lastName')?.hasError && repairForm.get('lastName')?.invalid">
+          <span>To pole jest wymagane.</span>
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Numer telefonu</mat-label>
+        <input matInput formControlName="phoneNumber" required>
+        <mat-error *ngIf="repairForm.get('phoneNumber')?.hasError('required')"><span>To pole jest
+            wymagane!</span></mat-error>
+        <mat-error *ngIf="repairForm.get('phoneNumber')?.hasError('pattern')"><span>Niepoprawny numer
+            telefonu!</span></mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="form-field" appearance="outline">
+        <mat-label> Email
+        </mat-label>
+        <input matInput formControlName="email" required>
+        <mat-error *ngIf="repairForm.get('email')?.hasError && repairForm.get('email')?.invalid">
+          <span>To pole jest wymagane.</span>
+        </mat-error>
+      </mat-form-field>
+
+      <mat-checkbox formControlName="asap">Najszybciej jak się da</mat-checkbox>
+
+      <button mat-icon-button type="button" (click)="addTimeSlot()">
+        <mat-icon>add</mat-icon>
+      </button>
+      <div formArrayName="timeSlots" *ngIf="isAsap() === false">
+        <div *ngFor="let timeSlot of timeSlots.controls; let i=index" [formGroupName]="i">
+          <!-- TODO erros validation etc -->
+          <mat-form-field appearance="outline">
+            <mat-label>Wybierz datę</mat-label>
+            <input matInput [matDatepicker]="picker">
+            <mat-hint>MM/DD/YYYY</mat-hint>
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Od godziny</mat-label>
+            <input matInput formControlName="from">
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Do godziny</mat-label>
+            <input matInput formControlName="to">
+          </mat-form-field>
+          <button mat-icon-button type="button" (click)="removeTimeSlot(i)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <div style="margin-top: 10px">
+        <button mat-raised-button color="primary" type="submit">Wyślij</button>
+      </div>
+    </form>
+  </div>
+</div>
