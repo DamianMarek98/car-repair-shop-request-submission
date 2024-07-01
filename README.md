@@ -16,3 +16,4 @@ To consider:
 
 - what to do with client data, should be deleted after one month?
 - approval for client data usage needed!
+- common error response could be prepared to show exact information what is wrong with request to the client 
