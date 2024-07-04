@@ -32,6 +32,7 @@ import { MatSelectModule } from '@angular/material/select';
 })
 export class RepairRequestSubmissionComponent {
   repairForm: FormGroup;
+  todaysDate: Date = new Date();
 
   constructor(private fb: FormBuilder) {
     this.repairForm = this.fb.group({
@@ -44,6 +45,7 @@ export class RepairRequestSubmissionComponent {
       timeSlots: this.fb.array([]),
       asap: new FormControl(false)
     });
+    this.addTimeSlot();
   }
 
   get timeSlots() {
@@ -51,25 +53,58 @@ export class RepairRequestSubmissionComponent {
   }
 
   addTimeSlot() {
-    const timeSlotGroup = this.fb.group({
-      date: [null, Validators.required],
-      from: [null],
-      to: [null]
-    });
-    this.timeSlots.push(timeSlotGroup);
+    if (this.isAsap() === false && this.timeSlots.length < 5) {
+      const timeSlotGroup = this.fb.group({
+        date: [Validators.required],
+        from: [null],
+        to: [null]
+      });
+      this.timeSlots.push(timeSlotGroup);
+    }
   }
 
   removeTimeSlot(index: number) {
+    if (this.timeSlots.length === 1) {
+      return;
+    }
     this.timeSlots.removeAt(index);
   }
 
   onSubmit() {
+    console.log(this.repairForm.value); //todo remove
     if (this.repairForm.valid) {
-      console.log(this.repairForm.value);
+      console.log(this.repairForm.value); //todo remove
     }
   }
 
   isAsap(): boolean {
-      return this.repairForm.get('asap')?.value
+    return this.repairForm.get('asap')?.value
+  }
+
+  resetTimeSlots() {
+    if (this.isAsap() === true) {
+      this.timeSlots.clear();
+      this.timeSlots.reset();
+    } else {
+      this.addTimeSlot();
+    }
+  }
+
+  dateFilter = (date: Date | null): boolean => {
+    if (!date) {
+      return true;
+    }
+
+    const day = date.getDay();
+    // Disable Saturdays (6) and Sundays (0)
+    if (day === 0 || day === 6) {
+      return false;
+    }
+
+    return true;
+  };
+
+  getTimeSlotsLength(): number {
+    return this.timeSlots.length;
   }
 }
