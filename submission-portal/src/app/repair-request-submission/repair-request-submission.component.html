@@ -1,6 +1,6 @@
 <div class="example-container" style="padding: 2%;">
   <div class="form-container">
-    <form [formGroup]="repairForm">
+    <form [formGroup]="repairForm" (submit)="onSubmit()">
       <mat-form-field appearance="outline">
         <mat-label>VIN</mat-label>
         <input matInput formControlName="vin" required>
@@ -55,31 +55,35 @@
         </mat-error>
       </mat-form-field>
 
-      <mat-checkbox formControlName="asap">Najszybciej jak się da</mat-checkbox>
+      <div style="flex: 0 0 20%; padding-right: 2%; padding-bottom: 2%;">
+        <mat-checkbox formControlName="asap" (change)="resetTimeSlots()">Najszybciej jak się da</mat-checkbox>
+      </div>
 
-      <button mat-icon-button type="button" (click)="addTimeSlot()">
-        <mat-icon>add</mat-icon>
-      </button>
       <div formArrayName="timeSlots" *ngIf="isAsap() === false">
-        <div *ngFor="let timeSlot of timeSlots.controls; let i=index" [formGroupName]="i">
-          <!-- TODO erros validation etc -->
-          <mat-form-field appearance="outline">
-            <mat-label>Wybierz datę</mat-label>
-            <input matInput [matDatepicker]="picker">
-            <mat-hint>MM/DD/YYYY</mat-hint>
-            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-            <mat-datepicker #picker></mat-datepicker>
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>Od godziny</mat-label>
-            <input matInput formControlName="from">
-          </mat-form-field>
-          <mat-form-field appearance="outline">
-            <mat-label>Do godziny</mat-label>
-            <input matInput formControlName="to">
-          </mat-form-field>
-          <button mat-icon-button type="button" (click)="removeTimeSlot(i)">
-            <mat-icon>delete</mat-icon>
+        <div *ngFor="let timeSlot of timeSlots.controls; let i=index" [formGroupName]="i"
+          style="display: flex; width: 100%;">
+          <div style="flex: 0 0 80%">
+            <mat-form-field appearance="outline">
+              <mat-label>Wybierz datę</mat-label>
+              <input matInput [matDatepicker]="picker" formControlName="date" (mousedown)="picker.open(); $event.preventDefault" 
+              readonly=true [matDatepickerFilter]="dateFilter" [min]="todaysDate">
+              <mat-error *ngIf="timeSlot.get('date')?.hasError && timeSlot.get('date')?.invalid">
+                <span>Podaj datę lub usuń pole wyboru.</span>
+              </mat-error>
+              <mat-hint>MM/DD/YYYY</mat-hint>
+              <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-datepicker #picker (closed)="timeSlots.markAsTouched()"></mat-datepicker>
+            </mat-form-field>
+          </div>
+          <div style="flex: 0 0 20%; padding-right: 2%;" *ngIf="getTimeSlotsLength() > 1">
+            <button mat-icon-button type="button" (click)="removeTimeSlot(i)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </div>
+        <div style="display: flex; width: 100%;" *ngIf="getTimeSlotsLength() < 5">
+          <button title="Dodaj kolejną datę, max 5 dat!" mat-icon-button type="button" (click)="addTimeSlot()" [disabled]="isAsap() === true">
+            <mat-icon>add</mat-icon>
           </button>
         </div>
       </div>
