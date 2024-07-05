@@ -10,6 +10,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { RepairRequestService } from '../services/repair-request-service';
+import { RepairRequest, TimeSlot } from '../models/repair-request';
 
 @Component({
   selector: 'app-repair-request-submission',
@@ -34,7 +36,7 @@ export class RepairRequestSubmissionComponent {
   repairForm: FormGroup;
   todaysDate: Date = new Date();
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder, private repairRequestService: RepairRequestService) {
     this.repairForm = this.fb.group({
       vin: ['', [Validators.required, Validators.minLength(17), Validators.maxLength(17)]],
       issueDescription: ['', [Validators.required, Validators.maxLength(500)]],
@@ -71,10 +73,33 @@ export class RepairRequestSubmissionComponent {
   }
 
   onSubmit() {
-    console.log(this.repairForm.value); //todo remove
     if (this.repairForm.valid) {
       console.log(this.repairForm.value); //todo remove
+      const repairRequest: RepairRequest = {
+        vin: this.repairForm.get('vin')?.value,
+        issueDescription: this.repairForm.get('issueDescription')?.value,
+        firstName: this.repairForm.get('firstName')?.value,
+        lastName: this.repairForm.get('lastName')?.value,
+        email: this.repairForm.get('email')?.value,
+        phoneNumber: this.repairForm.get('phoneNumber')?.value,
+        timeSlots: this.mapTimeSlots(this.repairForm.get('timeSlots')?.value),
+        asap: this.repairForm.get('asap')?.value,
+      }
+      this.repairRequestService.submitRepairRequest(repairRequest).subscribe(value => console.log('submitted'));
     }
+  }
+
+  mapTimeSlots(formGroup: FormGroup[]): TimeSlot[] {
+    var timeSlots: TimeSlot[] = [];
+    formGroup.forEach(formElement => {
+      const timeSlot: TimeSlot = {
+        date: formElement.get('date')?.value,
+        from: formElement.get('from')?.value,
+        to: formElement.get('to')?.value,
+      }
+    })
+
+    return timeSlots;
   }
 
   isAsap(): boolean {
