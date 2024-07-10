@@ -3,6 +3,7 @@ package car.repair.shop.repair.request;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.model.CreateTableRequest;
+import com.amazonaws.services.dynamodbv2.model.GlobalSecondaryIndex;
 import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughput;
 import com.amazonaws.services.dynamodbv2.util.TableUtils;
 import jakarta.annotation.PostConstruct;
@@ -14,6 +15,8 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.localstack.LocalStackContainer;
 import org.testcontainers.utility.DockerImageName;
+
+import java.util.List;
 
 @Slf4j
 @SpringBootTest
@@ -47,6 +50,14 @@ abstract class RepairRequestIntegrationTest {
                 .generateCreateTableRequest(RepairRequest.class);
         tableRepairRequest.setProvisionedThroughput(
                 new ProvisionedThroughput(1L, 1L));
+
+        List<GlobalSecondaryIndex> globalSecondaryIndexes = tableRepairRequest.getGlobalSecondaryIndexes();
+        if (globalSecondaryIndexes != null) {
+            for (GlobalSecondaryIndex gsi : globalSecondaryIndexes) {
+                gsi.setProvisionedThroughput(new ProvisionedThroughput(1L, 1L));
+            }
+        }
+
         TableUtils.createTableIfNotExists(amazonDynamoDB, tableRepairRequest);
         log.info("RepairRequestIntegrationTest init done");
     }
