@@ -1,0 +1,25 @@
+.mat-elevation-z8 {
+    background: white;
+    border-radius: 4px;
+}
+
+table {
+    width: 100%;
+    height: 100%;
+}
+
+.mat-mdc-paginator,
+.mat-mdc-table,
+.mat-mdc-row,
+.mat-mdc-header-row {
+    background-color: white;
+    color: black;
+}
+
+.mat-mdc-table {
+    height: 92vh;
+}
+
+.status-new {
+    background-color: rgb(78, 209, 18);
+}

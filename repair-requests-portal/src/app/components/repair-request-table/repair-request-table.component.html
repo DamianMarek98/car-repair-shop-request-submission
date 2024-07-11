@@ -1,0 +1,37 @@
+<div class="mat-elevation-z8">
+    <mat-table class="table" [dataSource]="dataSource" matSort>
+
+        <!-- First Name Column -->
+        <ng-container matColumnDef="firstName">
+            <mat-header-cell *matHeaderCellDef mat-sort-header> Imię </mat-header-cell>
+            <mat-cell *matCellDef="let element"> {{element.firstName}} </mat-cell>
+        </ng-container>
+
+        <!-- Last Name Column -->
+        <ng-container matColumnDef="lastName">
+            <mat-header-cell *matHeaderCellDef mat-sort-header> Nazwisko </mat-header-cell>
+            <mat-cell *matCellDef="let element"> {{element.lastName}} </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="vin">
+            <mat-header-cell *matHeaderCellDef mat-sort-header> VIN </mat-header-cell>
+            <mat-cell *matCellDef="let element"> {{element.vin}} </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+            <mat-header-cell *matHeaderCellDef mat-sort-header> Status </mat-header-cell>
+            <mat-cell *matCellDef="let element"> {{mapStatus(element.status)}} </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="submittedAt">
+            <mat-header-cell *matHeaderCellDef mat-sort-header> Zgłoszono </mat-header-cell>
+            <mat-cell *matCellDef="let element"> {{ element.submittedAt | date: 'd MMM. y, h:mm' }} </mat-cell>
+        </ng-container>
+
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: displayedColumns;"  [class.status-new]='row.status === "NEW"'></mat-row>
+    </mat-table>
+
+    <mat-paginator [length]="numberOfElements" [pageSizeOptions]="[10, 20, 25]"
+        (page)="loadPage($event)"></mat-paginator>
+</div>
