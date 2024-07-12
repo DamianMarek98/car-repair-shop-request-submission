@@ -29,7 +29,7 @@
         </ng-container>
 
         <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-        <mat-row *matRowDef="let row; columns: displayedColumns;"  [class.status-new]='row.status === "NEW"'></mat-row>
+        <mat-row *matRowDef="let row; columns: displayedColumns;"  [class.status-new]='row.status === "NEW"' (click)="goToDetails(row.id)"></mat-row>
     </mat-table>
 
     <mat-paginator [length]="numberOfElements" [pageSizeOptions]="[10, 20, 25]"

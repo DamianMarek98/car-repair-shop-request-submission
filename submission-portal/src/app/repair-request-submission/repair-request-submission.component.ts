@@ -74,7 +74,6 @@ export class RepairRequestSubmissionComponent {
 
   onSubmit() {
     if (this.repairForm.valid) {
-      console.log(this.repairForm.value); //todo remove
       const repairRequest: RepairRequest = {
         vin: this.repairForm.get('vin')?.value,
         issueDescription: this.repairForm.get('issueDescription')?.value,
@@ -89,14 +88,15 @@ export class RepairRequestSubmissionComponent {
     }
   }
 
-  mapTimeSlots(formGroup: FormGroup[]): TimeSlot[] {
+  mapTimeSlots(formGroup: any[]): TimeSlot[] {
     var timeSlots: TimeSlot[] = [];
     formGroup.forEach(formElement => {
       const timeSlot: TimeSlot = {
-        date: formElement.get('date')?.value,
-        from: formElement.get('from')?.value,
-        to: formElement.get('to')?.value,
+        date: formElement.date,
+        from: formElement.from,
+        to: formElement.to,
       }
+      timeSlots.push(timeSlot);
     })
 
     return timeSlots;

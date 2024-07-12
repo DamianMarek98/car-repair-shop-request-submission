@@ -1,9 +1,9 @@
-<div class="example-container" style="padding: 2%;">
+<div class="example-container" style="padding: 2%; color: black;">
   <div class="form-container">
     <form [formGroup]="repairForm" (submit)="onSubmit()">
       <mat-form-field appearance="outline">
         <mat-label>VIN</mat-label>
-        <input matInput formControlName="vin" required>
+        <input matInput formControlName="vin" style="color: black;" required>
         <mat-error *ngIf="repairForm.get('vin')?.hasError('required')"><span>Numer VIN jest wymagany!</span></mat-error>
         <mat-error
           *ngIf="repairForm.get('vin')?.hasError('minlength') || repairForm.get('vin')?.hasError('maxlength')"><span>Nieprawidłowa
@@ -12,7 +12,7 @@
 
       <mat-form-field appearance="outline">
         <mat-label>Opis zgłoszenia</mat-label>
-        <textarea matInput formControlName="issueDescription" required></textarea>
+        <textarea matInput style="height: 20vh; color: black;" formControlName="issueDescription" required></textarea>
         <mat-error *ngIf="repairForm.get('issueDescription')?.hasError('required')"><span>To pole jest
             wymagane!</span></mat-error>
         <mat-error *ngIf="repairForm.get('issueDescription')?.hasError('maxlength')"><span>Max 500
@@ -22,7 +22,7 @@
       <mat-form-field class="form-field" appearance="outline">
         <mat-label> Imię
         </mat-label>
-        <input matInput formControlName="firstName" required>
+        <input matInput formControlName="firstName" style="color: black;" required>
         <mat-error *ngIf="repairForm.get('firstName')?.hasError && repairForm.get('firstName')?.invalid">
           <span>To pole jest wymagane.</span>
         </mat-error>
@@ -31,7 +31,7 @@
       <mat-form-field class="form-field" appearance="outline">
         <mat-label> Nazwisko
         </mat-label>
-        <input matInput formControlName="lastName" required>
+        <input matInput formControlName="lastName" style="color: black;" required>
         <mat-error *ngIf="repairForm.get('lastName')?.hasError && repairForm.get('lastName')?.invalid">
           <span>To pole jest wymagane.</span>
         </mat-error>
@@ -39,7 +39,7 @@
 
       <mat-form-field appearance="outline">
         <mat-label>Numer telefonu</mat-label>
-        <input matInput formControlName="phoneNumber" required>
+        <input matInput formControlName="phoneNumber" style="color: black;" required>
         <mat-error *ngIf="repairForm.get('phoneNumber')?.hasError('required')"><span>To pole jest
             wymagane!</span></mat-error>
         <mat-error *ngIf="repairForm.get('phoneNumber')?.hasError('pattern')"><span>Niepoprawny numer
@@ -49,14 +49,14 @@
       <mat-form-field class="form-field" appearance="outline">
         <mat-label> Email
         </mat-label>
-        <input matInput formControlName="email" required>
+        <input matInput formControlName="email" style="color: black;" required>
         <mat-error *ngIf="repairForm.get('email')?.hasError && repairForm.get('email')?.invalid">
           <span>To pole jest wymagane.</span>
         </mat-error>
       </mat-form-field>
 
       <div style="flex: 0 0 20%; padding-right: 2%; padding-bottom: 2%;">
-        <mat-checkbox formControlName="asap" (change)="resetTimeSlots()">Najszybciej jak się da</mat-checkbox>
+        <mat-checkbox formControlName="asap" style="color: black;" (change)="resetTimeSlots()">Najszybciej jak się da</mat-checkbox>
       </div>
 
       <div formArrayName="timeSlots" *ngIf="isAsap() === false">
@@ -65,8 +65,8 @@
           <div style="flex: 0 0 80%">
             <mat-form-field appearance="outline">
               <mat-label>Wybierz datę</mat-label>
-              <input matInput [matDatepicker]="picker" formControlName="date"
-                (mousedown)="picker.open(); $event.preventDefault" readonly=true [matDatepickerFilter]="dateFilter"
+              <input matInput [matDatepicker]="picker" style="color: black;" formControlName="date"
+                (mousedown)="picker.open(); $event.preventDefault()" readonly=true [matDatepickerFilter]="dateFilter"
                 [min]="todaysDate">
               <mat-error *ngIf="timeSlot.get('date')?.hasError && timeSlot.get('date')?.invalid">
                 <span>Podaj datę lub usuń pole wyboru.</span>

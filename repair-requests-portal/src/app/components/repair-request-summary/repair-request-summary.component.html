@@ -1,0 +1,106 @@
+<div class="container">
+    <div class="left-column">
+        <mat-card>
+            <mat-card-header>
+                <mat-card-title>Zgłoszenie (status: {{mapStatus(repairRequest?.status)}})</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <mat-list role="list">
+                    <mat-list-item role="listitem">
+                        <span matListItemTitle>VIN:</span>
+                        <span matListItemLine>{{ repairRequest?.vin }}</span>
+                    </mat-list-item>
+                    <mat-divider></mat-divider>
+                    <mat-list-item role="listitem">
+                        <span matListItemTitle>Opis:</span>
+                        <span matListItemLine>{{ repairRequest?.issueDescription }}</span>
+                    </mat-list-item>
+                    <div *ngIf="repairRequest?.asap">
+                        <mat-divider></mat-divider>
+                        <mat-list-item role="listitem">
+                            <span matListItemTitle>Preferowane terminy wizyty:</span>
+                            <span matListItemLine>Najszybciej jak się da</span>
+                        </mat-list-item>
+                    </div>
+                </mat-list>
+            </mat-card-content>
+        </mat-card>
+
+        <div class="card-content-element"
+            *ngIf="repairRequest && !repairRequest.asap && repairRequest.preferredVisitWindows && repairRequest.preferredVisitWindows.length > 0; else noTimeWindows">
+            <mat-card>
+                <mat-card-header>
+                    <mat-card-title>Preferowane terminy wizyty:</mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                    <mat-list role="list">
+                        <div *ngFor="let window of repairRequest?.preferredVisitWindows">
+                            <mat-divider *ngIf="window !== repairRequest.preferredVisitWindows[0]"></mat-divider>
+                            <mat-list-item role="listitem">
+                                <span matListItemTitle>Data: {{ window.date | date: 'd MMM. y' }}</span>
+                                <span matListItemLine *ngIf="window.from && window.to else partialTime">Godziny: {{
+                                    window.from }} - {{ window.to }}</span>
+                                <ng-template #partialTime>
+                                    <span matListItemLine *ngIf="window.from; else windowTo">Od: {{ window.from
+                                        }}</span>
+                                </ng-template>
+                                <ng-template #windowTo>
+                                    <span matListItemLine *ngIf="window.to" matListItemLine>Do: {{ window.to }}</span>
+                                </ng-template>
+                            </mat-list-item>
+                        </div>
+                        <div *ngIf="repairRequest?.asap">
+                            <mat-list-item role="listitem">
+                                <span matListItemLine>Najszybciej jak się da</span>
+                            </mat-list-item>
+                        </div>
+                    </mat-list>
+                </mat-card-content>
+            </mat-card>
+
+        </div>
+    </div>
+
+    <ng-template #noTimeWindows>
+        Użytkownik nie wybrał preferownych terminów
+    </ng-template>
+
+    <div class="right-column">
+        <mat-card>
+            <mat-card-header>
+                <mat-card-title>Dane kontaktowe:</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+                <mat-list role="list">
+                    <mat-list-item role="listitem">
+                        <span matListItemTitle>Zgłaszający:</span>
+                        <span matListItemLine>{{ repairRequest?.submitterFirstName }} {{
+                            repairRequest?.submitterLastName}}</span>
+                    </mat-list-item>
+                    <mat-divider></mat-divider>
+                    <mat-list-item role="listitem">
+                        <span matListItemTitle>Email:</span>
+                        <span matListItemLine>{{ repairRequest?.email }}</span>
+                    </mat-list-item>
+                    <mat-divider></mat-divider>
+                    <mat-list-item role="listitem">
+                        <span matListItemTitle>Numer tel.:</span>
+                        <span matListItemLine>{{ repairRequest?.phoneNumber }}</span>
+                    </mat-list-item>
+                    <mat-divider></mat-divider>
+                    <mat-list-item role="listitem">
+                        <span matListItemTitle>Zgłoszono:</span>
+                        <span matListItemLine>{{ repairRequest?.submittedAt | date: 'd MMM. y, h:mm' }}</span>
+                    </mat-list-item>
+                    <div *ngIf="repairRequest?.handledAt">
+                        <mat-divider></mat-divider>
+                        <mat-list-item role="listitem">
+                            <span matListItemTitle>Obsłużono:</span>
+                            <span matListItemLine>{{ repairRequest?.handledAt | date: 'd MMM. y, h:mm' }}</span>
+                        </mat-list-item>
+                    </div>
+                </mat-list>
+            </mat-card-content>
+        </mat-card>
+    </div>
+</div>

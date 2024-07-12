@@ -3,8 +3,10 @@ import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { RepairRequestService } from '../../service/repair-request-service';
+import { Router } from '@angular/router';
 import { RepairRequestListItem } from '../../models/repair-request-list-item';
+import { RepairRequestService } from '../../service/repair-request-service';
+import { StatusMapper } from '../../commons/status-mapper';
 
 
 @Component({
@@ -22,17 +24,17 @@ export class RepairRequestTableComponent implements OnInit, AfterViewInit {
   pageIndex: number = 0;
 
 
-  constructor(private repairRequestService: RepairRequestService) { }
+  constructor(private repairRequestService: RepairRequestService, private router: Router) { }
 
-  @ViewChild(MatPaginator) 
+  @ViewChild(MatPaginator)
   set paginator(value: MatPaginator) {
     this.dataSource.paginator = value;
   }
 
   ngOnInit() {
-    this.loadPage({pageIndex: 0, pageSize: 25} as PageEvent);
+    this.loadPage({ pageIndex: 0, pageSize: 25 } as PageEvent);
   }
-  
+
   loadPage(event: PageEvent) {
     this.repairRequestService.searchRequests(event.pageIndex, event.pageSize).subscribe(repairRequestsPage => {
       this.dataSource.data = repairRequestsPage.content;
@@ -45,14 +47,10 @@ export class RepairRequestTableComponent implements OnInit, AfterViewInit {
   }
 
   mapStatus(status: string): string {
-    if (status === 'NEW') {
-      return 'NOWE';
-    } else if (status === 'APPOINTMENT_MADE') {
-      return 'UMÓWIONO';
-    } else if (status === 'HANDLED') {
-      return 'ZAKOŃCZONO';
-    }
+    return StatusMapper.mapStatus(status);    
+  }
 
-    return 'NIEZNANY'
+  goToDetails(id: string) {
+    this.router.navigate(['/repair-request/' + id]);
   }
 }

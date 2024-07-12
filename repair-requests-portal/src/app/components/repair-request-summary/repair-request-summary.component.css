@@ -1,0 +1,13 @@
+.container {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .left-column, .right-column {
+    flex: 1;
+    padding: 16px;
+  }
+
+.card-content-element {
+    padding-top: 1vh;
+}
