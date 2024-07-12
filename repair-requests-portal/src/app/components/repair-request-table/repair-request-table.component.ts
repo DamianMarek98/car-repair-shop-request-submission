@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
-import { MatPaginator, PageEvent } from '@angular/material/paginator';
+import { MatPaginator, MatPaginatorIntl, PageEvent } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Router } from '@angular/router';
@@ -19,7 +19,7 @@ import { StatusMapper } from '../../commons/status-mapper';
 export class RepairRequestTableComponent implements OnInit, AfterViewInit {
   displayedColumns: string[] = ['firstName', 'lastName', 'vin', 'status', 'submittedAt'];
   dataSource = new MatTableDataSource<RepairRequestListItem>([]);
-  pageSize: number = 25;
+  pageSize: number = 10;
   numberOfElements: number = 0;
   pageIndex: number = 0;
 
@@ -28,11 +28,21 @@ export class RepairRequestTableComponent implements OnInit, AfterViewInit {
 
   @ViewChild(MatPaginator)
   set paginator(value: MatPaginator) {
-    this.dataSource.paginator = value;
+    if (value) {
+      this.dataSource.paginator = value;
+      this.dataSource.paginator._intl = new MatPaginatorIntl()
+      this.dataSource.paginator._intl.itemsPerPageLabel = "Liczba zgłoszeń na stronie:";
+      this.dataSource.paginator._intl.getRangeLabel = (page: number, pageSize: number, length: number) => {
+        const start = page * pageSize + 1;
+        let end = (page + 1) * pageSize;
+        if (end > length) end = length;
+        return `${start} - ${end} z ${length}`;
+      }
+    }
   }
 
   ngOnInit() {
-    this.loadPage({ pageIndex: 0, pageSize: 25 } as PageEvent);
+    this.loadPage({ pageIndex: 0, pageSize: 10 } as PageEvent);
   }
 
   loadPage(event: PageEvent) {
@@ -47,7 +57,7 @@ export class RepairRequestTableComponent implements OnInit, AfterViewInit {
   }
 
   mapStatus(status: string): string {
-    return StatusMapper.mapStatus(status);    
+    return StatusMapper.mapStatus(status);
   }
 
   goToDetails(id: string) {

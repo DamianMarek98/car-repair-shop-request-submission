@@ -1,0 +1,17 @@
+.example-container {
+    position: absolute;
+    top: 2vh;
+    bottom: 2vh;
+    right: 0;
+    left: 0;
+  }
+  
+  .example-sidenav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 10vw;
+    background: rgba(243, 247, 25, 0.5);
+  }
+
+  
