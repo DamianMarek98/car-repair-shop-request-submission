@@ -40,6 +40,9 @@ public class RepairRequest {
     @DynamoDBAttribute(attributeName = "phone_number")
     private String phoneNumber;
 
+    @DynamoDBAttribute(attributeName = "asap")
+    private boolean asap;
+
     @DynamoDBAttribute(attributeName = "preferred_visit_windows")
     @DynamoDBTypeConverted(converter = PreferredVisitWindowConverter.class)
     private List<PreferredVisitWindow> preferredVisitWindows;
@@ -65,6 +68,7 @@ public class RepairRequest {
         repairRequest.email = submitRepairRequestDto.email();
         repairRequest.phoneNumber = submitRepairRequestDto.phoneNumber();
         repairRequest.submittedAt = LocalDateTime.now();
+        repairRequest.asap = submitRepairRequestDto.asap();
         repairRequest.preferredVisitWindows = submitRepairRequestDto.timeSlots() == null ? List.of() :
                 submitRepairRequestDto.timeSlots()
                         .stream()

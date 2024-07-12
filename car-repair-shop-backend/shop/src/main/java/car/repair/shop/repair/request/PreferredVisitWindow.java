@@ -1,5 +1,6 @@
 package car.repair.shop.repair.request;
 
+import car.repair.shop.repair.request.controller.dto.PreferredVisitWindowDto;
 import car.repair.shop.repair.request.controller.dto.SubmitRepairRequestDto;
 import car.repair.shop.repair.request.exception.RepairRequestValidationException;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -27,5 +28,9 @@ record PreferredVisitWindow(@NonNull
         }
 
         return new PreferredVisitWindow(timeSlotDto.date(), timeSlotDto.from(), timeSlotDto.to());
+    }
+
+    public PreferredVisitWindowDto toDto() {
+        return new PreferredVisitWindowDto(date, from, to);
     }
 }
