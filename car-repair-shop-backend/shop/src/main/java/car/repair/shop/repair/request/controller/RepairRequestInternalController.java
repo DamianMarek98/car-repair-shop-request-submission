@@ -1,5 +1,7 @@
 package car.repair.shop.repair.request.controller;
 
+import car.repair.shop.repair.request.MarkAsAppointmentMadeCommandHandler;
+import car.repair.shop.repair.request.MarkAsHandledCommandHandler;
 import car.repair.shop.repair.request.RepairRequestGetQueryHandler;
 import car.repair.shop.repair.request.SearchRepairRequestHandler;
 import car.repair.shop.repair.request.controller.dto.RepairRequestDto;
@@ -15,10 +17,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/internal/repair-request")
 @RequiredArgsConstructor
 public class RepairRequestInternalController {
-    //todo get repair request
-    //todo mark as handled and mark as appointment made
+
     private final SearchRepairRequestHandler searchRepairRequestHandler;
     private final RepairRequestGetQueryHandler repairRequestGetQueryHandler;
+    private final MarkAsHandledCommandHandler markAsHandledCommandHandler;
+    private final MarkAsAppointmentMadeCommandHandler markAsAppointmentMadeCommandHandler;
 
     @GetMapping("/search")
     @CrossOrigin(origins = "http://localhost:4201")
@@ -35,5 +38,19 @@ public class RepairRequestInternalController {
     @ResponseStatus(code = HttpStatus.OK)
     public RepairRequestDto getRepairRequest(@PathVariable String id) {
         return repairRequestGetQueryHandler.getById(id);
+    }
+
+    @PostMapping("/{id}/mark-as-handled")
+    @CrossOrigin(origins = "http://localhost:4201")
+    @ResponseStatus(code = HttpStatus.OK)
+    public void markRepairRequestAsHandled(@PathVariable String id) {
+        markAsHandledCommandHandler.handle(id);
+    }
+
+    @PostMapping("/{id}/mark-as-appointment-made")
+    @CrossOrigin(origins = "http://localhost:4201")
+    @ResponseStatus(code = HttpStatus.OK)
+    public void markRepairRequestAsAppointmentMade(@PathVariable String id) {
+        markAsAppointmentMadeCommandHandler.handle(id);
     }
 }
