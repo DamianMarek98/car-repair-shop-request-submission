@@ -60,6 +60,12 @@ export class RepairRequestTableComponent implements OnInit, AfterViewInit {
     return StatusMapper.mapStatus(status);
   }
 
+  mapStatusToColor(status: string) {
+    return {
+      'background-color': StatusMapper.mapStatusToColor(status)
+    }
+  }
+
   goToDetails(id: string) {
     this.router.navigate(['/repair-request/' + id]);
   }

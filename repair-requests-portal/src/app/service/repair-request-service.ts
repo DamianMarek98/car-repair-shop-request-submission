@@ -24,4 +24,12 @@ export class RepairRequestService {
     getRepairRequest(id: string): Observable<RepairRequest> {
         return this.http.get<RepairRequest>(this.apiUrl + '/' + id);
     }
+
+    markRepairRequestAsHandled(id: string): Observable<void> {
+        return this.http.post<void>(this.apiUrl + '/' + id + '/mark-as-handled', {});
+    }
+
+    markRepairRequestAsAppointmentMade(id: string): Observable<void> {
+        return this.http.post<void>(this.apiUrl + '/' + id + '/mark-as-appointment-made', {});
+    }
 }

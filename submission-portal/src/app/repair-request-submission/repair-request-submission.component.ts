@@ -35,6 +35,7 @@ import { RepairRequest, TimeSlot } from '../models/repair-request';
 export class RepairRequestSubmissionComponent {
   repairForm: FormGroup;
   todaysDate: Date = new Date();
+  times: string[] = ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00"];
 
   constructor(private fb: FormBuilder, private repairRequestService: RepairRequestService) {
     this.repairForm = this.fb.group({

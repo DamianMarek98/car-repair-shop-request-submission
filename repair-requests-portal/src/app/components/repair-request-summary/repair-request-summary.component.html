@@ -11,9 +11,9 @@
                         <span matListItemLine>{{ repairRequest?.vin }}</span>
                     </mat-list-item>
                     <mat-divider></mat-divider>
-                    <mat-list-item role="listitem">
+                    <mat-list-item role="listitem" style="height: auto;">
                         <span matListItemTitle>Opis:</span>
-                        <span matListItemLine>{{ repairRequest?.issueDescription }}</span>
+                        <span matListItemLine style="white-space: pre-line">{{ repairRequest?.issueDescription }}</span>
                     </mat-list-item>
                     <div *ngIf="repairRequest?.asap">
                         <mat-divider></mat-divider>
@@ -27,7 +27,7 @@
         </mat-card>
 
         <div class="card-content-element"
-            *ngIf="repairRequest && !repairRequest.asap && repairRequest.preferredVisitWindows && repairRequest.preferredVisitWindows.length > 0; else noTimeWindows">
+            *ngIf="repairRequest && !repairRequest.asap && repairRequest.preferredVisitWindows && repairRequest.preferredVisitWindows.length > 0">
             <mat-card>
                 <mat-card-header>
                     <mat-card-title>Preferowane terminy wizyty:</mat-card-title>
@@ -60,10 +60,6 @@
 
         </div>
     </div>
-
-    <ng-template #noTimeWindows>
-        Użytkownik nie wybrał preferownych terminów
-    </ng-template>
 
     <div class="right-column">
         <mat-card>
@@ -102,5 +98,19 @@
                 </mat-list>
             </mat-card-content>
         </mat-card>
+
+        <div class="card-content-element">
+            <mat-card *ngIf="repairRequest?.status !== 'APPOINTMENT_MADE'">
+                <mat-card-header>
+                    <mat-card-title>Akcje:</mat-card-title>
+                </mat-card-header>
+                <mat-card-content style="padding-top: 1vh;">
+                    <button mat-raised-button *ngIf="repairRequest?.status === 'NEW'"
+                        (click)="markRepairRequestAsHandled()" [ngStyle]="mapStatusToColor(repairRequest?.status)">Obsłużone</button>
+                    <button mat-raised-button *ngIf="repairRequest?.status === 'HANDLED'"
+                        (click)="markRepairRequestAsAppointmentMade()" [ngStyle]="mapStatusToColor(repairRequest?.status)">Wizyta odbyta</button>
+                </mat-card-content>
+            </mat-card>
+        </div>
     </div>
 </div>
