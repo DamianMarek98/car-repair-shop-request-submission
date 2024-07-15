@@ -75,6 +75,24 @@
               <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
               <mat-datepicker #picker (closed)="timeSlots.markAsTouched()"></mat-datepicker>
             </mat-form-field>
+            <mat-form-field class="form-field" appearance="outline">
+              <mat-label>Od godziny:</mat-label>
+              <mat-select formControlName="from" style="color: black;">
+                <mat-option></mat-option>
+                @for (time of times; track time) {
+                  <mat-option [value]="time">{{time}}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field class="form-field" appearance="outline">
+              <mat-label>Do godziny:</mat-label>
+              <mat-select formControlName="to" style="color: black;">
+                <mat-option></mat-option>
+                @for (time of times; track time) {
+                  <mat-option [value]="time">{{time}}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
           </div>
           <div style="flex: 0 0 20%; padding-right: 2%;" *ngIf="getTimeSlotsLength() > 1">
             <button mat-icon-button type="button" (click)="removeTimeSlot(i)">
