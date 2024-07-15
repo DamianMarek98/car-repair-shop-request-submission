@@ -10,11 +10,10 @@ public class MarkAsHandledCommandHandler {
     private final RepairRequestRepository repairRequestRepository;
 
     public void handle(String id) {
-        repairRequestRepository.findById(id)
+        var repairRequestState = repairRequestRepository.findById(id)
                 .map(RepairRequestStateFactory::from)
-                .ifPresentOrElse(repairRequestState -> {
-                    repairRequestState.markAsHandled();
-                    repairRequestRepository.save(repairRequestState.repairRequest);
-                }, EntityNotFoundException::new);
+                .orElseThrow(EntityNotFoundException::new);
+        repairRequestState.markAsHandled();
+        repairRequestRepository.save(repairRequestState.repairRequest);
     }
 }

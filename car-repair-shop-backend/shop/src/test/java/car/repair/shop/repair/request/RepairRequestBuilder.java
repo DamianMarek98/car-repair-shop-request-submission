@@ -11,6 +11,7 @@ public class RepairRequestBuilder {
     private String phoneNumber;
     private List<PreferredVisitWindow> preferredVisitWindows;
     private boolean asap;
+    private RepairRequestStatus status;
 
     RepairRequestBuilder withVin(String vin) {
         this.vin = vin;
@@ -57,6 +58,11 @@ public class RepairRequestBuilder {
         return this;
     }
 
+    RepairRequestBuilder withStatus(RepairRequestStatus status) {
+        this.status = status;
+        return this;
+    }
+
     RepairRequest build() {
         var repairRequest = new RepairRequest();
         repairRequest.setVin(vin);
@@ -67,6 +73,7 @@ public class RepairRequestBuilder {
         repairRequest.setPhoneNumber(phoneNumber);
         repairRequest.setPreferredVisitWindows(preferredVisitWindows);
         repairRequest.setAsap(asap);
+        repairRequest.setStatus(status == null ? RepairRequestStatus.NEW : status);
         return repairRequest;
     }
 }

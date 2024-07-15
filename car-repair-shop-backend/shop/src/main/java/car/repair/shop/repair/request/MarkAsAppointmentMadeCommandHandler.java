@@ -10,11 +10,11 @@ public class MarkAsAppointmentMadeCommandHandler {
     private final RepairRequestRepository repairRequestRepository;
 
     public void handle(String id) {
-        repairRequestRepository.findById(id)
+        var repairRequestState = repairRequestRepository.findById(id)
                 .map(RepairRequestStateFactory::from)
-                .ifPresentOrElse(repairRequestState -> {
-                    repairRequestState.markAsAppointmentMade();
-                    repairRequestRepository.save(repairRequestState.repairRequest);
-                }, EntityNotFoundException::new);
+                .orElseThrow(EntityNotFoundException::new);
+
+        repairRequestState.markAsAppointmentMade();
+        repairRequestRepository.save(repairRequestState.repairRequest);
     }
 }
