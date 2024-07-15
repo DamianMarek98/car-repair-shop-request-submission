@@ -32,6 +32,7 @@ class SubmitRepairRequestIntegrationTest extends RepairRequestIntegrationTest {
 
     @Test
     void givenValidRequest_shouldCreateRepairRequest() throws Exception {
+        repairRequestRepository.deleteAll();
         SubmitRepairRequestDto.TimeSlotDto timeSlot = new SubmitRepairRequestDto.TimeSlotDto(LocalDate.now(), LocalTime.NOON, LocalTime.MAX);
         var request = new SubmitRepairRequestDtoBuilder()
                 .withVin("4Y1SL65848Z411439")
