@@ -6,7 +6,8 @@ App will containt:
 
 Tech stack: backend spring boot modular monolith folowing ddd practices:
 
-- submission module
+- repair request module (submission, request management by garage)
+- availability module (available days for appointment schedule)
 - notification module (asynchronous communication)
 
 First design level event storming done:
@@ -15,5 +16,5 @@ First design level event storming done:
 To consider:
 
 - what to do with client data, should be deleted after one month?
-- approval for client data usage needed!
+- approval for client data usage needed!!!
 - common error response could be prepared to show exact information what is wrong with request to the client 
