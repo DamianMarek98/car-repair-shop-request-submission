@@ -15,9 +15,12 @@ public class LoginController {
 
     @PostMapping
     @CrossOrigin(origins = "http://localhost:4201")
-    public ResponseEntity<String> login(@Valid @RequestBody LoginRequest request) {
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.username(), request.password()));
         String token = JwtHelper.generateToken(request.username());
-        return ResponseEntity.ok(token);
+        return ResponseEntity.ok(new LoginResponse(token));
+    }
+
+    public record LoginResponse(String token) {
     }
 }
