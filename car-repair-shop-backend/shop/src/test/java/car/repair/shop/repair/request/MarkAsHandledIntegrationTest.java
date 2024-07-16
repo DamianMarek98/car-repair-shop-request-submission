@@ -15,6 +15,7 @@ import java.util.Optional;
 import static car.repair.shop.repair.request.RepairRequestStatus.HANDLED;
 import static car.repair.shop.repair.request.RepairRequestStatus.NEW;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -29,7 +30,8 @@ class MarkAsHandledIntegrationTest extends RepairRequestIntegrationTest {
 
     @Test
     void shouldReturn404NotFoundWhenNoRepairRequestWithGivenId() throws Exception {
-        mvc.perform(post("/api/internal/repair-request/{id}/mark-as-handled", "test id"))
+        mvc.perform(post("/api/internal/repair-request/{id}/mark-as-handled", "test id")
+                        .with(user("test")))
                 .andExpect(status().isNotFound());
     }
 
@@ -49,7 +51,8 @@ class MarkAsHandledIntegrationTest extends RepairRequestIntegrationTest {
                 .asap()
                 .build());
 
-        mvc.perform(post("/api/internal/repair-request/{id}/mark-as-handled", repairRequest.getId()))
+        mvc.perform(post("/api/internal/repair-request/{id}/mark-as-handled", repairRequest.getId())
+                        .with(user("test")))
                 .andExpect(status().isForbidden());
     }
 
@@ -68,7 +71,8 @@ class MarkAsHandledIntegrationTest extends RepairRequestIntegrationTest {
                 .asap()
                 .build());
 
-        mvc.perform(post("/api/internal/repair-request/{id}/mark-as-handled", repairRequest.getId()))
+        mvc.perform(post("/api/internal/repair-request/{id}/mark-as-handled", repairRequest.getId())
+                        .with(user("test")))
                 .andExpect(status().isOk());
 
         Optional<RepairRequest> repairRequestAfterOperation = repairRequestRepository.findById(repairRequest.getId());

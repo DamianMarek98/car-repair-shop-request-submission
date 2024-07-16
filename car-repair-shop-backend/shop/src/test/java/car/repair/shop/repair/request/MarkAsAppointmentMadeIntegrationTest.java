@@ -13,6 +13,7 @@ import java.util.Optional;
 import static car.repair.shop.repair.request.RepairRequestStatus.APPOINTMENT_MADE;
 import static car.repair.shop.repair.request.RepairRequestStatus.HANDLED;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -27,7 +28,8 @@ class MarkAsAppointmentMadeIntegrationTest extends RepairRequestIntegrationTest 
 
     @Test
     void shouldReturn404NotFoundWhenNoRepairRequestWithGivenId() throws Exception {
-        mvc.perform(post("/api/internal/repair-request/{id}/mark-as-appointment-made", "test id"))
+        mvc.perform(post("/api/internal/repair-request/{id}/mark-as-appointment-made", "test id")
+                        .with(user("test")))
                 .andExpect(status().isNotFound());
     }
 
@@ -46,7 +48,8 @@ class MarkAsAppointmentMadeIntegrationTest extends RepairRequestIntegrationTest 
                 .asap()
                 .build());
 
-        mvc.perform(post("/api/internal/repair-request/{id}/mark-as-appointment-made", repairRequest.getId()))
+        mvc.perform(post("/api/internal/repair-request/{id}/mark-as-appointment-made", repairRequest.getId())
+                        .with(user("test")))
                 .andExpect(status().isForbidden());
     }
 
@@ -65,7 +68,8 @@ class MarkAsAppointmentMadeIntegrationTest extends RepairRequestIntegrationTest 
                 .asap()
                 .build());
 
-        mvc.perform(post("/api/internal/repair-request/{id}/mark-as-appointment-made", repairRequest.getId()))
+        mvc.perform(post("/api/internal/repair-request/{id}/mark-as-appointment-made", repairRequest.getId())
+                        .with(user("test")))
                 .andExpect(status().isOk());
 
         Optional<RepairRequest> repairRequestAfterOperation = repairRequestRepository.findById(repairRequest.getId());

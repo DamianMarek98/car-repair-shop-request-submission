@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -32,7 +33,8 @@ class GetRepairRequestIntegrationTest extends RepairRequestIntegrationTest {
 
     @Test
     void shouldReturn404NotFoundWhenNoRepairRequestWithGivenId() throws Exception {
-        mvc.perform(get("/api/internal/repair-request/{id}", "test id"))
+        mvc.perform(get("/api/internal/repair-request/{id}", "test id")
+                        .with(user("test")))
                 .andExpect(status().isNotFound());
     }
 
@@ -50,7 +52,7 @@ class GetRepairRequestIntegrationTest extends RepairRequestIntegrationTest {
                 .asap()
                 .build());
 
-        mvc.perform(get("/api/internal/repair-request/{id}", repairRequest.getId()))
+        mvc.perform(get("/api/internal/repair-request/{id}", repairRequest.getId()).with(user("test")))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(result -> {
