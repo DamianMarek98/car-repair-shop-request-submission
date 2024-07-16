@@ -1,18 +1,29 @@
-<mat-sidenav-container class="example-container">
-  <mat-sidenav #sidenav mode="side" opened class="example-sidenav" [fixedInViewport]="true" [fixedTopGap]="0"
-    [fixedBottomGap]="0">
-    RENOCAR
-    <mat-nav-list role="navigation">
-      <a mat-list-item [routerLink]="['table']">
-        <span mat-line>Zgłoszenia</span>
-      </a>
-    </mat-nav-list>
-  </mat-sidenav>
-  <mat-sidenav-content>
-    <main class="main" style="padding-left: 1vw; padding-right: 1vw;">
-      <div class="content">
-        <router-outlet />
-      </div>
-    </main>
-  </mat-sidenav-content>
-</mat-sidenav-container>
+<div *ngIf="loggedIn; else login">
+  <mat-sidenav-container class="example-container">
+    <mat-sidenav #sidenav mode="side" opened class="example-sidenav" [fixedInViewport]="true" [fixedTopGap]="0"
+      [fixedBottomGap]="0">
+      RENOCAR
+      <mat-nav-list role="navigation">
+        <a mat-list-item [routerLink]="['table']">
+          <span mat-line>Zgłoszenia</span>
+        </a>
+        <a mat-list-item (click)="clearToken()" [routerLink]="['login']">
+          <span mat-line>Wyloguj</span>
+        </a>
+      </mat-nav-list>
+    </mat-sidenav>
+    <mat-sidenav-content>
+      <main class="main" style="padding-left: 1vw; padding-right: 1vw;">
+        <div class="content">
+          <router-outlet />
+        </div>
+      </main>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</div>
+
+<ng-template #login>
+  <div class="content">
+    <router-outlet />
+  </div>
+</ng-template>

@@ -1,14 +1,14 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { RepairRequestService } from '../../service/repair-request-service';
-import { RepairRequest } from '../../models/repair-request';
-import { MatCardModule } from '@angular/material/card';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Route } from '@angular/router';
-import { StatusMapper } from '../../commons/status-mapper';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatListModule } from '@angular/material/list';
+import { Component, Input, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatListModule } from '@angular/material/list';
+import { ActivatedRoute } from '@angular/router';
+import { StatusMapper } from '../../commons/status-mapper';
+import { RepairRequest } from '../../models/repair-request';
+import { RepairRequestService } from '../../service/repair-request-service';
 
 @Component({
   selector: 'app-repair-request-summary',
