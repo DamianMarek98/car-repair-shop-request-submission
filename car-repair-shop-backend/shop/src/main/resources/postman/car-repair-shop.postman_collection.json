@@ -1,0 +1,309 @@
+{
+  "info": {
+    "_postman_id": "d95015c1-cf61-4186-bde2-af6affd7c5f6",
+    "name": "car-repair-shop",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "7044118"
+  },
+  "item": [
+    {
+      "name": "Submit request",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"vin\": \"4Y1SL65848Z411439\",\r\n    \"issueDescription\": \"test /n test \\n timeslots\",\r\n    \"firstName\": \"Damian\",\r\n    \"lastName\": \"Marek\",\r\n    \"email\": \"test@test.com\",\r\n    \"phoneNumber\": \"111222333\",\r\n    \"timeSlots\": [\r\n        {\r\n            \"date\": \"2024-07-11\",\r\n            \"from\": \"12:00\",\r\n            \"to\": \"16:00\"\r\n        },\r\n        {\r\n            \"date\": \"2024-07-13\"\r\n        },\r\n        {\r\n            \"date\": \"2024-07-11\",\r\n            \"to\": \"16:00\"\r\n        },\r\n        {\r\n            \"date\": \"2024-07-11\",\r\n            \"from\": \"12:00\"\r\n        }\r\n    ],\r\n    \"asap\": false\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/repair-request/submit",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "repair-request",
+            "submit"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Search",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"vin\": \"4Y1SL65848Z411439\",\r\n    \"issueDescription\": \"test\",\r\n    \"firstName\": \"Damian\",\r\n    \"lastName\": \"Marek\",\r\n    \"email\": \"test@test.com\",\r\n    \"phoneNumber\": \"111222333\",\r\n    \"timeSlots\": [],\r\n    \"asap\": false\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/internal/repair-request/search?page=0&size=2&sortField=submittedAt",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "internal",
+            "repair-request",
+            "search"
+          ],
+          "query": [
+            {
+              "key": "page",
+              "value": "0"
+            },
+            {
+              "key": "size",
+              "value": "2"
+            },
+            {
+              "key": "sortField",
+              "value": "submittedAt"
+            },
+            {
+              "key": "",
+              "value": null,
+              "disabled": true
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get unavailable days",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"vin\": \"4Y1SL65848Z411439\",\r\n    \"issueDescription\": \"test\",\r\n    \"firstName\": \"Damian\",\r\n    \"lastName\": \"Marek\",\r\n    \"email\": \"test@test.com\",\r\n    \"phoneNumber\": \"111222333\",\r\n    \"timeSlots\": [],\r\n    \"asap\": false\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/internal/unavailable-day",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "internal",
+            "unavailable-day"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Add unavailable day",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"date\": \"2024-07-22\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/internal/unavailable-day",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "internal",
+            "unavailable-day"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete unavailable day",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"date\": \"2024-07-22\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/internal/unavailable-day/1f7f2eb0-d9f5-4cff-a97f-7bf233076168",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "internal",
+            "unavailable-day",
+            "1f7f2eb0-d9f5-4cff-a97f-7bf233076168"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "get repair request",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "",
+            "type": "text",
+            "disabled": true
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"vin\": \"4Y1SL65848Z411439\",\r\n    \"issueDescription\": \"test\",\r\n    \"firstName\": \"Damian\",\r\n    \"lastName\": \"Marek\",\r\n    \"email\": \"test@test.com\",\r\n    \"phoneNumber\": \"111222333\",\r\n    \"timeSlots\": [],\r\n    \"asap\": false\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/internal/repair-request/fbc54955-1a78-45df-81cc-cc85bf6ba285",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "internal",
+            "repair-request",
+            "fbc54955-1a78-45df-81cc-cc85bf6ba285"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var jsonData = pm.response.json();\r",
+              "if (jsonData.token) {\r",
+              "    // Save the token to an environment variable\r",
+              "    pm.environment.set(\"authToken\", jsonData.token);\r",
+              "}"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"username\": \"renocar\",\r\n    \"password\": \"12345\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/internal/login",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "internal",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{authToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ]
+}
