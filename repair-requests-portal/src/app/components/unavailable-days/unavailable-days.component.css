@@ -1,0 +1,22 @@
+.example-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 85vh;
+    width: 80vw;
+    padding: 2%;
+    color: black;
+}
+
+.demo-inline-calendar-card {
+    width: 50vw;
+    height: 75vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+mat-calendar {
+    width: 50%;
+    height: 100%;
+}
