@@ -17,10 +17,14 @@ public class UnavailableDayFacade {
             throw new PastDateException();
         }
 
+        if (getAllUnavailableDays().contains(new UnavailableDateDto("", date))) {
+            throw new DuplicatedUnavailableDayException();
+        }
         var unavailableDay = new UnavailableDay();
         unavailableDay.setDate(date);
         unavailableDay = unavailableDayRepository.save(unavailableDay);
         return new UnavailableDateDto(unavailableDay.getId(), unavailableDay.getDate());
+
     }
 
     public void removeUnavailableDay(String id) {

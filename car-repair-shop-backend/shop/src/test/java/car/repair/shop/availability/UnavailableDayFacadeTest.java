@@ -36,6 +36,17 @@ class UnavailableDayFacadeTest {
     }
 
     @Test
+    void givenAlreadyAddedDate_addUnavailableDay_shouldThrowDuplicatedUnavailableDayException() {
+        UnavailableDay unavailableDay = new UnavailableDay();
+        LocalDate date = LocalDate.now().plusDays(1);
+        unavailableDay.setDate(date);
+        unavailableDay.setId("id");
+        when(unavailableDayRepositoryMock.findAll()).thenReturn(List.of(unavailableDay));
+
+        assertThrows(DuplicatedUnavailableDayException.class, () -> unavailableDayFacade.addUnavailableDay(date));
+    }
+
+    @Test
     void getAllUnavailableDays_shouldReturnAllUnavailableDaysAsDtos() {
         UnavailableDay unavailableDay1 = new UnavailableDay();
         unavailableDay1.setDate(LocalDate.now().plusDays(1));
