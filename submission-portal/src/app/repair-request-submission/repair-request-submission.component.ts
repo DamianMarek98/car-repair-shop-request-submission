@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -12,6 +12,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { RepairRequestService } from '../services/repair-request-service';
 import { RepairRequest, TimeSlot } from '../models/repair-request';
+import { UnavailableDaysService } from '../services/unavailable-days-service';
 
 @Component({
   selector: 'app-repair-request-submission',
@@ -32,12 +33,13 @@ import { RepairRequest, TimeSlot } from '../models/repair-request';
   templateUrl: './repair-request-submission.component.html',
   styleUrl: './repair-request-submission.component.css'
 })
-export class RepairRequestSubmissionComponent {
+export class RepairRequestSubmissionComponent implements OnInit {
   repairForm: FormGroup;
   todaysDate: Date = new Date();
   times: string[] = ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00"];
+  dateFilter = (date: Date | null): boolean => { return true };
 
-  constructor(private fb: FormBuilder, private repairRequestService: RepairRequestService) {
+  constructor(private fb: FormBuilder, private repairRequestService: RepairRequestService, private unavailableDaysService: UnavailableDaysService) {
     this.repairForm = this.fb.group({
       vin: ['', [Validators.required, Validators.minLength(17), Validators.maxLength(17)]],
       issueDescription: ['', [Validators.required, Validators.maxLength(500)]],
@@ -49,6 +51,29 @@ export class RepairRequestSubmissionComponent {
       asap: new FormControl(false)
     });
     this.addTimeSlot();
+  }
+  ngOnInit(): void {
+    this.unavailableDaysService.getAll().subscribe({
+      next: (days) => {
+        this.dateFilter = (date: Date | null): boolean => {
+          if (!date) {
+            return true;
+          }
+
+          const day = date.getDay();
+          // Disable Saturdays (6) and Sundays (0)
+          if (day === 0 || day === 6) {
+            return false;
+          }
+
+          if (days.findIndex(unavailableDay => this.normalizeDate(date) === unavailableDay.date.toString()) !== -1) {
+            return false;
+          }
+
+          return true;
+        };
+      }
+    });
   }
 
   get timeSlots() {
@@ -116,21 +141,14 @@ export class RepairRequestSubmissionComponent {
     }
   }
 
-  dateFilter = (date: Date | null): boolean => {
-    if (!date) {
-      return true;
-    }
-
-    const day = date.getDay();
-    // Disable Saturdays (6) and Sundays (0)
-    if (day === 0 || day === 6) {
-      return false;
-    }
-
-    return true;
-  };
-
   getTimeSlotsLength(): number {
     return this.timeSlots.length;
+  }
+
+  normalizeDate(date: Date): string {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 }

@@ -13,14 +13,18 @@ export class UnavailableDaysService {
 
 
     getAll(): Observable<UnavailableDay[]> {
-        return this.http.get<UnavailableDay[]>(this.apiUrl);
+        return this.http.get<UnavailableDay[]>(this.apiUrl + "/all");
     }
 
     removeUnavailableDate(id: string): Observable<void> {
         return this.http.delete<void>(this.apiUrl + '/' + id);
     }
 
-    addUnavailableDate(date: Date): Observable<UnavailableDay> {
+    clearUnavailableDys(): Observable<void> {
+        return this.http.delete<void>(this.apiUrl);
+    }
+
+    addUnavailableDate(date: string): Observable<UnavailableDay> {
         return this.http.post<UnavailableDay>(this.apiUrl, {"date": date});
     }
 

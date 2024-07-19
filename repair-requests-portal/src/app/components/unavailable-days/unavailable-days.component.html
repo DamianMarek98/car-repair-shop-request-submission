@@ -1,5 +1,14 @@
 <div class="example-container">
     <mat-card class="demo-inline-calendar-card">
-        <mat-calendar [(selected)]="selected" [dateFilter]="dateFilter" [minDate]="todaysDate"></mat-calendar>
+        <!-- <mat-card-header>
+            <mat-card-title>Zaznacz niedostępność warsztatu</mat-card-title>
+        </mat-card-header> -->
+            <mat-calendar [(selected)]="selected" [dateFilter]="dateFilter" [minDate]="todaysDate"></mat-calendar>
+            <div style="padding-top: 2%;">
+                <button mat-raised-button (click)="setAsUnavailableSelectedDate()">Oznacz dzień jako niedostępny</button>
+            </div>
+            <div style="padding-top: 2%;">
+                <button mat-raised-button (click)="clearUnavailableDys()" style="color: red;">Reset</button>
+            </div>
     </mat-card>
 </div>
