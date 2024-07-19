@@ -47,6 +47,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/api/internal/login").permitAll()
                         .requestMatchers("/api/repair-request/submit").permitAll()
+                        .requestMatchers("/api/internal/unavailable-day/all").permitAll()
                         .requestMatchers("/error/**").permitAll()
                         .anyRequest().authenticated()
                 );

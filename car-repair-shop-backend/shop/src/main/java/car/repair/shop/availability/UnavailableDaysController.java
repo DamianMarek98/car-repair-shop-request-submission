@@ -14,8 +14,8 @@ import java.util.Set;
 public class UnavailableDaysController {
     private final UnavailableDayFacade unavailableDayFacade;
 
-    @GetMapping
-    @CrossOrigin(origins = "http://localhost:4201")
+    @GetMapping("/all")
+    @CrossOrigin(origins = {"http://localhost:4200", "http://localhost:4201"})
     public ResponseEntity<Set<UnavailableDateDto>> getALl() {
         var unavailableDays = unavailableDayFacade.getAllUnavailableDays();
         return ResponseEntity.ok(unavailableDays);
@@ -27,6 +27,14 @@ public class UnavailableDaysController {
     public void getALl(@PathVariable String id) {
         unavailableDayFacade.removeUnavailableDay(id);
     }
+
+    @DeleteMapping
+    @CrossOrigin(origins = "http://localhost:4201")
+    @ResponseStatus(code = HttpStatus.OK)
+    public void clearAll() {
+        unavailableDayFacade.clearUnavailableDays();
+    }
+
 
     @PostMapping
     @CrossOrigin(origins = "http://localhost:4201")

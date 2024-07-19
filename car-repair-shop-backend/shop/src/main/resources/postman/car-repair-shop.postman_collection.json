@@ -95,6 +95,9 @@
         "disableBodyPruning": true
       },
       "request": {
+        "auth": {
+          "type": "noauth"
+        },
         "method": "GET",
         "header": [],
         "body": {
@@ -107,7 +110,7 @@
           }
         },
         "url": {
-          "raw": "http://localhost:8080/api/internal/unavailable-day",
+          "raw": "http://localhost:8080/api/internal/unavailable-day/all",
           "protocol": "http",
           "host": [
             "localhost"
@@ -116,7 +119,8 @@
           "path": [
             "api",
             "internal",
-            "unavailable-day"
+            "unavailable-day",
+            "all"
           ]
         }
       },
@@ -178,6 +182,36 @@
             "internal",
             "unavailable-day",
             "1f7f2eb0-d9f5-4cff-a97f-7bf233076168"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete all unavailable days",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"date\": \"2024-07-22\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/internal/unavailable-day",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "internal",
+            "unavailable-day"
           ]
         }
       },

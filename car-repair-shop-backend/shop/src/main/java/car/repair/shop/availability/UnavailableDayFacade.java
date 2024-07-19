@@ -38,4 +38,7 @@ public class UnavailableDayFacade {
         return unavailableDays;
     }
 
+    public void clearUnavailableDays() {
+        unavailableDayRepository.deleteAll();
+    }
 }
