@@ -43,6 +43,7 @@ class SubmitRepairRequestIntegrationTest extends RepairRequestIntegrationTest {
                 .withTimeSlots(List.of(timeSlot))
                 .withPhoneNumber("111222333")
                 .asap()
+                .withRodoApproval()
                 .build();
         mvc.perform(post("/api/repair-request/submit")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -53,12 +54,15 @@ class SubmitRepairRequestIntegrationTest extends RepairRequestIntegrationTest {
         assertNotNull(result);
         assertNotNull(result.getId());
         assertThat(result.getVin()).isEqualTo(request.vin());
+        assertNull(result.getPlateNumber());
         assertThat(result.getIssueDescription()).isEqualTo(request.issueDescription());
         assertThat(result.getSubmitterFirstName()).isEqualTo(request.firstName());
         assertThat(result.getSubmitterLastName()).isEqualTo(request.lastName());
         assertThat(result.getPhoneNumber()).isEqualTo(request.phoneNumber());
         assertThat(result.getEmail()).isEqualTo(request.email());
         assertThat(result.getPreferredVisitWindows()).isNotEmpty();
+        assertThat(result.isAsap()).isTrue();
+        assertThat(result.isRodo()).isTrue();
         PreferredVisitWindow preferredVisitWindow = result.getPreferredVisitWindows().get(0);
         assertThat(preferredVisitWindow.date()).isEqualTo(timeSlot.date());
         assertThat(preferredVisitWindow.from()).isEqualTo(timeSlot.from());
@@ -73,6 +77,25 @@ class SubmitRepairRequestIntegrationTest extends RepairRequestIntegrationTest {
     void givenNotValidRequest_shouldReturnBadRequest() throws Exception {
         var request = new SubmitRepairRequestDtoBuilder()
                 .withVin(null)
+                .withPlateNumber(null)
+                .withIssueDescription("test")
+                .withEmail("test@test.com")
+                .withFirstName("Damian")
+                .withLastName("Marek")
+                .withEmptyTimeSlots()
+                .withPhoneNumber("111222333")
+                .withRodoApproval()
+                .build();
+        mvc.perform(post("/api/repair-request/submit")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void givenNoRodoApprovalInRequest_shouldReturnBadRequest() throws Exception {
+        var request = new SubmitRepairRequestDtoBuilder()
+                .withPlateNumber("GD12345")
                 .withIssueDescription("test")
                 .withEmail("test@test.com")
                 .withFirstName("Damian")
@@ -89,6 +112,7 @@ class SubmitRepairRequestIntegrationTest extends RepairRequestIntegrationTest {
 
     static class SubmitRepairRequestDtoBuilder {
         private String vin;
+        private String plateNumber;
         private String issueDescription;
         private String firstName;
         private String lastName;
@@ -96,9 +120,15 @@ class SubmitRepairRequestIntegrationTest extends RepairRequestIntegrationTest {
         private String phoneNumber;
         private List<SubmitRepairRequestDto.TimeSlotDto> timeSlots;
         private boolean asap;
+        private boolean rodo;
 
         SubmitRepairRequestDtoBuilder withVin(String vin) {
             this.vin = vin;
+            return this;
+        }
+
+        SubmitRepairRequestDtoBuilder withPlateNumber(String plateNumber) {
+            this.plateNumber = plateNumber;
             return this;
         }
 
@@ -142,8 +172,13 @@ class SubmitRepairRequestIntegrationTest extends RepairRequestIntegrationTest {
             return this;
         }
 
+        SubmitRepairRequestDtoBuilder withRodoApproval() {
+            this.rodo = true;
+            return this;
+        }
+
         SubmitRepairRequestDto build() {
-            return new SubmitRepairRequestDto(vin, issueDescription, firstName, lastName, email, phoneNumber, timeSlots, asap);
+            return new SubmitRepairRequestDto(vin, plateNumber, issueDescription, firstName, lastName, email, phoneNumber, timeSlots, asap, rodo);
         }
     }
 }

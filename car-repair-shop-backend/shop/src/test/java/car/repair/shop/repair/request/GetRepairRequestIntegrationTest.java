@@ -50,6 +50,7 @@ class GetRepairRequestIntegrationTest extends RepairRequestIntegrationTest {
                 .withPreferredVisitWindows(List.of(preferredVisitWindow))
                 .withPhoneNumber("111222333")
                 .asap()
+                .withRodoApproval()
                 .build());
 
         mvc.perform(get("/api/internal/repair-request/{id}", repairRequest.getId()).with(user("test")))
@@ -60,11 +61,14 @@ class GetRepairRequestIntegrationTest extends RepairRequestIntegrationTest {
                     var repairRequestDto = objectMapper.readValue(json, RepairRequestDto.class);
                     Assertions.assertNotNull(repairRequestDto.id());
                     Assertions.assertEquals(repairRequest.getVin(), repairRequestDto.vin());
+                    Assertions.assertEquals(repairRequest.getPlateNumber(), repairRequestDto.plateNumber());
                     Assertions.assertEquals(repairRequest.getIssueDescription(), repairRequestDto.issueDescription());
                     Assertions.assertEquals(repairRequest.getEmail(), repairRequestDto.email());
                     Assertions.assertEquals(repairRequest.getSubmitterFirstName(), repairRequestDto.submitterFirstName());
                     Assertions.assertEquals(repairRequest.getSubmitterLastName(), repairRequestDto.submitterLastName());
                     Assertions.assertEquals(repairRequest.getPhoneNumber(), repairRequestDto.phoneNumber());
+                    Assertions.assertEquals(repairRequest.isAsap(), repairRequestDto.asap());
+                    Assertions.assertEquals(repairRequest.isRodo(), repairRequestDto.rodo());
                     Assertions.assertEquals(1, repairRequestDto.preferredVisitWindows().size());
                     PreferredVisitWindow preferredVisitWindow1 = repairRequest.getPreferredVisitWindows().get(0);
                     Assertions.assertEquals(preferredVisitWindow.date(), preferredVisitWindow1.date());

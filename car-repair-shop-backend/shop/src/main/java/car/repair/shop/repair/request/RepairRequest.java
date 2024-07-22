@@ -2,6 +2,8 @@ package car.repair.shop.repair.request;
 
 import car.repair.shop.commons.dynamodb.converter.LocalDateTimeConverter;
 import car.repair.shop.repair.request.controller.dto.SubmitRepairRequestDto;
+import car.repair.shop.repair.request.exception.RepairRequestMissingCarInformationException;
+import car.repair.shop.repair.request.exception.RepairRequestRodoException;
 import com.amazonaws.services.dynamodbv2.datamodeling.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -24,6 +26,9 @@ public class RepairRequest {
 
     @DynamoDBAttribute(attributeName = "vin")
     private String vin;
+
+    @DynamoDBAttribute(attributeName = "plate_number")
+    private String plateNumber;
 
     @DynamoDBAttribute(attributeName = "issue_description")
     private String issueDescription;
@@ -59,9 +64,19 @@ public class RepairRequest {
     @DynamoDBTypeConvertedEnum
     private RepairRequestStatus status;
 
+    @DynamoDBAttribute(attributeName = "rodo")
+    private boolean rodo;
+
     static RepairRequest from(SubmitRepairRequestDto submitRepairRequestDto) {
+        if (!submitRepairRequestDto.rodo()) {
+            throw new RepairRequestRodoException();
+        } else if (submitRepairRequestDto.vin() == null && submitRepairRequestDto.plateNumber() == null) {
+            throw new RepairRequestMissingCarInformationException();
+        }
+
         var repairRequest = new RepairRequest();
         repairRequest.vin = submitRepairRequestDto.vin();
+        repairRequest.plateNumber = submitRepairRequestDto.plateNumber();
         repairRequest.issueDescription = submitRepairRequestDto.issueDescription();
         repairRequest.submitterFirstName = submitRepairRequestDto.firstName();
         repairRequest.submitterLastName = submitRepairRequestDto.lastName();
@@ -69,6 +84,7 @@ public class RepairRequest {
         repairRequest.phoneNumber = submitRepairRequestDto.phoneNumber();
         repairRequest.submittedAt = LocalDateTime.now();
         repairRequest.asap = submitRepairRequestDto.asap();
+        repairRequest.rodo = submitRepairRequestDto.rodo();
         repairRequest.preferredVisitWindows = submitRepairRequestDto.timeSlots() == null ? List.of() :
                 submitRepairRequestDto.timeSlots()
                         .stream()

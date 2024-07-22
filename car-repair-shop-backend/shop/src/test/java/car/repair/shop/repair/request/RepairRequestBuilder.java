@@ -4,6 +4,7 @@ import java.util.List;
 
 public class RepairRequestBuilder {
     private String vin;
+    private String plateNumber;
     private String issueDescription;
     private String firstName;
     private String lastName;
@@ -11,10 +12,16 @@ public class RepairRequestBuilder {
     private String phoneNumber;
     private List<PreferredVisitWindow> preferredVisitWindows;
     private boolean asap;
+    private boolean rodo;
     private RepairRequestStatus status;
 
     RepairRequestBuilder withVin(String vin) {
         this.vin = vin;
+        return this;
+    }
+
+    RepairRequestBuilder withPlateNumber(String plateNumber) {
+        this.plateNumber = plateNumber;
         return this;
     }
 
@@ -55,6 +62,11 @@ public class RepairRequestBuilder {
 
     RepairRequestBuilder asap() {
         this.asap = true;
+        return this;
+    }
+
+    RepairRequestBuilder withRodoApproval() {
+        this.rodo = true;
         return this;
     }
 
