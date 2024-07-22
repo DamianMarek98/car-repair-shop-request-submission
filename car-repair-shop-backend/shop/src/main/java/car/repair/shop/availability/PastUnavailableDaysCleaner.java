@@ -14,7 +14,6 @@ import java.util.ArrayList;
 public class PastUnavailableDaysCleaner {
     private final UnavailableDayRepository unavailableDayRepository;
 
-    //todo add test for that, add controller, add front module as simple calendar
     @Scheduled(cron = "0 0 0 * * SUN")
     public void cleanupPastUnavailableDays() {
         log.info("cleanup past unavailable days");
