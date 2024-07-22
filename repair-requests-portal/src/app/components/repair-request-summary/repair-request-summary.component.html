@@ -11,6 +11,11 @@
                         <span matListItemLine>{{ repairRequest?.vin }}</span>
                     </mat-list-item>
                     <mat-divider></mat-divider>
+                    <mat-list-item role="listitem">
+                        <span matListItemTitle>Numer rejestracyjny:</span>
+                        <span matListItemLine>{{ repairRequest?.plateNumber }}</span>
+                    </mat-list-item>
+                    <mat-divider></mat-divider>
                     <mat-list-item role="listitem" style="height: auto;">
                         <span matListItemTitle>Opis:</span>
                         <span matListItemLine style="white-space: pre-line">{{ repairRequest?.issueDescription }}</span>

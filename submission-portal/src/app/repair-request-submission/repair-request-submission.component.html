@@ -1,13 +1,23 @@
 <div class="example-container" style="padding: 2%; color: black;">
   <div class="form-container">
+    <h3>Formularz zgłoszeniowy</h3>
     <form [formGroup]="repairForm" (submit)="onSubmit()">
       <mat-form-field appearance="outline">
-        <mat-label>VIN</mat-label>
-        <input matInput formControlName="vin" style="color: black;" required>
+        <mat-label>VIN, wypełnij tylko gdy będzie to pierwsza wiziyta pojazdu</mat-label>
+        <input matInput formControlName="vin" style="color: black;">
         <mat-error *ngIf="repairForm.get('vin')?.hasError('required')"><span>Numer VIN jest wymagany!</span></mat-error>
         <mat-error
           *ngIf="repairForm.get('vin')?.hasError('minlength') || repairForm.get('vin')?.hasError('maxlength')"><span>Nieprawidłowa
             długość numeru VIN!</span></mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Numer rejestracji</mat-label>
+        <input matInput formControlName="plateNumber" style="color: black;" required>
+        <mat-error *ngIf="repairForm.get('plateNumber')?.hasError('required')"><span>Numer VIN jest wymagany!</span></mat-error>
+        <mat-error
+          *ngIf="repairForm.get('plateNumber')?.hasError('minlength') || repairForm.get('plateNumber')?.hasError('maxlength')"><span>Nieprawidłowa
+            długość numeru rejestracyjnego!</span></mat-error>
       </mat-form-field>
 
       <mat-form-field appearance="outline">
@@ -106,6 +116,13 @@
             <mat-icon>add</mat-icon>
           </button>
         </div>
+      </div>
+
+      <div style="flex: 0 0 20%; padding-right: 2%; padding-bottom: 2%;">
+        <mat-checkbox formControlName="rodo" style="color: black;">Wyrażam zgodę na przetwarzanie moich danych osobowych przez RENO CAR w celu rejestracji, naprawy pojazdu oraz komunikacji ze zgłaszającym.</mat-checkbox>
+        <mat-error *ngIf="repairForm.get('rodo')?.hasError && repairForm.get('rodo')?.invalid">
+          <span>Zgoda na przetwarzanie danych jest wymagana!</span>
+        </mat-error>
       </div>
 
       <div style="margin-top: 10px">

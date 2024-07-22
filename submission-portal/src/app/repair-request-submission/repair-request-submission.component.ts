@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
-import { FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -13,6 +13,17 @@ import { MatSelectModule } from '@angular/material/select';
 import { RepairRequestService } from '../services/repair-request-service';
 import { RepairRequest, TimeSlot } from '../models/repair-request';
 import { UnavailableDaysService } from '../services/unavailable-days-service';
+
+function atLeastOneFieldNotNull(fields: string[]): ValidatorFn {
+  return (formGroup: AbstractControl): { [key: string]: any } | null => {
+    const isAtLeastOneFieldNotNull = fields.some(field => {
+      const control = formGroup.get(field);
+      return control && control.value !== null && control.value !== '';
+    });
+
+    return isAtLeastOneFieldNotNull ? null : { atLeastOneFieldNotNull: true };
+  };
+}
 
 @Component({
   selector: 'app-repair-request-submission',
@@ -41,7 +52,8 @@ export class RepairRequestSubmissionComponent implements OnInit {
 
   constructor(private fb: FormBuilder, private repairRequestService: RepairRequestService, private unavailableDaysService: UnavailableDaysService) {
     this.repairForm = this.fb.group({
-      vin: ['', [Validators.required, Validators.minLength(17), Validators.maxLength(17)]],
+      vin: ['', [Validators.minLength(17), Validators.maxLength(17)]],
+      plateNumber: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(7)]],
       issueDescription: ['', [Validators.required, Validators.maxLength(500)]],
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
@@ -50,8 +62,9 @@ export class RepairRequestSubmissionComponent implements OnInit {
             + '|^(\\+\\d{1,3}( )?)?(\\d{3}[ ]?){2}\\d{3}$'
             + '|^(\\+\\d{1,3}( )?)?(\\d{3}[ ]?)(\\d{2}[ ]?){2}\\d{2}$')]],
       timeSlots: this.fb.array([]),
-      asap: new FormControl(false)
-    });
+      asap: new FormControl(false),
+      rodo: new FormControl(false, Validators.requiredTrue),
+    }, {validators: atLeastOneFieldNotNull(['vin', 'plateNumber'])});
     this.addTimeSlot();
   }
   ngOnInit(): void {
@@ -103,7 +116,8 @@ export class RepairRequestSubmissionComponent implements OnInit {
   onSubmit() {
     if (this.repairForm.valid) {
       const repairRequest: RepairRequest = {
-        vin: this.repairForm.get('vin')?.value,
+        vin: this.mapToNullOnEmpty(this.repairForm.get('vin')?.value),
+        plateNumber: this.repairForm.get('plateNumber')?.value,
         issueDescription: this.repairForm.get('issueDescription')?.value,
         firstName: this.repairForm.get('firstName')?.value,
         lastName: this.repairForm.get('lastName')?.value,
@@ -111,9 +125,14 @@ export class RepairRequestSubmissionComponent implements OnInit {
         phoneNumber: this.repairForm.get('phoneNumber')?.value,
         timeSlots: this.mapTimeSlots(this.repairForm.get('timeSlots')?.value),
         asap: this.repairForm.get('asap')?.value,
+        rodo: this.repairForm.get('rodo')?.value,
       }
       this.repairRequestService.submitRepairRequest(repairRequest).subscribe(value => console.log('submitted'));
     }
+  }
+
+  mapToNullOnEmpty(value: any): string | null {
+    return value === '' ? null : value;
   }
 
   mapTimeSlots(formGroup: any[]): TimeSlot[] {

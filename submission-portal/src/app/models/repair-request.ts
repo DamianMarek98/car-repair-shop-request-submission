@@ -1,12 +1,14 @@
 export interface RepairRequest {
-    vin: String,
+    vin: String | null,
+    plateNumber: String,
     issueDescription: String,
     firstName: String,
     lastName: String,
     email: String,
     phoneNumber: String,
     timeSlots: TimeSlot[],
-    asap: boolean
+    asap: boolean,
+    rodo: boolean
 }
 
 export interface TimeSlot {

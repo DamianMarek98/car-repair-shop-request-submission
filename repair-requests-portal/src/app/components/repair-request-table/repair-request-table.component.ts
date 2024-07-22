@@ -17,7 +17,7 @@ import { StatusMapper } from '../../commons/status-mapper';
   styleUrl: './repair-request-table.component.css'
 })
 export class RepairRequestTableComponent implements OnInit, AfterViewInit {
-  displayedColumns: string[] = ['firstName', 'lastName', 'vin', 'status', 'submittedAt'];
+  displayedColumns: string[] = ['firstName', 'lastName', 'vin', 'plateNumber', 'status', 'submittedAt'];
   dataSource = new MatTableDataSource<RepairRequestListItem>([]);
   pageSize: number = 10;
   numberOfElements: number = 0;

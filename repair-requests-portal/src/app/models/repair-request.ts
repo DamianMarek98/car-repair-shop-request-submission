@@ -3,6 +3,7 @@ import { PreferredVisitWindowDto } from "./preferred-visit-window";
 export interface RepairRequest {
     id: string;
     vin: string;
+    plateNumber: string;
     issueDescription: string;
     submitterFirstName: string;
     submitterLastName: string;
