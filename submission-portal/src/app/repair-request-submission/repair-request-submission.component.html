@@ -1,4 +1,4 @@
-<div class="example-container" style="padding: 2%; color: black;">
+<div class="example-container" style="padding: 2%; color: black;" *ngIf="submitted === false; else submittedComponent">
   <div class="form-container">
     <h3>Formularz zgłoszeniowy</h3>
     <form [formGroup]="repairForm" (submit)="onSubmit()">
@@ -14,7 +14,8 @@
       <mat-form-field appearance="outline">
         <mat-label>Numer rejestracji</mat-label>
         <input matInput formControlName="plateNumber" style="color: black;" required>
-        <mat-error *ngIf="repairForm.get('plateNumber')?.hasError('required')"><span>Numer VIN jest wymagany!</span></mat-error>
+        <mat-error *ngIf="repairForm.get('plateNumber')?.hasError('required')"><span>Numer VIN jest
+            wymagany!</span></mat-error>
         <mat-error
           *ngIf="repairForm.get('plateNumber')?.hasError('minlength') || repairForm.get('plateNumber')?.hasError('maxlength')"><span>Nieprawidłowa
             długość numeru rejestracyjnego!</span></mat-error>
@@ -66,7 +67,8 @@
       </mat-form-field>
 
       <div style="flex: 0 0 20%; padding-right: 2%; padding-bottom: 2%;">
-        <mat-checkbox formControlName="asap" style="color: black;" (change)="resetTimeSlots()">Najszybciej jak się da</mat-checkbox>
+        <mat-checkbox formControlName="asap" style="color: black;" (change)="resetTimeSlots()">Najszybciej jak się
+          da</mat-checkbox>
       </div>
 
       <div formArrayName="timeSlots" *ngIf="isAsap() === false">
@@ -90,7 +92,7 @@
               <mat-select formControlName="from" style="color: black;">
                 <mat-option></mat-option>
                 @for (time of times; track time) {
-                  <mat-option [value]="time">{{time}}</mat-option>
+                <mat-option [value]="time">{{time}}</mat-option>
                 }
               </mat-select>
             </mat-form-field>
@@ -99,7 +101,7 @@
               <mat-select formControlName="to" style="color: black;">
                 <mat-option></mat-option>
                 @for (time of times; track time) {
-                  <mat-option [value]="time">{{time}}</mat-option>
+                <mat-option [value]="time">{{time}}</mat-option>
                 }
               </mat-select>
             </mat-form-field>
@@ -119,7 +121,8 @@
       </div>
 
       <div style="flex: 0 0 20%; padding-right: 2%; padding-bottom: 2%;">
-        <mat-checkbox formControlName="rodo" style="color: black;">Wyrażam zgodę na przetwarzanie moich danych osobowych przez RENO CAR w celu rejestracji, naprawy pojazdu oraz komunikacji ze zgłaszającym.</mat-checkbox>
+        <mat-checkbox formControlName="rodo" style="color: black;">Wyrażam zgodę na przetwarzanie moich danych osobowych
+          przez RENO CAR w celu rejestracji, naprawy pojazdu oraz komunikacji ze zgłaszającym.</mat-checkbox>
         <mat-error *ngIf="repairForm.get('rodo')?.hasError && repairForm.get('rodo')?.invalid">
           <span>Zgoda na przetwarzanie danych jest wymagana!</span>
         </mat-error>
@@ -131,3 +134,9 @@
     </form>
   </div>
 </div>
+
+<ng-template #submittedComponent>
+  <div class="center-container">
+    <h5>Przyjeliśmy Twoje zgłoszenie, przyjrzymy się mu i skontaktujemy się w celu ustelnia szczegółów wizyty.</h5>
+  </div>
+</ng-template>

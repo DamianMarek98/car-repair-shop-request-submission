@@ -28,7 +28,7 @@
 
         <ng-container matColumnDef="submittedAt">
             <mat-header-cell *matHeaderCellDef mat-sort-header> Zgłoszono </mat-header-cell>
-            <mat-cell *matCellDef="let element"> {{ element.submittedAt | date: 'd MMM. y, h:mm' }} </mat-cell>
+            <mat-cell *matCellDef="let element"> {{ element.submittedAt | date: 'd MMM. y, H:mm' }} </mat-cell>
         </ng-container>
 
         <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>

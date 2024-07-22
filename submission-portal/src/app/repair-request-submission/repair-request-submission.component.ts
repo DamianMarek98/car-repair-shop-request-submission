@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -46,11 +46,12 @@ function atLeastOneFieldNotNull(fields: string[]): ValidatorFn {
 })
 export class RepairRequestSubmissionComponent implements OnInit {
   repairForm: FormGroup;
+  submitted: boolean = false;
   todaysDate: Date = new Date();
   times: string[] = ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00"];
   dateFilter = (date: Date | null): boolean => { return true };
 
-  constructor(private fb: FormBuilder, private repairRequestService: RepairRequestService, private unavailableDaysService: UnavailableDaysService) {
+  constructor(private fb: FormBuilder, private repairRequestService: RepairRequestService, private unavailableDaysService: UnavailableDaysService, private cdr: ChangeDetectorRef) {
     this.repairForm = this.fb.group({
       vin: ['', [Validators.minLength(17), Validators.maxLength(17)]],
       plateNumber: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(7)]],
@@ -59,15 +60,24 @@ export class RepairRequestSubmissionComponent implements OnInit {
       lastName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       phoneNumber: ['', [Validators.required, Validators.pattern('^(\\+\\d{1,3}( )?)?((\\(\\d{3}\\))|\\d{3})[- .]?\\d{3}[- .]?\\d{4}$'
-            + '|^(\\+\\d{1,3}( )?)?(\\d{3}[ ]?){2}\\d{3}$'
-            + '|^(\\+\\d{1,3}( )?)?(\\d{3}[ ]?)(\\d{2}[ ]?){2}\\d{2}$')]],
+        + '|^(\\+\\d{1,3}( )?)?(\\d{3}[ ]?){2}\\d{3}$'
+        + '|^(\\+\\d{1,3}( )?)?(\\d{3}[ ]?)(\\d{2}[ ]?){2}\\d{2}$')]],
       timeSlots: this.fb.array([]),
       asap: new FormControl(false),
       rodo: new FormControl(false, Validators.requiredTrue),
-    }, {validators: atLeastOneFieldNotNull(['vin', 'plateNumber'])});
+    }, { validators: atLeastOneFieldNotNull(['vin', 'plateNumber']) });
     this.addTimeSlot();
   }
   ngOnInit(): void {
+    var submittedDate = localStorage.getItem("submitted-date");
+    if (submittedDate) {
+      var submittedEndDateTime = new Date(submittedDate);
+      submittedEndDateTime.setHours(23, 59, 59, 99);
+      if (submittedEndDateTime >= new Date()) {
+        this.submitted = true;
+      }
+    }
+
     this.unavailableDaysService.getAll().subscribe({
       next: (days) => {
         this.dateFilter = (date: Date | null): boolean => {
@@ -127,7 +137,12 @@ export class RepairRequestSubmissionComponent implements OnInit {
         asap: this.repairForm.get('asap')?.value,
         rodo: this.repairForm.get('rodo')?.value,
       }
-      this.repairRequestService.submitRepairRequest(repairRequest).subscribe(value => console.log('submitted'));
+      this.repairRequestService.submitRepairRequest(repairRequest).subscribe(() => {
+        var submittedDate = new Date();
+        localStorage.setItem("submitted-date", submittedDate.toDateString());
+        this.submitted = true;
+        this.cdr.detectChanges();
+      });
     }
   }
 
