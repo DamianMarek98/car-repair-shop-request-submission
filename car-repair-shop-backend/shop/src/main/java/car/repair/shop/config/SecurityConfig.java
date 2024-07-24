@@ -33,7 +33,7 @@ public class SecurityConfig {
     private String password;
 
     @Bean
-    @Profile("local")
+    @Profile("!test")
     public UserDetailsService userDetailsService(PasswordEncoder encoder) {
         UserDetails user = User.withUsername(username)
                 .password(encoder.encode(password))

@@ -21,7 +21,6 @@ public class DynamoDBConfig {
     private final AwsConfigurationProperties awsConfigurationProperties;
 
     @Bean
-    @Profile("test || local")
     public AmazonDynamoDB amazonDynamoDB() {
         return AmazonDynamoDBClientBuilder.standard()
                 .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(awsConfigurationProperties.getEndpoint(), awsConfigurationProperties.getRegion()))

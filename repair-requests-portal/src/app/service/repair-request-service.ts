@@ -4,12 +4,13 @@ import { Observable } from "rxjs";
 import { RepairRequestListItem } from "../models/repair-request-list-item";
 import { PaginatedRespone } from "../models/page-response";
 import { RepairRequest } from "../models/repair-request";
+import { environment } from "../../environments/environment";
 
 @Injectable({
     providedIn: 'root'
 })
 export class RepairRequestService {
-    private apiUrl = 'http://localhost:8080/api/internal/repair-request';
+    private apiUrl = environment.apiUrl + '/internal/repair-request';
 
     constructor(private http: HttpClient) { }
 
