@@ -1,6 +1,7 @@
 package car.repair.shop.config;
 
 import car.repair.shop.auth.JwtAuthFilter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -24,12 +25,18 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-    //todo user data from config
+
+    @Value("${car.repair.shop.aws.username}")
+    private String username;
+
+    @Value("${car.repair.shop.aws.password}")
+    private String password;
+
     @Bean
     @Profile("local")
     public UserDetailsService userDetailsService(PasswordEncoder encoder) {
-        UserDetails user = User.withUsername("renocar")
-                .password(encoder.encode("12345"))
+        UserDetails user = User.withUsername(username)
+                .password(encoder.encode(password))
                 .roles("USER")
                 .build();
 

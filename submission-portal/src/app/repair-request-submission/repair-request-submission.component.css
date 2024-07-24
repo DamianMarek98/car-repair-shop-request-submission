@@ -12,3 +12,12 @@ mat-card {
 mat-card-title {
   margin-bottom: 16px;
 }
+
+.center-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* Full viewport height */
+  width: 100vw;  /* Full viewport width */
+  text-align: center;
+}
