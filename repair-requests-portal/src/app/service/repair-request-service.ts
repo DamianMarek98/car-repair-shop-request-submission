@@ -1,16 +1,15 @@
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
-import { RepairRequestListItem } from "../models/repair-request-list-item";
 import { PaginatedRespone } from "../models/page-response";
 import { RepairRequest } from "../models/repair-request";
-import { environment } from "../../environments/environment";
+import { RepairRequestListItem } from "../models/repair-request-list-item";
 
 @Injectable({
     providedIn: 'root'
 })
 export class RepairRequestService {
-    private apiUrl = environment.apiUrl + '/internal/repair-request';
+    private apiUrl = '/api/internal/repair-request';
 
     constructor(private http: HttpClient) { }
 

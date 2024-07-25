@@ -70,16 +70,17 @@
         },
         "serve": {
           "options": {
-            "proxyConfig": "proxy.conf.json",
             "port": 4201
           },
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "repair-requests-portal:build:production"
+              "buildTarget": "repair-requests-portal:build:production",
+              "proxyConfig": "proxy-prod.conf.json"
             },
             "development": {
-              "buildTarget": "repair-requests-portal:build:development"
+              "buildTarget": "repair-requests-portal:build:development",
+              "proxyConfig": "proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"

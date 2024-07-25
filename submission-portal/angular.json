@@ -66,16 +66,15 @@
           "defaultConfiguration": "production"
         },
         "serve": {
-          "options": {
-            "proxyConfig": "proxy.conf.json"
-          },
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "submission-portal:build:production"
+              "buildTarget": "submission-portal:build:production",
+              "proxyConfig": "proxy-prod.conf.json"
             },
             "development": {
-              "buildTarget": "submission-portal:build:development"
+              "buildTarget": "submission-portal:build:development",
+              "proxyConfig": "proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"
