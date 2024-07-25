@@ -24,7 +24,6 @@ public class RepairRequestInternalController {
     private final MarkAsAppointmentMadeCommandHandler markAsAppointmentMadeCommandHandler;
 
     @GetMapping("/search")
-    @CrossOrigin(origins = "http://localhost:4201")
     @ResponseStatus(code = HttpStatus.OK)
     public Page<RepairRequestListItem> submitRepairRequest(@RequestParam int page,
                                                            @RequestParam int size,
@@ -34,21 +33,18 @@ public class RepairRequestInternalController {
     }
 
     @GetMapping("/{id}")
-    @CrossOrigin(origins = "http://localhost:4201")
     @ResponseStatus(code = HttpStatus.OK)
     public RepairRequestDto getRepairRequest(@PathVariable String id) {
         return repairRequestGetQueryHandler.getById(id);
     }
 
     @PostMapping("/{id}/mark-as-handled")
-    @CrossOrigin(origins = "http://localhost:4201")
     @ResponseStatus(code = HttpStatus.OK)
     public void markRepairRequestAsHandled(@PathVariable String id) {
         markAsHandledCommandHandler.handle(id);
     }
 
     @PostMapping("/{id}/mark-as-appointment-made")
-    @CrossOrigin(origins = "http://localhost:4201")
     @ResponseStatus(code = HttpStatus.OK)
     public void markRepairRequestAsAppointmentMade(@PathVariable String id) {
         markAsAppointmentMadeCommandHandler.handle(id);

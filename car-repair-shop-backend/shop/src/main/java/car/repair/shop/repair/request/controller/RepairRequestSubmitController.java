@@ -8,7 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 
-
 @RestController
 @RequestMapping("/api/repair-request")
 @RequiredArgsConstructor
@@ -16,7 +15,6 @@ public class RepairRequestSubmitController {
     private final SubmitNewRepairRequestHandler submitNewRepairRequestHandler;
 
     @PostMapping("/submit")
-    @CrossOrigin(origins = "http://localhost:4200")
     @ResponseStatus(code = HttpStatus.CREATED)
     public void submitRepairRequest(@Valid @RequestBody SubmitRepairRequestDto submitRepairRequestDto) {
         submitNewRepairRequestHandler.handle(submitRepairRequestDto);
