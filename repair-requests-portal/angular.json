@@ -75,12 +75,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "repair-requests-portal:build:production",
-              "proxyConfig": "proxy-prod.conf.json"
+              "buildTarget": "repair-requests-portal:build:production"
             },
             "development": {
-              "buildTarget": "repair-requests-portal:build:development",
-              "proxyConfig": "proxy.conf.json"
+              "buildTarget": "repair-requests-portal:build:development"
             }
           },
           "defaultConfiguration": "development"

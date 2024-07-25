@@ -1,7 +1,6 @@
 {
     "/api": {
-        "target": "http://16.171.33.232:8080",
-        "secure": false,
-        "changeOrigin": true
+        "target": "http://13.60.10.134:8080",
+        "secure": false
     }
 }
