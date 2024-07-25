@@ -8,6 +8,7 @@ import { UnavailableDaysComponent } from './components/unavailable-days/unavaila
 export const routes: Routes = [
     { path: 'login', component: LoginComponent },
     { path: 'table', component: RepairRequestTableComponent, canActivate: [AuthGuard] },
+    { path: '', component: RepairRequestTableComponent, canActivate: [AuthGuard] },
     { path: 'repair-request/:id', component: RepairRequestSummaryComponent, canActivate: [AuthGuard] },
     { path: 'unavailable-days', component: UnavailableDaysComponent, canActivate: [AuthGuard] }
 ];
