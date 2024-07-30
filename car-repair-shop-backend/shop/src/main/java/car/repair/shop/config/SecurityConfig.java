@@ -1,6 +1,7 @@
 package car.repair.shop.config;
 
 import car.repair.shop.auth.JwtAuthFilter;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +20,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -46,7 +49,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationManager authenticationManager, JwtAuthFilter jwtAuthFilter) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
-                .csrf(AbstractHttpConfigurer::disable)
+//                .cors(AbstractHttpConfigurer::disable)
                 .httpBasic(withDefaults())
                 .authenticationManager(authenticationManager)
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
@@ -59,6 +62,21 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 );
         return http.build();
+    }
+
+    @Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(@NotNull CorsRegistry registry) {
+                registry.addMapping("/**")
+                        .allowedOrigins("http://localhost:4201", "http://localhost:4200", "http://repair-request-portal.s3-website.eu-north-1.amazonaws.com", "http://repair-request-submission.s3-website.eu-north-1.amazonaws.com", "https://to7wtpzpe5.execute-api.eu-north-1.amazonaws.com")
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowedHeaders("*")
+                        .exposedHeaders("Authorization", "Content-Type")
+                        .allowCredentials(true);
+            }
+        };
     }
 
     @Bean
