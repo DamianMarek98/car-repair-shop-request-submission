@@ -3,4 +3,5 @@ import { RepairRequestSubmissionComponent } from './repair-request-submission/re
 
 export const routes: Routes = [
     { path: 'submission', component: RepairRequestSubmissionComponent },
+    { path: '', component: RepairRequestSubmissionComponent }
 ];

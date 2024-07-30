@@ -8,7 +8,7 @@ import { environment } from "../../environments/environment";
     providedIn: 'root'
 })
 export class UnavailableDaysService {
-    private apiUrl = environment.apiUrl + '/api/internal/unavailable-day';
+    private apiUrl = environment.apiUrl + '/internal/unavailable-day';
 
     constructor(private http: HttpClient) { }
 

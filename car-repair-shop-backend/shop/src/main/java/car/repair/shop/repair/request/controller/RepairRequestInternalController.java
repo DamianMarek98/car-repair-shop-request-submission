@@ -25,6 +25,7 @@ public class RepairRequestInternalController {
 
     @GetMapping("/search")
     @ResponseStatus(code = HttpStatus.OK)
+    @CrossOrigin(origins = "http://localhost:4201")
     public Page<RepairRequestListItem> submitRepairRequest(@RequestParam int page,
                                                            @RequestParam int size,
                                                            @RequestParam(required = false) String sortField,
@@ -34,18 +35,21 @@ public class RepairRequestInternalController {
 
     @GetMapping("/{id}")
     @ResponseStatus(code = HttpStatus.OK)
+    @CrossOrigin(origins = "http://localhost:4201")
     public RepairRequestDto getRepairRequest(@PathVariable String id) {
         return repairRequestGetQueryHandler.getById(id);
     }
 
     @PostMapping("/{id}/mark-as-handled")
     @ResponseStatus(code = HttpStatus.OK)
+    @CrossOrigin(origins = "http://localhost:4201")
     public void markRepairRequestAsHandled(@PathVariable String id) {
         markAsHandledCommandHandler.handle(id);
     }
 
     @PostMapping("/{id}/mark-as-appointment-made")
     @ResponseStatus(code = HttpStatus.OK)
+    @CrossOrigin(origins = "http://localhost:4201")
     public void markRepairRequestAsAppointmentMade(@PathVariable String id) {
         markAsAppointmentMadeCommandHandler.handle(id);
     }

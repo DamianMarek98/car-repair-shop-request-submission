@@ -14,6 +14,7 @@ public class LoginController {
     private final AuthenticationManager authenticationManager;
 
     @PostMapping
+    @CrossOrigin(origins = "http://localhost:4201")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.username(), request.password()));
         String token = JwtHelper.generateToken(request.username());

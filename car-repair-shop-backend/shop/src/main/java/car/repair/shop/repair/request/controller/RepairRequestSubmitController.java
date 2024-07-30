@@ -16,6 +16,7 @@ public class RepairRequestSubmitController {
 
     @PostMapping("/submit")
     @ResponseStatus(code = HttpStatus.CREATED)
+    @CrossOrigin(origins = "http://localhost:4200")
     public void submitRepairRequest(@Valid @RequestBody SubmitRepairRequestDto submitRepairRequestDto) {
         submitNewRepairRequestHandler.handle(submitRepairRequestDto);
     }
