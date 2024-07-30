@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -14,6 +14,7 @@ import { RepairRequestService } from '../../service/repair-request-service';
   selector: 'app-repair-request-summary',
   standalone: true,
   imports: [MatCardModule, CommonModule, MatFormFieldModule, MatDividerModule, MatListModule, MatButtonModule],
+  providers: [DatePipe],
   templateUrl: './repair-request-summary.component.html',
   styleUrl: './repair-request-summary.component.css'
 })
@@ -26,7 +27,7 @@ export class RepairRequestSummaryComponent implements OnInit {
     this.repairRequestId = id;
   }
 
-  constructor(private repairRequestService: RepairRequestService, private route: ActivatedRoute) {
+  constructor(private repairRequestService: RepairRequestService, private route: ActivatedRoute, private datePipe: DatePipe) {
 
   }
 
@@ -57,5 +58,14 @@ export class RepairRequestSummaryComponent implements OnInit {
     return {
       'background-color': StatusMapper.mapStatusToColor(status)
     }
+  }
+
+  toBrowserTimeZone(datetime: string | undefined) {
+    if (!datetime) {
+      return '';
+    }
+    const adjustedDateString = datetime.replace(/\.\d+/, '');
+    const utcDate = new Date(adjustedDateString + 'Z');
+    return this.datePipe.transform(utcDate, 'medium', Intl.DateTimeFormat().resolvedOptions().timeZone);
   }
 }

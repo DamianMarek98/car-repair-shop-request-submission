@@ -91,13 +91,13 @@
                     <mat-divider></mat-divider>
                     <mat-list-item role="listitem">
                         <span matListItemTitle>Zgłoszono:</span>
-                        <span matListItemLine>{{ repairRequest?.submittedAt | date: 'd MMM. y, H:mm' }}</span>
+                        <span matListItemLine>{{ toBrowserTimeZone(repairRequest?.submittedAt) }}</span>
                     </mat-list-item>
                     <div *ngIf="repairRequest?.handledAt">
                         <mat-divider></mat-divider>
                         <mat-list-item role="listitem">
                             <span matListItemTitle>Obsłużono:</span>
-                            <span matListItemLine>{{ repairRequest?.handledAt | date: 'd MMM. y, H:mm' }}</span>
+                            <span matListItemLine>{{ toBrowserTimeZone(repairRequest?.handledAt) }}</span>
                         </mat-list-item>
                     </div>
                 </mat-list>

@@ -10,6 +10,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @Getter(AccessLevel.PUBLIC)
@@ -82,7 +84,7 @@ public class RepairRequest {
         repairRequest.submitterLastName = submitRepairRequestDto.lastName();
         repairRequest.email = submitRepairRequestDto.email();
         repairRequest.phoneNumber = submitRepairRequestDto.phoneNumber();
-        repairRequest.submittedAt = LocalDateTime.now();
+        repairRequest.submittedAt = ZonedDateTime.now(ZoneId.of("UTC")).toLocalDateTime();
         repairRequest.asap = submitRepairRequestDto.asap();
         repairRequest.rodo = submitRepairRequestDto.rodo();
         repairRequest.preferredVisitWindows = submitRepairRequestDto.timeSlots() == null ? List.of() :
@@ -95,7 +97,7 @@ public class RepairRequest {
     }
 
     protected void markAsHandled() {
-        handledAt = LocalDateTime.now();
+        handledAt = ZonedDateTime.now(ZoneId.of("UTC")).toLocalDateTime();
         status = RepairRequestStatus.HANDLED;
     }
 

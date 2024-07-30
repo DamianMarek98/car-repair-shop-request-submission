@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { MatPaginator, MatPaginatorIntl, PageEvent } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
@@ -13,6 +13,7 @@ import { StatusMapper } from '../../commons/status-mapper';
   selector: 'app-repair-request-table',
   standalone: true,
   imports: [MatTable, MatTableModule, MatPaginator, CommonModule, MatSort],
+  providers: [DatePipe],
   templateUrl: './repair-request-table.component.html',
   styleUrl: './repair-request-table.component.css'
 })
@@ -24,7 +25,7 @@ export class RepairRequestTableComponent implements OnInit, AfterViewInit {
   pageIndex: number = 0;
 
 
-  constructor(private repairRequestService: RepairRequestService, private router: Router) { }
+  constructor(private repairRequestService: RepairRequestService, private router: Router, private datePipe: DatePipe) { }
 
   @ViewChild(MatPaginator)
   set paginator(value: MatPaginator) {
@@ -68,5 +69,14 @@ export class RepairRequestTableComponent implements OnInit, AfterViewInit {
 
   goToDetails(id: string) {
     this.router.navigate(['/repair-request/' + id]);
+  }
+
+  toBrowserTimeZone(datetime: string | null) {
+    if (!datetime) {
+      return '';
+    }
+    const adjustedDateString = datetime.replace(/\.\d+/, '');
+    const utcDate = new Date(adjustedDateString + 'Z');
+    return this.datePipe.transform(utcDate, 'medium', Intl.DateTimeFormat().resolvedOptions().timeZone);
   }
 }
