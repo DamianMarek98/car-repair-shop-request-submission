@@ -70,7 +70,7 @@ public class SecurityConfig {
             @Override
             public void addCorsMappings(@NotNull CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("http://localhost:4201", "http://localhost:4200", "http://repair-request-portal.s3-website.eu-north-1.amazonaws.com", "http://repair-request-submission.s3-website.eu-north-1.amazonaws.com", "https://to7wtpzpe5.execute-api.eu-north-1.amazonaws.com")
+                        .allowedOrigins("http://localhost:4201", "http://localhost:4200", "https://renocar-zgloszenie.pl/", "https://portal.renocar-zgloszenie.pl/")
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .exposedHeaders("Authorization", "Content-Type")
