@@ -1,5 +1,8 @@
 <div class="example-container" style="padding: 2%; color: black;" *ngIf="submitted === false; else submittedComponent">
-  <div class="form-container">
+  <div class="form-container" style="text-align: center;">
+    <a href="https://renocar.pl/" target="_blank" rel="noopener noreferrer">
+      <div><img src="	https://renocar.pl/images/logo.png" alt="Renocar logo"></div>
+    </a>
     <h3>Formularz zgłoszeniowy</h3>
     <form [formGroup]="repairForm" (submit)="onSubmit()">
       <mat-form-field appearance="outline">
@@ -66,7 +69,7 @@
         </mat-error>
       </mat-form-field>
 
-      <div style="flex: 0 0 20%; padding-right: 2%; padding-bottom: 2%;">
+      <div style="flex: 0 0 20%; padding-right: 2%; padding-bottom: 2%; text-align: left;">
         <mat-checkbox formControlName="asap" style="color: black;" (change)="resetTimeSlots()">Najszybciej jak się
           da</mat-checkbox>
       </div>
@@ -120,7 +123,7 @@
         </div>
       </div>
 
-      <div style="flex: 0 0 20%; padding-right: 2%; padding-bottom: 2%;">
+      <div style="flex: 0 0 20%; padding-right: 2%; padding-bottom: 2%; text-align: left;">
         <mat-checkbox formControlName="rodo" style="color: black;">Wyrażam zgodę na przetwarzanie moich danych osobowych
           przez RENO CAR w celu rejestracji, naprawy pojazdu oraz komunikacji ze zgłaszającym.</mat-checkbox>
         <mat-error *ngIf="repairForm.get('rodo')?.hasError && repairForm.get('rodo')?.invalid">
@@ -137,6 +140,9 @@
 
 <ng-template #submittedComponent>
   <div class="center-container">
-    <h5>Przyjeliśmy Twoje zgłoszenie, przyjrzymy się mu i skontaktujemy się w celu ustelnia szczegółów wizyty.</h5>
+    <a href="https://renocar.pl/" target="_blank" rel="noopener noreferrer">
+      <div><img src="	https://renocar.pl/images/logo.png" alt="Renocar logo"></div>
+    </a>
+    <h5>Przyjeliśmy Twoje zgłoszenie, przyjrzymy się mu i skontaktujemy się w celu ustelnia szczegółów wizyty. <a href="https://renocar.pl/kontakt/" target="_blank" rel="noopener noreferrer">W razie wątpliowści odezwij się</a>.</h5>
   </div>
 </ng-template>

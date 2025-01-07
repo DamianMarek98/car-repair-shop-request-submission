@@ -26,7 +26,7 @@ export class LoginComponent {
   onSubmit() {
     this.authService.login(this.username, this.password).pipe(first()).subscribe({
       next: (value) => {
-        if (value === true) this.router.navigate(['/table'])
+        if (value === true) this.router.navigate(['/table-component'])
       },
       error: (e) => this.errorMessage = 'Invalid username or password'
     });
