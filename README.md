@@ -11,7 +11,7 @@ Tech stack: backend spring boot modular monolith folowing ddd practices (hosted 
 
 - repair request module (submission, request management by garage)
 - availability module (available days for appointment schedule)
-- notification module (asynchronous communication)
+- notification lambda (async serverless communication)
 
 First design level event storming done:
 ![image](https://github.com/DamianMarek98/car-repair-shop-request-submission/assets/43189598/a6771d67-e291-424d-90ed-6750a00d0610)
