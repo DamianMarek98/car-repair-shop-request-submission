@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterModule, RouterOutlet } from '@angular/router';
 import {MatSidenavModule} from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { AuthService } from './service/auth-service';
 import { CommonModule } from '@angular/common';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-root',
@@ -12,10 +13,14 @@ import { CommonModule } from '@angular/common';
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   title = 'repair-requests-portal';
 
-  constructor(private authService: AuthService) {
+  constructor(private authService: AuthService, private titleService: Title) {
+  }
+
+  ngOnInit() {
+    this.titleService.setTitle('RENO CAR - Zgłoś wizytę');
   }
 
   public get loggedIn(): boolean {
