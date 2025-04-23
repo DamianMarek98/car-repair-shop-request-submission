@@ -1,0 +1,1 @@
+rootProject.name = "new-repair-request-notification-lambda"
