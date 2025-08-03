@@ -47,7 +47,7 @@ function atLeastOneFieldNotNull(fields: string[]): ValidatorFn {
 export class RepairRequestSubmissionComponent implements OnInit {
   repairForm: FormGroup;
   submitted: boolean = false;
-  todaysDate: Date = new Date();
+  todayDate: Date = new Date();
   times: string[] = ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00"];
   dateFilter = (date: Date | null): boolean => { return true };
 
@@ -91,11 +91,7 @@ export class RepairRequestSubmissionComponent implements OnInit {
             return false;
           }
 
-          if (days.findIndex(unavailableDay => this.normalizeDate(date) === unavailableDay.date.toString()) !== -1) {
-            return false;
-          }
-
-          return true;
+          return days.findIndex(unavailableDay => this.normalizeDate(date) === unavailableDay.date.toString()) === -1;
         };
       }
     });
@@ -106,7 +102,7 @@ export class RepairRequestSubmissionComponent implements OnInit {
   }
 
   addTimeSlot() {
-    if (this.isAsap() === false && this.timeSlots.length < 5) {
+    if (!this.isAsap() && this.timeSlots.length < 5) {
       const timeSlotGroup = this.fb.group({
         date: [Validators.required],
         from: [null],
@@ -151,10 +147,10 @@ export class RepairRequestSubmissionComponent implements OnInit {
   }
 
   mapTimeSlots(formGroup: any[]): TimeSlot[] {
-    var timeSlots: TimeSlot[] = [];
+    const timeSlots: TimeSlot[] = [];
     formGroup.forEach(formElement => {
       const timeSlot: TimeSlot = {
-        date: formElement.date,
+        date: new Date(Date.UTC(formElement.date.getFullYear(), formElement.date.getMonth(), formElement.date.getDate())).toISOString(),
         from: formElement.from,
         to: formElement.to,
       }
@@ -169,7 +165,7 @@ export class RepairRequestSubmissionComponent implements OnInit {
   }
 
   resetTimeSlots() {
-    if (this.isAsap() === true) {
+    if (this.isAsap()) {
       this.timeSlots.clear();
       this.timeSlots.reset();
     } else {

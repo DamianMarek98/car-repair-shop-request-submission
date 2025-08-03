@@ -12,7 +12,7 @@ export interface RepairRequest {
 }
 
 export interface TimeSlot {
-    date: Date,
+    date: String,
     from: String,
     to: String
 }

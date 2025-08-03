@@ -82,7 +82,7 @@
               <mat-label>Wybierz datę</mat-label>
               <input matInput [matDatepicker]="picker" style="color: black;" formControlName="date"
                 (mousedown)="picker.open(); $event.preventDefault()" readonly=true [matDatepickerFilter]="dateFilter"
-                [min]="todaysDate">
+                [min]="todayDate">
               <mat-error *ngIf="timeSlot.get('date')?.hasError && timeSlot.get('date')?.invalid">
                 <span>Podaj datę lub usuń pole wyboru.</span>
               </mat-error>
