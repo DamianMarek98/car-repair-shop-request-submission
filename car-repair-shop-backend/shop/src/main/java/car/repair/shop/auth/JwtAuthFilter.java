@@ -56,4 +56,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             throw new UnauthorizedException();
         }
     }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        return path.equals("/api/internal/login") ||
+                path.equals("/api/repair-request/submit") ||
+                path.equals("/api/internal/unavailable-day/all");
+    }
 }
