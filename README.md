@@ -1,13 +1,19 @@
 App is live under: https://renocar-zgloszenie.pl/ (You can register your car for repair!)
 contains also portal which is hosted for private usage of car repair shop (will add screens/video of portal web page)
 
+Currenlty refactoring application to fully serverless infrastructure - transition from EC2 to couple of lambdas (migration due to cost optimization):
+- Rest Api Gateway + SQS + Lambda for asynchronous new repair request submission
+- Rest Api Gateway + Lambda for Spring boot service with RequestStreamHandler as a Bridge between lambda trigger and spring rest api
+- SNS + Lambda + SNS for listening to DynamoDb events and on new repair request save notifying clients about new submission using lambda + SNS email notifications (was done before migration)
+Will add diagram for this serverless architecture
+
 App will containt:
 
 - single backend that will store submission for given period of time
 - frontend for client to fill submission form
 - frontend for receptionist to handle forms and in future respond with email to them
 
-Tech stack: backend spring boot modular monolith folowing ddd practices (hosted on AWS with: S3, DynamoDB, Elastic Beanstalk, Route53, CloudFront):
+Tech stack: backend spring boot modular monolith folowing ddd practices (hosted on AWS with: EC2, S3, DynamoDB, Elastic Beanstalk, Route53, CloudFront, API Gateway):
 
 - repair request module (submission, request management by garage)
 - availability module (available days for appointment schedule)
@@ -16,7 +22,3 @@ Tech stack: backend spring boot modular monolith folowing ddd practices (hosted 
 First design level event storming done:
 ![image](https://github.com/DamianMarek98/car-repair-shop-request-submission/assets/43189598/a6771d67-e291-424d-90ed-6750a00d0610)
 
-To consider:
-
-- what to do with client data, should be deleted after one month?
-- common error response could be prepared to show exact information what is wrong with request to the client 
