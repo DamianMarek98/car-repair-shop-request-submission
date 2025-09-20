@@ -1,4 +1,4 @@
-package car.repair;
+package car.repair.shop;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
@@ -12,21 +12,26 @@ import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
 import java.util.HashMap;
 import java.util.Map;
 
-public class RepairRequestSubmissionConsumer implements RequestHandler<SQSEvent, Void> {
+/**
+ * In the end the decision is to skip SQS
+ * and use api gateway + lambda to validate and store new repair request directly.
+ * Api gateway will verify schema and lambda will do business validation and store in DynamoDB.
+ */
+// todo refactor to lambda handler
+// todo remember to move tests
+// todo remember to clean up main shop module
+public class RepairRequestSubmittedConsumer implements RequestHandler<SQSEvent, Void> {
 
     private final DynamoDbClient dynamoDb = DynamoDbClient.create();
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public Void handleRequest(SQSEvent event, Context context) {
         for (SQSEvent.SQSMessage msg : event.getRecords()) {
             try {
                 // Parse JSON body
-                JsonNode body = mapper.readTree(msg.getBody());
-
-                // Example transformation: extract "id" and "name"
-                String id = body.get("id").asText();
-                String name = body.get("name").asText();
+                JsonNode body = objectMapper.readTree(msg.getBody());
+                var submitRepairRequest = objectMapper.treeToValue(body, SubmitRepairRequestDto.class);
 
                 // todo mapping
                 // Put into DynamoDB
