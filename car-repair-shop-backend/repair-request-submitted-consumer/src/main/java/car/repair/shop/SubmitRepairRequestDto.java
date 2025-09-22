@@ -9,6 +9,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
+import static car.repair.shop.PhoneNumberPattern.PHONE_NUMBER_PATTERN;
+
 /**
  * Data Transfer Object for submitting a repair request.
  * As this DTO is used in the sqs consumer service, validation annotations are not applied here.
