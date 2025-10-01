@@ -30,8 +30,8 @@ public class RepairRequestItemConverter {
         item.put("submitter_last_name", stringAttribute(submitRepairRequestDto.lastName()));
         item.put("email", stringAttribute(submitRepairRequestDto.email()));
         item.put("phone_number", stringAttribute(submitRepairRequestDto.phoneNumber()));
-        item.put("asap", AttributeValue.builder().bool(submitRepairRequestDto.asap()).build());
-        item.put("rodo", AttributeValue.builder().bool(submitRepairRequestDto.rodo()).build());
+        item.put("asap", numberAttribute(submitRepairRequestDto.asap()));
+        item.put("rodo", numberAttribute(submitRepairRequestDto.rodo()));
         item.put("submittedAt", stringAttribute(ZonedDateTime.now(ZoneId.of("UTC")).toLocalDateTime().toString()));
         item.put("status_value", stringAttribute("NEW"));
         item.put("preferred_visit_windows", stringAttribute(objectMapper.writeValueAsString(timeSlots)));
@@ -40,5 +40,9 @@ public class RepairRequestItemConverter {
 
     private static AttributeValue stringAttribute(String value) {
         return AttributeValue.builder().s(value).build();
+    }
+
+    private static AttributeValue numberAttribute(boolean value) {
+        return AttributeValue.builder().n(value ? "1" : "0").build();
     }
 }

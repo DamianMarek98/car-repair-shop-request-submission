@@ -40,10 +40,11 @@ public class RepairRequestSubmittedHandler implements RequestHandler<Map<String,
 
     @Override
     public APIGatewayProxyResponseEvent handleRequest(Map<String, Object> input, Context context) {
-        String body = (String) input.get("body");
+        context.getLogger().log("Received event: " + input);
 
         try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
-            var submitRepairRequest = objectMapper.readValue(body, SubmitRepairRequestDto.class);
+            var bodyJson = objectMapper.writeValueAsString(input);
+            var submitRepairRequest = objectMapper.readValue(bodyJson, SubmitRepairRequestDto.class);
             validateInput(context, factory, submitRepairRequest);
 
 

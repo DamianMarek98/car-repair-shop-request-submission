@@ -1,0 +1,12 @@
+{
+  "vin": "12345678912311111",
+  "plateNumber": "GD12345",
+  "issueDescription": "Test",
+  "firstName": "Test",
+  "lastName": "Wolski",
+  "email": "test@gmail.com",
+  "phoneNumber": "123456789",
+  "timeSlots": [],
+  "asap": true,
+  "rodo": true
+}

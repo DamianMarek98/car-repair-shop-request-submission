@@ -50,7 +50,7 @@ class RepairRequestSubmittedHandlerTest {
     }
 
     @Test
-    void givenValidRequest_shouldReturn200AndStoreRepairRequestInDynamoDB() throws Exception {
+    void givenValidRequest_shouldReturn200AndStoreRepairRequestInDynamoDB() {
         // Given
         var request = new SubmitRepairRequestDtoBuilder()
                 .withVin("4Y1SL65848Z411439")
@@ -64,8 +64,7 @@ class RepairRequestSubmittedHandlerTest {
                 .withRodoApproval()
                 .build();
 
-        String requestBody = objectMapper.writeValueAsString(request);
-        Map<String, Object> input = Map.of("body", requestBody);
+        Map<String, Object> input = objectMapper.convertValue(request, Map.class);
 
         // When
         APIGatewayProxyResponseEvent response = handler.handleRequest(input, mockContext);
@@ -91,19 +90,19 @@ class RepairRequestSubmittedHandlerTest {
         assertThat(item.get("submitter_last_name").s()).isEqualTo(request.lastName());
         assertThat(item.get("phone_number").s()).isEqualTo(request.phoneNumber());
         assertThat(item.get("email").s()).isEqualTo(request.email());
-        assertThat(item.get("asap").bool()).isTrue();
-        assertThat(item.get("rodo").bool()).isTrue();
+        assertThat(item.get("asap").n()).isEqualTo("1");
+        assertThat(item.get("rodo").n()).isEqualTo("1");
         assertThat(item.get("status_value").s()).isEqualTo("NEW");
         assertNotNull(item.get("submittedAt"));
         assertThat(item.get("submittedAt").s()).isNotEmpty();
         assertNotNull(item.get("preferred_visit_windows"));
         assertThat(item.get("preferred_visit_windows").s()).isEqualTo("[]");
 
-        verify(mockLogger, times(2)).log(anyString());
+        verify(mockLogger, times(3)).log(anyString());
     }
 
     @Test
-    void givenValidRequestWithPlateNumber_shouldReturn200AndStoreRepairRequestInDynamoDB() throws Exception {
+    void givenValidRequestWithPlateNumber_shouldReturn200AndStoreRepairRequestInDynamoDB() {
         // Given
         SubmitRepairRequestDto.TimeSlotDto timeSlot = new SubmitRepairRequestDto.TimeSlotDto(LocalDate.now(), LocalTime.of(9, 0), LocalTime.of(17, 0));
         var request = new SubmitRepairRequestDtoBuilder()
@@ -117,8 +116,7 @@ class RepairRequestSubmittedHandlerTest {
                 .withRodoApproval()
                 .build();
 
-        String requestBody = objectMapper.writeValueAsString(request);
-        Map<String, Object> input = Map.of("body", requestBody);
+        Map<String, Object> input = objectMapper.convertValue(request, Map.class);
 
         // When
         APIGatewayProxyResponseEvent response = handler.handleRequest(input, mockContext);
@@ -135,12 +133,12 @@ class RepairRequestSubmittedHandlerTest {
 
         assertThat(item.get("plate_number").s()).isEqualTo(request.plateNumber());
         assertNull(item.get("vin").s());
-        assertThat(item.get("asap").bool()).isFalse();
-        assertThat(item.get("rodo").bool()).isTrue();
+        assertThat(item.get("asap").n()).isEqualTo("0");
+        assertThat(item.get("rodo").n()).isEqualTo("1");
     }
 
     @Test
-    void givenRequestWithMultipleTimeSlots_shouldReturn200AndStoreAllTimeSlots() throws Exception {
+    void givenRequestWithMultipleTimeSlots_shouldReturn200AndStoreAllTimeSlots() {
         // Given
         SubmitRepairRequestDto.TimeSlotDto timeSlot1 = new SubmitRepairRequestDto.TimeSlotDto(LocalDate.of(2025, 10, 15), LocalTime.of(9, 0), LocalTime.of(12, 0));
         SubmitRepairRequestDto.TimeSlotDto timeSlot2 = new SubmitRepairRequestDto.TimeSlotDto(LocalDate.of(2025, 11, 16), LocalTime.of(14, 0), null);
@@ -157,8 +155,7 @@ class RepairRequestSubmittedHandlerTest {
                 .withRodoApproval()
                 .build();
 
-        String requestBody = objectMapper.writeValueAsString(request);
-        Map<String, Object> input = Map.of("body", requestBody);
+        Map<String, Object> input = objectMapper.convertValue(request, Map.class);
 
         // When
         APIGatewayProxyResponseEvent response = handler.handleRequest(input, mockContext);
@@ -178,7 +175,7 @@ class RepairRequestSubmittedHandlerTest {
     }
 
     @Test
-    void givenRequestWithEmptyTimeSlots_shouldReturn200AndStoreEmptyTimeSlots() throws Exception {
+    void givenRequestWithEmptyTimeSlots_shouldReturn200AndStoreEmptyTimeSlots() {
         // Given
         var request = new SubmitRepairRequestDtoBuilder()
                 .withVin("2T1BURHE0JC123456")
@@ -192,8 +189,7 @@ class RepairRequestSubmittedHandlerTest {
                 .withRodoApproval()
                 .build();
 
-        String requestBody = objectMapper.writeValueAsString(request);
-        Map<String, Object> input = Map.of("body", requestBody);
+        Map<String, Object> input = objectMapper.convertValue(request, Map.class);
 
         // When
         APIGatewayProxyResponseEvent response = handler.handleRequest(input, mockContext);
@@ -209,7 +205,7 @@ class RepairRequestSubmittedHandlerTest {
         Map<String, AttributeValue> item = capturedRequest.item();
 
         assertThat(item.get("preferred_visit_windows").s()).isEqualTo("[]");
-        assertThat(item.get("asap").bool()).isTrue();
+        assertThat(item.get("asap").n()).isEqualTo("1");
     }
 
     @Test
@@ -229,7 +225,7 @@ class RepairRequestSubmittedHandlerTest {
     }
 
     @Test
-    void givenRequestWithoutVinOrPlateNumber_shouldReturn400() throws Exception {
+    void givenRequestWithoutVinOrPlateNumber_shouldReturn400() {
         // Given
         var request = new SubmitRepairRequestDtoBuilder()
                 .withIssueDescription("test issue")
@@ -242,8 +238,7 @@ class RepairRequestSubmittedHandlerTest {
                 .withRodoApproval()
                 .build();
 
-        String requestBody = objectMapper.writeValueAsString(request);
-        Map<String, Object> input = Map.of("body", requestBody);
+        Map<String, Object> input = objectMapper.convertValue(request, Map.class);
 
         // When
         APIGatewayProxyResponseEvent response = handler.handleRequest(input, mockContext);
@@ -255,7 +250,7 @@ class RepairRequestSubmittedHandlerTest {
     }
 
     @Test
-    void givenRequestWithInvalidEmail_shouldReturn400() throws Exception {
+    void givenRequestWithInvalidEmail_shouldReturn400() {
         // Given
         var request = new SubmitRepairRequestDtoBuilder()
                 .withVin("4Y1SL65848Z411439")
@@ -269,8 +264,7 @@ class RepairRequestSubmittedHandlerTest {
                 .withRodoApproval()
                 .build();
 
-        String requestBody = objectMapper.writeValueAsString(request);
-        Map<String, Object> input = Map.of("body", requestBody);
+        Map<String, Object> input = objectMapper.convertValue(request, Map.class);
 
         // When
         APIGatewayProxyResponseEvent response = handler.handleRequest(input, mockContext);
