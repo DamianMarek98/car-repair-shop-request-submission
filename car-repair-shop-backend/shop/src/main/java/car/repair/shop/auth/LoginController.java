@@ -15,11 +15,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class LoginController {
     private final AuthenticationManager authenticationManager;
+    private final JwtHelper jwtHelper;
 
     @PostMapping
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.username(), request.password()));
-        String token = JwtHelper.generateToken(request.username());
+        String token = jwtHelper.generateToken(request.username());
         return ResponseEntity.ok(new LoginResponse(token));
     }
 
