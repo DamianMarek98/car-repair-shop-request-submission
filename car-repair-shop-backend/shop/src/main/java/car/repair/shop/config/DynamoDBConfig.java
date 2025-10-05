@@ -20,11 +20,20 @@ import org.springframework.context.annotation.Profile;
 public class DynamoDBConfig {
     private final AwsConfigurationProperties awsConfigurationProperties;
 
-    @Bean
-    public AmazonDynamoDB amazonDynamoDB() {
+    @Bean("amazonDynamoDB")
+    @Profile("local || test")
+    public AmazonDynamoDB localAmazonDynamoDB() {
         return AmazonDynamoDBClientBuilder.standard()
                 .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(awsConfigurationProperties.getEndpoint(), awsConfigurationProperties.getRegion()))
                 .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(awsConfigurationProperties.getAccessKey(), awsConfigurationProperties.getSecretAccessKey())))
+                .build();
+    }
+
+    @Bean
+    @Profile("!local && !test")
+    public AmazonDynamoDB amazonDynamoDB() {
+        return AmazonDynamoDBClientBuilder.standard()
+                .withRegion(awsConfigurationProperties.getRegion())
                 .build();
     }
 }
