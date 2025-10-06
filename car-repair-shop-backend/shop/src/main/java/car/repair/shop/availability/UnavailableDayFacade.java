@@ -1,12 +1,15 @@
 package car.repair.shop.availability;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UnavailableDayFacade {
@@ -38,7 +41,13 @@ public class UnavailableDayFacade {
         return unavailableDays;
     }
 
+    @Transactional
     public void clearUnavailableDays() {
-        unavailableDayRepository.deleteAll();
+        var unavailableDays = unavailableDayRepository.findAll();
+        unavailableDays.forEach(day -> {
+            unavailableDayRepository.deleteById(day.getId()); // Use deleteById to ensure proper deletion in lambda environment
+            log.info("Deleted day with ID: {}", day.getId());
+        });
+        log.info("Deleted all unavailable days");
     }
 }

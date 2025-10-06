@@ -9,6 +9,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { RepairRequestService } from '../services/repair-request-service';
 import { RepairRequest, TimeSlot } from '../models/repair-request';
@@ -39,7 +40,8 @@ function atLeastOneFieldNotNull(fields: string[]): ValidatorFn {
     MatSelectModule,
     MatCardModule,
     MatIconModule,
-    MatCheckboxModule],
+    MatCheckboxModule,
+    MatProgressSpinnerModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './repair-request-submission.component.html',
   styleUrl: './repair-request-submission.component.css'
@@ -47,6 +49,7 @@ function atLeastOneFieldNotNull(fields: string[]): ValidatorFn {
 export class RepairRequestSubmissionComponent implements OnInit {
   repairForm: FormGroup;
   submitted: boolean = false;
+  isLoading: boolean = false;
   todayDate: Date = new Date();
   times: string[] = ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00"];
   dateFilter = (date: Date | null): boolean => { return true };
@@ -121,6 +124,7 @@ export class RepairRequestSubmissionComponent implements OnInit {
 
   onSubmit() {
     if (this.repairForm.valid) {
+      this.isLoading = true;
       const repairRequest: RepairRequest = {
         vin: this.mapToNullOnEmpty(this.repairForm.get('vin')?.value),
         plateNumber: this.repairForm.get('plateNumber')?.value,
@@ -133,11 +137,18 @@ export class RepairRequestSubmissionComponent implements OnInit {
         asap: this.repairForm.get('asap')?.value,
         rodo: this.repairForm.get('rodo')?.value,
       }
-      this.repairRequestService.submitRepairRequest(repairRequest).subscribe(() => {
-        var submittedDate = new Date();
-        localStorage.setItem("submitted-date", submittedDate.toDateString());
-        this.submitted = true;
-        this.cdr.detectChanges();
+      this.repairRequestService.submitRepairRequest(repairRequest).subscribe({
+        next: () => {
+          const submittedDate = new Date();
+          localStorage.setItem("submitted-date", submittedDate.toDateString());
+          this.submitted = true;
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        }
       });
     }
   }

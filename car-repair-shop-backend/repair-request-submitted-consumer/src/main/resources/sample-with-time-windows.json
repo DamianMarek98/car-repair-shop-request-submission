@@ -1,0 +1,23 @@
+{
+  "vin": "12345678912311111",
+  "plateNumber": "GD12345",
+  "issueDescription": "Test",
+  "firstName": "Test",
+  "lastName": "Wolski",
+  "email": "test@gmail.com",
+  "phoneNumber": "123456789",
+  "timeSlots": [
+    {
+      "date": "2025-10-20T00:00:00.000Z",
+      "from": "09:00",
+      "to": "10:00"
+    },
+    {
+      "date": "2025-10-21T00:00:00.000Z",
+      "from": null,
+      "to": null
+    }
+  ],
+  "asap": false,
+  "rodo": true
+}
