@@ -43,7 +43,7 @@ public class RepairRequestSubmittedHandler implements RequestHandler<Map<String,
         context.getLogger().log("Received event: " + input);
 
         try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
-            var bodyJson = objectMapper.writeValueAsString(input);
+            var bodyJson = (String) input.get("body");
             var submitRepairRequest = objectMapper.readValue(bodyJson, SubmitRepairRequestDto.class);
             validateInput(context, factory, submitRepairRequest);
 
@@ -88,6 +88,12 @@ public class RepairRequestSubmittedHandler implements RequestHandler<Map<String,
         return new APIGatewayProxyResponseEvent()
                 .withStatusCode(statusCode)
                 .withHeaders(Map.of("Content-Type", "application/json"))
-                .withBody("{\"message\": \"" + message + "\"}");
+                .withBody("{\"message\": \"" + message + "\"}")
+                .withHeaders(Map.of(
+                        "Content-Type", "application/json",
+                        "Access-Control-Allow-Origin", "https://renocar-zgloszenie.pl",
+                        "Access-Control-Allow-Credentials", "true",
+                        "Access-Control-Expose-Headers", "Authorization, Content-Type"
+                ));
     }
 }
