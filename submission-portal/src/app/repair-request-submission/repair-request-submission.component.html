@@ -132,7 +132,10 @@
       </div>
 
       <div style="margin-top: 10px">
-        <button mat-raised-button color="primary" type="submit">Wyślij</button>
+        <button mat-raised-button color="primary" type="submit" [disabled]="isLoading || repairForm.invalid">
+          <span *ngIf="!isLoading">Wyślij</span>
+          <mat-spinner *ngIf="isLoading" diameter="20" style="margin: 0 auto;"></mat-spinner>
+        </button>
       </div>
     </form>
   </div>
@@ -143,6 +146,6 @@
     <a href="https://renocar.pl/" target="_blank" rel="noopener noreferrer">
       <div><img src="	https://renocar.pl/images/logo.png" alt="Renocar logo"></div>
     </a>
-    <h5>Przyjeliśmy Twoje zgłoszenie, przyjrzymy się mu i skontaktujemy się w celu ustelnia szczegółów wizyty. <a href="https://renocar.pl/kontakt/" target="_blank" rel="noopener noreferrer">W razie wątpliowści odezwij się</a>.</h5>
+    <h5>Przyjeliśmy Twoje zgłoszenie, przyjrzymy się mu i skontaktujemy się w celu ustelnia szczegółów wizyty. <a href="https://renocar.pl/kontakt/" target="_blank" rel="noopener noreferrer">W razie wątpliowości odezwij się</a>.</h5>
   </div>
 </ng-template>
