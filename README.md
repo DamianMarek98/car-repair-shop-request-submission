@@ -1,8 +1,8 @@
 App is live under: https://renocar-zgloszenie.pl/ (You can register your car for repair!)
 contains also portal which is hosted for private usage of car repair shop (will add screens/video of portal web page)
 
-Currenlty refactoring application to fully serverless infrastructure - transition from EC2 to couple of lambdas (migration due to cost optimization):
-- Rest Api Gateway + SQS + Lambda for asynchronous new repair request submission
+Recently refactored application to fully serverless infrastructure - transition from EC2 to couple of lambdas (migration due to cost optimization):
+- Rest Api Gateway + Lambda for new repair request submission
 - Rest Api Gateway + Lambda for Spring boot service with RequestStreamHandler as a Bridge between lambda trigger and spring rest api
 - SNS + Lambda + SNS for listening to DynamoDb events and on new repair request save notifying clients about new submission using lambda + SNS email notifications (was done before migration)
 Will add diagram for this serverless architecture
