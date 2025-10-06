@@ -3,6 +3,7 @@ package car.repair.shop;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,7 +51,7 @@ class RepairRequestSubmittedHandlerTest {
     }
 
     @Test
-    void givenValidRequest_shouldReturn200AndStoreRepairRequestInDynamoDB() {
+    void givenValidRequest_shouldReturn200AndStoreRepairRequestInDynamoDB() throws JsonProcessingException {
         // Given
         var request = new SubmitRepairRequestDtoBuilder()
                 .withVin("4Y1SL65848Z411439")
@@ -64,7 +65,7 @@ class RepairRequestSubmittedHandlerTest {
                 .withRodoApproval()
                 .build();
 
-        Map<String, Object> input = objectMapper.convertValue(request, Map.class);
+        Map<String, Object> input = Map.of("body", objectMapper.writeValueAsString(request));
 
         // When
         APIGatewayProxyResponseEvent response = handler.handleRequest(input, mockContext);
@@ -102,7 +103,7 @@ class RepairRequestSubmittedHandlerTest {
     }
 
     @Test
-    void givenValidRequestWithPlateNumber_shouldReturn200AndStoreRepairRequestInDynamoDB() {
+    void givenValidRequestWithPlateNumber_shouldReturn200AndStoreRepairRequestInDynamoDB() throws JsonProcessingException {
         // Given
         SubmitRepairRequestDto.TimeSlotDto timeSlot = new SubmitRepairRequestDto.TimeSlotDto(LocalDate.now(), LocalTime.of(9, 0), LocalTime.of(17, 0));
         var request = new SubmitRepairRequestDtoBuilder()
@@ -116,7 +117,7 @@ class RepairRequestSubmittedHandlerTest {
                 .withRodoApproval()
                 .build();
 
-        Map<String, Object> input = objectMapper.convertValue(request, Map.class);
+        Map<String, Object> input = Map.of("body", objectMapper.writeValueAsString(request));
 
         // When
         APIGatewayProxyResponseEvent response = handler.handleRequest(input, mockContext);
@@ -138,7 +139,7 @@ class RepairRequestSubmittedHandlerTest {
     }
 
     @Test
-    void givenRequestWithMultipleTimeSlots_shouldReturn200AndStoreAllTimeSlots() {
+    void givenRequestWithMultipleTimeSlots_shouldReturn200AndStoreAllTimeSlots() throws JsonProcessingException {
         // Given
         SubmitRepairRequestDto.TimeSlotDto timeSlot1 = new SubmitRepairRequestDto.TimeSlotDto(LocalDate.of(2025, 10, 15), LocalTime.of(9, 0), LocalTime.of(12, 0));
         SubmitRepairRequestDto.TimeSlotDto timeSlot2 = new SubmitRepairRequestDto.TimeSlotDto(LocalDate.of(2025, 11, 16), LocalTime.of(14, 0), null);
@@ -155,7 +156,7 @@ class RepairRequestSubmittedHandlerTest {
                 .withRodoApproval()
                 .build();
 
-        Map<String, Object> input = objectMapper.convertValue(request, Map.class);
+        Map<String, Object> input = Map.of("body", objectMapper.writeValueAsString(request));
 
         // When
         APIGatewayProxyResponseEvent response = handler.handleRequest(input, mockContext);
@@ -175,7 +176,7 @@ class RepairRequestSubmittedHandlerTest {
     }
 
     @Test
-    void givenRequestWithEmptyTimeSlots_shouldReturn200AndStoreEmptyTimeSlots() {
+    void givenRequestWithEmptyTimeSlots_shouldReturn200AndStoreEmptyTimeSlots() throws JsonProcessingException {
         // Given
         var request = new SubmitRepairRequestDtoBuilder()
                 .withVin("2T1BURHE0JC123456")
@@ -189,7 +190,7 @@ class RepairRequestSubmittedHandlerTest {
                 .withRodoApproval()
                 .build();
 
-        Map<String, Object> input = objectMapper.convertValue(request, Map.class);
+        Map<String, Object> input = Map.of("body", objectMapper.writeValueAsString(request));
 
         // When
         APIGatewayProxyResponseEvent response = handler.handleRequest(input, mockContext);
@@ -225,7 +226,7 @@ class RepairRequestSubmittedHandlerTest {
     }
 
     @Test
-    void givenRequestWithoutVinOrPlateNumber_shouldReturn400() {
+    void givenRequestWithoutVinOrPlateNumber_shouldReturn400() throws JsonProcessingException {
         // Given
         var request = new SubmitRepairRequestDtoBuilder()
                 .withIssueDescription("test issue")
@@ -238,7 +239,7 @@ class RepairRequestSubmittedHandlerTest {
                 .withRodoApproval()
                 .build();
 
-        Map<String, Object> input = objectMapper.convertValue(request, Map.class);
+        Map<String, Object> input = Map.of("body", objectMapper.writeValueAsString(request));
 
         // When
         APIGatewayProxyResponseEvent response = handler.handleRequest(input, mockContext);
@@ -250,7 +251,7 @@ class RepairRequestSubmittedHandlerTest {
     }
 
     @Test
-    void givenRequestWithInvalidEmail_shouldReturn400() {
+    void givenRequestWithInvalidEmail_shouldReturn400() throws JsonProcessingException {
         // Given
         var request = new SubmitRepairRequestDtoBuilder()
                 .withVin("4Y1SL65848Z411439")
@@ -264,7 +265,7 @@ class RepairRequestSubmittedHandlerTest {
                 .withRodoApproval()
                 .build();
 
-        Map<String, Object> input = objectMapper.convertValue(request, Map.class);
+        Map<String, Object> input = Map.of("body", objectMapper.writeValueAsString(request));
 
         // When
         APIGatewayProxyResponseEvent response = handler.handleRequest(input, mockContext);
