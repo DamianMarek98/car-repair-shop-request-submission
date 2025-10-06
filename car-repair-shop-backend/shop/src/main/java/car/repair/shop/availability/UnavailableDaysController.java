@@ -22,7 +22,7 @@ public class UnavailableDaysController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(code = HttpStatus.OK)
-    public void getALl(@PathVariable String id) {
+    public void remove(@PathVariable String id) {
         unavailableDayFacade.removeUnavailableDay(id);
     }
 
