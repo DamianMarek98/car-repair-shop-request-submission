@@ -20,7 +20,7 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.titleService.setTitle('RENO CAR - Zgłoś wizytę');
+    this.titleService.setTitle('RENO CAR - Portal');
   }
 
   public get loggedIn(): boolean {

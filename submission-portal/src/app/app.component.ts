@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { RepairRequestSubmissionComponent } from './repair-request-submission/repair-request-submission.component';
+import {Title} from "@angular/platform-browser";
 
 @Component({
   selector: 'app-root',
@@ -9,6 +10,13 @@ import { RepairRequestSubmissionComponent } from './repair-request-submission/re
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   title = 'submission-portal';
+
+  constructor(private titleService: Title) {
+  }
+
+  ngOnInit() {
+    this.titleService.setTitle('RENO CAR - Zgłoś wizytę');
+  }
 }
