@@ -5,7 +5,9 @@ Recently refactored application to fully serverless infrastructure - transition 
 - Rest Api Gateway + Lambda for new repair request submission
 - Rest Api Gateway + Lambda for Spring boot service with RequestStreamHandler as a Bridge between lambda trigger and spring rest api
 - SNS + Lambda + SNS for listening to DynamoDb events and on new repair request save notifying clients about new submission using lambda + SNS email notifications (was done before migration)
-Will add diagram for this serverless architecture
+
+Current archtiecture state:
+<img width="1068" height="681" alt="repair-request drawio" src="https://github.com/user-attachments/assets/7a087467-7eeb-4ed5-adb6-0e3ae038051d" />
 
 App will containt:
 
@@ -15,7 +17,8 @@ App will containt:
 
 Tech stack: backend spring boot modular monolith folowing ddd practices (hosted on AWS with: EC2, S3, DynamoDB, Elastic Beanstalk, Route53, CloudFront, API Gateway):
 
-- repair request module (submission, request management by garage)
+- repair request module (request management by garage + availability management)
+- separate module for submission (for lambda cold start reduction)
 - availability module (available days for appointment schedule)
 - notification lambda (async serverless communication)
 
