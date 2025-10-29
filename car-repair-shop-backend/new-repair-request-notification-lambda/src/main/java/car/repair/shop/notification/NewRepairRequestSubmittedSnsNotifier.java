@@ -25,14 +25,20 @@ public class NewRepairRequestSubmittedSnsNotifier implements RequestHandler<Dyna
 
     @Override
     public String handleRequest(DynamodbEvent event, Context context) {
+        context.getLogger().log("Processing " + event.getRecords().size() + " DynamoDB records");
         for (DynamodbEvent.DynamodbStreamRecord dynamodbRecord : event.getRecords()) {
+            context.getLogger().log("Event name: " + dynamodbRecord.getEventName());
             if ("INSERT".equals(dynamodbRecord.getEventName())) {
-                String message = prepareNotificationMessage(dynamodbRecord);
-
-                snsClient.publish(PublishRequest.builder()
-                        .topicArn(TOPIC_ARN)
-                        .message(message)
-                        .build());
+                try {
+                    String message = prepareNotificationMessage(dynamodbRecord);
+                    context.getLogger().log(message);
+                    snsClient.publish(PublishRequest.builder()
+                            .topicArn(TOPIC_ARN)
+                            .message(message)
+                            .build());
+                } catch (Exception e) {
+                    context.getLogger().log("Error publishing SNS message: " + e.getMessage());
+                }
             }
         }
         return "Notifications sent.";

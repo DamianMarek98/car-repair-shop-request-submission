@@ -1,30 +1,41 @@
 import car.repair.shop.notification.NewRepairRequestSubmittedSnsNotifier;
+import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.events.DynamodbEvent;
 import com.amazonaws.services.lambda.runtime.events.models.dynamodb.AttributeValue;
 import com.amazonaws.services.lambda.runtime.events.models.dynamodb.StreamRecord;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import software.amazon.awssdk.services.sns.SnsClient;
 import software.amazon.awssdk.services.sns.model.PublishRequest;
 
 import java.util.List;
 import java.util.Map;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class NewRepairRequestSubmittedSnsNotifierTest {
 
     public static final String ARN = "arn:aws:sns:eu-north-1:009160054371:NewRepairRequestSubmittedTopic";
     private NewRepairRequestSubmittedSnsNotifier notifier;
     private SnsClient snsClient;
 
+    @Mock
+    private Context mockContext;
+
+    @Mock
+    private LambdaLogger mockLogger;
+
     @BeforeEach
     void setUp() {
         snsClient = mock(SnsClient.class);
         notifier = new NewRepairRequestSubmittedSnsNotifier(snsClient);
+        when(mockContext.getLogger()).thenReturn(mockLogger);
     }
 
     @Test
@@ -42,7 +53,7 @@ class NewRepairRequestSubmittedSnsNotifierTest {
         event.setRecords(List.of(dynamodbStreamRecord));
 
         // When
-        notifier.handleRequest(event, null);
+        notifier.handleRequest(event, mockContext);
 
         // Then
         ArgumentCaptor<PublishRequest> captor = ArgumentCaptor.forClass(PublishRequest.class);
@@ -65,7 +76,7 @@ class NewRepairRequestSubmittedSnsNotifierTest {
         event.setRecords(List.of(dynamodbStreamRecord));
 
         // When
-        notifier.handleRequest(event, null);
+        notifier.handleRequest(event, mockContext);
 
         // Then
         ArgumentCaptor<PublishRequest> captor = ArgumentCaptor.forClass(PublishRequest.class);
@@ -85,7 +96,7 @@ class NewRepairRequestSubmittedSnsNotifierTest {
         event.setRecords(List.of(dynamodbStreamRecord));
 
         // When
-        notifier.handleRequest(event, null);
+        notifier.handleRequest(event, mockContext);
 
         // Then
         verifyNoInteractions(snsClient);
