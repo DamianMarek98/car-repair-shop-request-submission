@@ -17,7 +17,7 @@
       <mat-form-field appearance="outline">
         <mat-label>Numer rejestracji</mat-label>
         <input matInput formControlName="plateNumber" style="color: black;" required>
-        <mat-error *ngIf="repairForm.get('plateNumber')?.hasError('required')"><span>Numer VIN jest
+        <mat-error *ngIf="repairForm.get('plateNumber')?.hasError('required')"><span>Numer rejestracji jest
             wymagany!</span></mat-error>
         <mat-error
           *ngIf="repairForm.get('plateNumber')?.hasError('minlength') || repairForm.get('plateNumber')?.hasError('maxlength')"><span>Nieprawidłowa
