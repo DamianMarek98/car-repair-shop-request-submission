@@ -23,7 +23,9 @@ public class RepairRequestItemConverter {
         Map<String, AttributeValue> item = new HashMap<>();
         item.put("id", stringAttribute(UUID.randomUUID().toString()));
         item.put("dummyPartitionKey", stringAttribute("DUMMY"));
-        item.put("vin", stringAttribute(submitRepairRequestDto.vin()));
+        if (submitRepairRequestDto.vin() != null) {
+            item.put("vin", stringAttribute(submitRepairRequestDto.vin()));
+        }
         item.put("plate_number", stringAttribute(submitRepairRequestDto.plateNumber()));
         item.put("issue_description", stringAttribute(submitRepairRequestDto.issueDescription()));
         item.put("submitter_first_name", stringAttribute(submitRepairRequestDto.firstName()));

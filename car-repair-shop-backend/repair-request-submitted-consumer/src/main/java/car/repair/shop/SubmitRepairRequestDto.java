@@ -26,7 +26,7 @@ import static car.repair.shop.PhoneNumberPattern.PHONE_NUMBER_PATTERN;
  * @param rodo
  */
 public record SubmitRepairRequestDto(@Size(min = 17, max = 17, message = "The length of vin must be exactly 17 characters") String vin,
-                                     @Size(min = 6, max = 7, message = "The length of plate number must be 6 or 7 characters") String plateNumber,
+                                     @NotNull @Size(min = 6, max = 7, message = "The length of plate number must be 6 or 7 characters") String plateNumber,
                                      @NotNull @Size(max = 500, message = "Max issue description length is 500 characters") String issueDescription,
                                      @NotNull String firstName,
                                      @NotNull String lastName,

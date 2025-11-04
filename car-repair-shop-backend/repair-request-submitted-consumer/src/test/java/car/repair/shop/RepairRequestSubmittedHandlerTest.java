@@ -133,7 +133,7 @@ class RepairRequestSubmittedHandlerTest {
         Map<String, AttributeValue> item = capturedRequest.item();
 
         assertThat(item.get("plate_number").s()).isEqualTo(request.plateNumber());
-        assertNull(item.get("vin").s());
+        assertNull(item.get("vin"));
         assertThat(item.get("asap").n()).isEqualTo("0");
         assertThat(item.get("rodo").n()).isEqualTo("1");
     }
