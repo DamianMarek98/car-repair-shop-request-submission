@@ -1,0 +1,6 @@
+{
+  "scripts": {
+    "build:submission-portal": "npm --prefix submission-portal run build:prod",
+    "build:admin-portal": "npm --prefix repair-requests-portal run build:prod"
+  }
+}
