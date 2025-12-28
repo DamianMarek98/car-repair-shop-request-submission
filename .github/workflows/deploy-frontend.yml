@@ -36,6 +36,12 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+        working-directory: |
+          if [ "${{ github.event.inputs.project }}" = "submission-portal" ]; then
+            submission-portal
+          else
+            repair-request-portal
+          fi
 
       - name: Build Angular project
         run: |
