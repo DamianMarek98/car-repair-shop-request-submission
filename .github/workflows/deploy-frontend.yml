@@ -27,6 +27,12 @@ jobs:
         with:
           node-version: 20
           cache: npm
+          cache-dependency-path: |
+            if [ "${{ github.event.inputs.project }}" = "submission-portal" ]; then
+              submission-portal/package-lock.json
+            else
+              repair-request-portal/package-lock.json
+            fi
 
       - name: Install dependencies
         run: npm ci
