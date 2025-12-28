@@ -6,6 +6,7 @@
     "start": "ng serve",
     "build": "ng build",
     "build:prod": "ng build --configuration production",
+    "install:prod": "npm ci",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:submission-portal": "node dist/submission-portal/server/server.mjs"
