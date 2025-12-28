@@ -39,7 +39,7 @@ jobs:
           if [ "${{ github.event.inputs.project }}" = "submission-portal" ]; then
             npm run install:submission-portal
           else
-            npm run install:repair-request-portal
+            npm run install:admin-portal
           fi
 
       - name: Build Angular project
