@@ -7,12 +7,13 @@ import { Router } from '@angular/router';
 import { RepairRequestListItem } from '../../models/repair-request-list-item';
 import { RepairRequestService } from '../../service/repair-request-service';
 import { StatusMapper } from '../../commons/status-mapper';
+import {MatProgressSpinner} from "@angular/material/progress-spinner";
 
 
 @Component({
   selector: 'app-repair-request-table',
   standalone: true,
-  imports: [MatTable, MatTableModule, MatPaginator, CommonModule, MatSort],
+  imports: [MatTable, MatTableModule, MatPaginator, CommonModule, MatSort, MatProgressSpinner],
   providers: [DatePipe],
   templateUrl: './repair-request-table.component.html',
   styleUrl: './repair-request-table.component.css'
@@ -23,6 +24,7 @@ export class RepairRequestTableComponent implements OnInit, AfterViewInit {
   pageSize: number = 10;
   numberOfElements: number = 0;
   pageIndex: number = 0;
+  loading = false;
 
 
   constructor(private repairRequestService: RepairRequestService, private router: Router, private datePipe: DatePipe) { }
@@ -47,10 +49,23 @@ export class RepairRequestTableComponent implements OnInit, AfterViewInit {
   }
 
   loadPage(event: PageEvent) {
-    this.repairRequestService.searchRequests(event.pageIndex, event.pageSize).subscribe(repairRequestsPage => {
-      this.dataSource.data = repairRequestsPage.content;
-      this.numberOfElements = repairRequestsPage.totalElements;
+    this.loading = true;
+    this.sleep(5000).then(() => {
+      this.repairRequestService.searchRequests(event.pageIndex, event.pageSize).subscribe({
+        next: repairRequestsPage => {
+          this.dataSource.data = repairRequestsPage.content;
+          this.numberOfElements = repairRequestsPage.totalElements;
+          this.loading = false;
+        },
+        error: () => {
+          this.loading = false;
+        }
+      });
     });
+  }
+
+  sleep(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   ngAfterViewInit() {

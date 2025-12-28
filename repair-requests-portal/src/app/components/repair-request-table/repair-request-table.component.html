@@ -34,6 +34,9 @@
         <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
         <mat-row *matRowDef="let row; columns: displayedColumns;" [ngStyle]="mapStatusToColor(row.status)" (click)="goToDetails(row.id)"></mat-row>
     </mat-table>
+    <div *ngIf="loading" class="spinner-overlay">
+      <mat-spinner></mat-spinner>
+    </div>
 
     <mat-paginator [length]="numberOfElements" [pageSizeOptions]="[10, 20, 25]"
         (page)="loadPage($event)"></mat-paginator>
