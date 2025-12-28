@@ -31,7 +31,7 @@ jobs:
             if [ "${{ github.event.inputs.project }}" = "submission-portal" ]; then
               submission-portal/package-lock.json
             else
-              repair-request-portal/package-lock.json
+              repair-requests-portal/package-lock.json
             fi
 
       - name: Install dependencies
@@ -62,7 +62,7 @@ jobs:
           if [ "${{ github.event.inputs.project }}" = "submission-portal" ]; then
             aws s3 sync submission-portal/dist/submission-portal/browser s3://renocar-zgloszenie.pl --delete
           else
-            aws s3 sync repair-request-portal/dist/repair-request-portal/browser s3://portal.renocar-zgloszenie.pl --delete
+            aws s3 sync repair-requests-portal/dist/repair-requests-portal/browser s3://portal.renocar-zgloszenie.pl --delete
           fi
 
       - name: CloudFront Invalidation
