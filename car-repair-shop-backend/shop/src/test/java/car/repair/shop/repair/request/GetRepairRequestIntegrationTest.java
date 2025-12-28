@@ -30,6 +30,11 @@ class GetRepairRequestIntegrationTest extends RepairRequestIntegrationTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Test
+    void shouldReturn401UnauthorizedWhenNoUserProvided() throws Exception {
+        mvc.perform(get("/api/internal/repair-request/{id}", "test id"))
+                .andExpect(status().isUnauthorized());
+    }
 
     @Test
     void shouldReturn404NotFoundWhenNoRepairRequestWithGivenId() throws Exception {
@@ -70,7 +75,7 @@ class GetRepairRequestIntegrationTest extends RepairRequestIntegrationTest {
                     Assertions.assertEquals(repairRequest.isAsap(), repairRequestDto.asap());
                     Assertions.assertEquals(repairRequest.isRodo(), repairRequestDto.rodo());
                     Assertions.assertEquals(1, repairRequestDto.preferredVisitWindows().size());
-                    PreferredVisitWindow preferredVisitWindow1 = repairRequest.getPreferredVisitWindows().get(0);
+                    PreferredVisitWindow preferredVisitWindow1 = repairRequest.getPreferredVisitWindows().getFirst();
                     Assertions.assertEquals(preferredVisitWindow.date(), preferredVisitWindow1.date());
                     Assertions.assertEquals(preferredVisitWindow.from(), preferredVisitWindow1.from());
                     Assertions.assertEquals(preferredVisitWindow.to(), preferredVisitWindow1.to());

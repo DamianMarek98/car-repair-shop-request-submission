@@ -104,7 +104,7 @@ class JwtAuthFilterTest {
 
         verify(chain, never()).doFilter(request, response);
         assertThat(response.getStatus()).isEqualTo(401);
-        assertThat(response.getContentAsString()).isEqualTo("Unauthorized access");
+        assertThat(response.getContentAsString()).isEqualTo("{\"message\":\"Unauthorized\"}");
         assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
     }
 
@@ -122,7 +122,7 @@ class JwtAuthFilterTest {
 
         verify(chain, never()).doFilter(request, response);
         assertThat(response.getStatus()).isEqualTo(401);
-        assertThat(response.getContentAsString()).isEqualTo("Unauthorized access");
+        assertThat(response.getContentAsString()).isEqualTo("{\"message\":\"Unauthorized\"}");
         assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
     }
 
