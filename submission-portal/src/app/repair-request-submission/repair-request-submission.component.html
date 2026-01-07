@@ -1,13 +1,15 @@
-<div class="example-container" style="padding: 2%; color: black;" *ngIf="submitted === false; else submittedComponent">
+<div class="example-container" *ngIf="submitted === false; else submittedComponent">
   <div class="form-container" style="text-align: center;">
-    <a href="https://renocar.pl/" target="_blank" rel="noopener noreferrer">
-      <div><img src="	https://renocar.pl/images/logo.png" alt="Renocar logo"></div>
-    </a>
-    <h3>Formularz zgłoszeniowy</h3>
-    <form [formGroup]="repairForm" (submit)="onSubmit()">
+    <div class="form-header">
+      <a href="https://renocar.pl/" target="_blank" rel="noopener noreferrer">
+        <div><img src="	https://renocar.pl/images/logo.png" alt="Renocar logo"></div>
+      </a>
+      <h3>Umów się</h3>
+    </div>
+    <form [formGroup]="repairForm" (submit)="onSubmit()" style="padding: 2%;">
       <mat-form-field appearance="outline">
-        <mat-label>VIN, wypełnij tylko gdy będzie to pierwsza wiziyta pojazdu</mat-label>
-        <input matInput formControlName="vin" style="color: black;">
+        <mat-label>VIN (proszę wypełnić jedynie w przypadku pierwszej wizyty)</mat-label>
+        <input matInput formControlName="vin" >
         <mat-error *ngIf="repairForm.get('vin')?.hasError('required')"><span>Numer VIN jest wymagany!</span></mat-error>
         <mat-error
           *ngIf="repairForm.get('vin')?.hasError('minlength') || repairForm.get('vin')?.hasError('maxlength')"><span>Nieprawidłowa
@@ -15,8 +17,8 @@
       </mat-form-field>
 
       <mat-form-field appearance="outline">
-        <mat-label>Numer rejestracji</mat-label>
-        <input matInput formControlName="plateNumber" style="color: black;" required>
+        <mat-label>Numer rejestracyjny</mat-label>
+        <input matInput formControlName="plateNumber"  required>
         <mat-error *ngIf="repairForm.get('plateNumber')?.hasError('required')"><span>Numer rejestracji jest
             wymagany!</span></mat-error>
         <mat-error
@@ -36,7 +38,7 @@
       <mat-form-field class="form-field" appearance="outline">
         <mat-label> Imię
         </mat-label>
-        <input matInput formControlName="firstName" style="color: black;" required>
+        <input matInput formControlName="firstName"  required>
         <mat-error *ngIf="repairForm.get('firstName')?.hasError && repairForm.get('firstName')?.invalid">
           <span>To pole jest wymagane.</span>
         </mat-error>
@@ -45,7 +47,7 @@
       <mat-form-field class="form-field" appearance="outline">
         <mat-label> Nazwisko
         </mat-label>
-        <input matInput formControlName="lastName" style="color: black;" required>
+        <input matInput formControlName="lastName"  required>
         <mat-error *ngIf="repairForm.get('lastName')?.hasError && repairForm.get('lastName')?.invalid">
           <span>To pole jest wymagane.</span>
         </mat-error>
@@ -53,7 +55,7 @@
 
       <mat-form-field appearance="outline">
         <mat-label>Numer telefonu</mat-label>
-        <input matInput formControlName="phoneNumber" style="color: black;" required>
+        <input matInput formControlName="phoneNumber"  required>
         <mat-error *ngIf="repairForm.get('phoneNumber')?.hasError('required')"><span>To pole jest
             wymagane!</span></mat-error>
         <mat-error *ngIf="repairForm.get('phoneNumber')?.hasError('pattern')"><span>Niepoprawny numer
@@ -63,24 +65,24 @@
       <mat-form-field class="form-field" appearance="outline">
         <mat-label> Email
         </mat-label>
-        <input matInput formControlName="email" style="color: black;" required>
+        <input matInput formControlName="email"  required>
         <mat-error *ngIf="repairForm.get('email')?.hasError && repairForm.get('email')?.invalid">
           <span>To pole jest wymagane.</span>
         </mat-error>
       </mat-form-field>
 
       <div style="flex: 0 0 20%; padding-right: 2%; padding-bottom: 2%; text-align: left;">
-        <mat-checkbox formControlName="asap" style="color: black;" (change)="resetTimeSlots()">Najszybciej jak się
+        <mat-checkbox formControlName="asap"  (change)="resetTimeSlots()">Najszybciej jak się
           da</mat-checkbox>
       </div>
 
       <div formArrayName="timeSlots" *ngIf="isAsap() === false">
         <div *ngFor="let timeSlot of timeSlots.controls; let i=index" [formGroupName]="i"
-          style="display: flex; width: 100%;">
+          style="width: 100%;">
           <div style="flex: 0 0 80%">
             <mat-form-field appearance="outline">
-              <mat-label>Wybierz datę</mat-label>
-              <input matInput [matDatepicker]="picker" style="color: black;" formControlName="date"
+              <mat-label>Wybierz preferowaną datę wizyty</mat-label>
+              <input matInput [matDatepicker]="picker"  formControlName="date"
                 (mousedown)="picker.open(); $event.preventDefault()" readonly=true [matDatepickerFilter]="dateFilter"
                 [min]="todayDate">
               <mat-error *ngIf="timeSlot.get('date')?.hasError && timeSlot.get('date')?.invalid">
@@ -92,7 +94,7 @@
             </mat-form-field>
             <mat-form-field class="form-field" appearance="outline">
               <mat-label>Od godziny:</mat-label>
-              <mat-select formControlName="from" style="color: black;">
+              <mat-select formControlName="from" >
                 <mat-option></mat-option>
                 @for (time of times; track time) {
                 <mat-option [value]="time">{{time}}</mat-option>
@@ -101,7 +103,7 @@
             </mat-form-field>
             <mat-form-field class="form-field" appearance="outline">
               <mat-label>Do godziny:</mat-label>
-              <mat-select formControlName="to" style="color: black;">
+              <mat-select formControlName="to" >
                 <mat-option></mat-option>
                 @for (time of times; track time) {
                 <mat-option [value]="time">{{time}}</mat-option>
@@ -116,23 +118,25 @@
           </div>
         </div>
         <div style="display: flex; width: 100%;" *ngIf="getTimeSlotsLength() < 5">
-          <button title="Dodaj kolejną datę, max 5 dat!" mat-icon-button type="button" (click)="addTimeSlot()"
-            [disabled]="isAsap() === true">
-            <mat-icon>add</mat-icon>
-          </button>
+          <div style="display: flex; align-items: center;">
+            <button title="Dodaj kolejną datę, maksymalnie 5 dat!" mat-icon-button type="button" (click)="addTimeSlot()" [disabled]="isAsap() === true">
+              <mat-icon>add</mat-icon>
+            </button>
+            <div style="padding-top: 0; margin-left: 4px; font-size: 14px">Dodaj kolejną preferowaną datę</div>
+          </div>
         </div>
       </div>
 
       <div style="flex: 0 0 20%; padding-right: 2%; padding-bottom: 2%; text-align: left;">
-        <mat-checkbox formControlName="rodo" style="color: black;">Wyrażam zgodę na przetwarzanie moich danych osobowych
+        <mat-checkbox formControlName="rodo" >Wyrażam zgodę na przetwarzanie moich danych osobowych
           przez RENO CAR w celu rejestracji, naprawy pojazdu oraz komunikacji ze zgłaszającym.</mat-checkbox>
         <mat-error *ngIf="repairForm.get('rodo')?.hasError && repairForm.get('rodo')?.invalid">
           <span>Zgoda na przetwarzanie danych jest wymagana!</span>
         </mat-error>
       </div>
 
-      <div style="margin-top: 10px">
-        <button mat-raised-button color="primary" type="submit" [disabled]="isLoading || repairForm.invalid">
+      <div style="margin-top: 10px; ">
+        <button mat-raised-button type="submit" [disabled]="isLoading || repairForm.invalid">
           <span *ngIf="!isLoading">Wyślij</span>
           <mat-spinner *ngIf="isLoading" diameter="20" style="margin: 0 auto;"></mat-spinner>
         </button>

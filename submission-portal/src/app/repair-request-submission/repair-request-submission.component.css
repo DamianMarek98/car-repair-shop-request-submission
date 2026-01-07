@@ -20,3 +20,38 @@ mat-card-title {
   justify-content: center;
   text-align: center;
 }
+
+.form-header {
+  background-color: #fcc603;
+  padding-bottom: 5%;
+}
+
+:host ::ng-deep .mat-mdc-text-field-wrapper {
+  --mdc-outlined-text-field-label-text-color: #000 !important;
+  --mdc-outlined-text-field-outline-color: #000 !important;
+  --mdc-outlined-text-field-focus-outline-color: #000 !important;
+}
+
+:host ::ng-deep .mat-mdc-text-field-wrapper {
+  --mdc-outlined-text-field-focus-label-text-color: #000 !important;
+}
+
+:host ::ng-deep .mat-mdc-text-field-wrapper {
+  --mdc-outlined-text-field-input-text-color: #000 !important;
+}
+:host ::ng-deep .mat-mdc-text-field-wrapper {
+  --mdc-outlined-text-field-caret-color: #000 !important;
+}
+:host ::ng-deep .mat-mdc-checkbox {
+  --mat-checkbox-label-text-color: #000 !important;
+}
+:host ::ng-deep .mat-mdc-raised-button {
+  --mdc-protected-button-label-text-color: #000 !important;
+  --mdc-protected-button-container-color: #fcc603 !important;
+  background-color: #fcc603 !important;
+  color: black !important;
+}
+
+:host ::ng-deep .mat-mdc-progress-spinner {
+  --mdc-circular-progress-active-indicator-color: #000 !important;
+}
