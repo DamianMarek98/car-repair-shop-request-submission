@@ -1,10 +1,10 @@
-<div class="example-container" *ngIf="submitted === false; else submittedComponent">
+<div class="page-container" *ngIf="submitted === false; else submittedComponent">
   <div class="form-container" style="text-align: center;">
     <div class="form-header">
-      <a href="https://renocar.pl/" target="_blank" rel="noopener noreferrer">
-        <div><img src="	https://renocar.pl/images/logo.png" alt="Renocar logo"></div>
+      <a href="https://renocar.pl/" target="_blank" rel="noopener noreferrer" title="Przejdź do strony RENO CAR">
+        <div><img src="	https://renocar.pl/images/logo.png" alt="Renocar logo" style="transform: scale(0.85)"></div>
       </a>
-      <h3>Umów się</h3>
+      <h5>Umów się</h5>
     </div>
     <form [formGroup]="repairForm" (submit)="onSubmit()" style="padding: 2%;">
       <mat-form-field appearance="outline">
@@ -143,6 +143,13 @@
       </div>
     </form>
   </div>
+</div>
+
+<div class="sticky-bottom">
+  RENO CAR - Pogwarancyjny Serwis Renault <br>
+  ul. Andrzeja Struga 8
+  80-116 Gdańsk <br>
+  tel. (58) 520-19-14
 </div>
 
 <ng-template #submittedComponent>

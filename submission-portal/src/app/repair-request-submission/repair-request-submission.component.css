@@ -17,13 +17,20 @@ mat-card-title {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   text-align: center;
+  padding-top: 2vh;
+  background-color: #fcc603;
+  height: 98vh
 }
 
 .form-header {
   background-color: #fcc603;
-  padding-bottom: 5%;
+  padding-bottom: 1vh;
+}
+
+.page-container {
+  padding-bottom: 13vh;
 }
 
 :host ::ng-deep .mat-mdc-text-field-wrapper {
@@ -54,4 +61,17 @@ mat-card-title {
 
 :host ::ng-deep .mat-mdc-progress-spinner {
   --mdc-circular-progress-active-indicator-color: #000 !important;
+}
+
+.sticky-bottom {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  background: #fcc603;
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+  padding-top: 1vh;
+  padding-bottom: 0.5vh;
+  text-align: center;
 }
