@@ -1,0 +1,20 @@
+{
+  "name": "car-parts-scraper",
+  "version": "1.0.0",
+  "description": "Playwright-based scraper for car parts aggregation from external websites",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts",
+    "scrape": "tsx src/scraper.ts"
+  },
+  "dependencies": {
+    "playwright": "^1.50.0"
+  },
+  "devDependencies": {
+    "typescript": "~5.4.0",
+    "tsx": "^4.7.0",
+    "@types/node": "^20.11.0"
+  }
+}
