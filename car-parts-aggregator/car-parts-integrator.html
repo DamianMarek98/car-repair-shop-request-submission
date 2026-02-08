@@ -33,59 +33,8 @@
     min-height: 100vh;
   }
 
-  /* ── Sidebar ── */
-  .layout { display: flex; min-height: 100vh; }
-
-  .sidebar {
-    width: 240px;
-    background: var(--surface);
-    border-right: 1px solid var(--border);
-    padding: 24px 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    flex-shrink: 0;
-  }
-
-  .logo {
-    font-size: 18px;
-    font-weight: 700;
-    padding: 0 8px 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: var(--accent);
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 12px;
-  }
-
-  .logo svg { flex-shrink: 0; }
-
-  .nav-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 12px;
-    border-radius: 8px;
-    color: var(--text-muted);
-    font-size: 14px;
-    cursor: pointer;
-    transition: all .15s;
-  }
-
-  .nav-item:hover { background: var(--surface2); color: var(--text); }
-  .nav-item.active { background: var(--accent); color: #fff; }
-
-  .nav-section {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--text-muted);
-    padding: 16px 12px 6px;
-  }
-
   /* ── Main ── */
-  .main { flex: 1; padding: 32px 40px; overflow-x: auto; }
+  .main { padding: 32px 40px; overflow-x: auto; min-height: 100vh; }
 
   .page-header {
     display: flex;
@@ -161,24 +110,6 @@
   }
   .btn-outline:hover { border-color: var(--text-muted); color: var(--text); }
 
-  /* ── Stats Cards ── */
-  .stats-row {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-    margin-bottom: 28px;
-  }
-
-  .stat-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 18px 20px;
-  }
-
-  .stat-card .label { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
-  .stat-card .value { font-size: 22px; font-weight: 700; }
-  .stat-card .sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
 
   /* ── Shop Legend ── */
   .legend {
@@ -404,53 +335,11 @@
 
   /* ── Responsive ── */
   @media (max-width: 1100px) {
-    .stats-row { grid-template-columns: repeat(2, 1fr); }
-    .sidebar { display: none; }
     .main { padding: 20px; }
   }
 </style>
 </head>
 <body>
-<div class="layout">
-
-  <!-- ── Sidebar ── -->
-  <aside class="sidebar">
-    <div class="logo">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-      PartsFinder
-    </div>
-    <div class="nav-item active">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-      Search & Compare
-    </div>
-    <div class="nav-item">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-      Orders
-    </div>
-    <div class="nav-item">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="14" x="2" y="5" rx="2"/><path d="M2 10h20"/></svg>
-      Price Lists
-    </div>
-    <div class="nav-section">Shops</div>
-    <div class="nav-item">
-      <span class="legend-dot" style="background:var(--shop1)"></span>
-      AutoParts Pro
-    </div>
-    <div class="nav-item">
-      <span class="legend-dot" style="background:var(--shop2)"></span>
-      MotoZone
-    </div>
-    <div class="nav-item">
-      <span class="legend-dot" style="background:var(--shop3)"></span>
-      CarGo Parts
-    </div>
-    <div class="nav-section">Settings</div>
-    <div class="nav-item">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
-      Configuration
-    </div>
-  </aside>
-
   <!-- ── Main Content ── -->
   <main class="main">
 
@@ -477,29 +366,6 @@
       </button>
     </div>
 
-    <!-- Stats -->
-    <div class="stats-row">
-      <div class="stat-card">
-        <div class="label">Results Found</div>
-        <div class="value">14</div>
-        <div class="sub">Across 3 shops</div>
-      </div>
-      <div class="stat-card">
-        <div class="label">Lowest Price</div>
-        <div class="value" style="color:var(--green)">€18.42</div>
-        <div class="sub">AutoParts Pro — substitute</div>
-      </div>
-      <div class="stat-card">
-        <div class="label">In Stock Now</div>
-        <div class="value">9 / 14</div>
-        <div class="sub">64% availability</div>
-      </div>
-      <div class="stat-card">
-        <div class="label">Unique Parts</div>
-        <div class="value">5</div>
-        <div class="sub">1 original + 4 substitutes</div>
-      </div>
-    </div>
 
     <!-- Legend -->
     <div class="legend">
@@ -768,6 +634,5 @@
     </div>
 
   </main>
-</div>
 </body>
 </html>
