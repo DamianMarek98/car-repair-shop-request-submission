@@ -1,4 +1,13 @@
-import { chromium, type Browser, type BrowserContext, type Page } from 'playwright';
+import { type BrowserContext, type Page } from 'playwright';
+import { chromium } from 'playwright-extra';
+import StealthPlugin from 'puppeteer-extra-plugin-stealth';
+import path from 'path';
+
+// Apply stealth plugin to avoid bot detection
+chromium.use(StealthPlugin());
+
+// Persistent browser data directory (stores cookies, sessions across runs)
+const USER_DATA_DIR = path.resolve(process.cwd(), '.browser-data');
 
 export interface ScrapeResult {
   success: boolean;
@@ -6,85 +15,89 @@ export interface ScrapeResult {
   error?: string;
 }
 
+export interface InterCarsLoginConfig {
+  loginUrl: string;
+  email: string;
+  password: string;
+}
+
 export interface ScraperConfig {
-  url: string;
-  login?: {
-    loginUrl: string;
-    usernameSelector: string;
-    passwordSelector: string;
-    submitSelector: string;
-    username: string;
-    password: string;
-  };
+  searchQuery: string;
+  login?: InterCarsLoginConfig;
   headless: boolean;
 }
 
 async function login(page: Page, config: ScraperConfig['login']): Promise<void> {
   if (!config) return;
 
+  // Step 1: Navigate to login page and enter email
   console.log(`Navigating to login page: ${config.loginUrl}`);
   await page.goto(config.loginUrl, { waitUntil: 'networkidle' });
 
-  await page.fill(config.usernameSelector, config.username);
-  await page.fill(config.passwordSelector, config.password);
-  await page.click(config.submitSelector);
+  console.log('Entering email address...');
+  await page.fill('#usernameUserInput', config.email);
+  await page.click('input[data-testid="identifier-auth-continue-button"]');
 
-  // Wait for navigation after login completes
-  await page.waitForLoadState('networkidle');
+  // Step 2: Wait for password page and enter password
+  console.log('Waiting for password page...');
+  await page.waitForSelector('#password', { timeout: 10000 });
+
+  console.log('Entering password...');
+  await page.fill('#password', config.password);
+  await page.click('#sign-in-button');
+
   console.log('Login completed');
 }
 
-async function scrapeData(page: Page, _url: string): Promise<Record<string, unknown>[]> {
-  // TODO: Implement your scraping logic here
-  // This is a template - replace with actual selectors and data extraction
+async function searchAndScrape(page: Page, query: string): Promise<Record<string, unknown>[]> {
+  // Step 1: Type into search field
+  console.log(`Searching for: ${query}`);
+  await page.waitForSelector('input[name="query"]', { timeout: 60000 });
+  await page.fill('input[name="query"]', query);
 
-  // Example: scrape a table of parts
-  // const rows = await page.$$eval('table.parts tbody tr', (trs) =>
-  //   trs.map((tr) => {
-  //     const cells = tr.querySelectorAll('td');
-  //     return {
-  //       partNumber: cells[0]?.textContent?.trim() ?? '',
-  //       name: cells[1]?.textContent?.trim() ?? '',
-  //       price: cells[2]?.textContent?.trim() ?? '',
-  //       availability: cells[3]?.textContent?.trim() ?? '',
-  //     };
-  //   })
-  // );
+  // Step 2: Click search button
+  await page.click('[data-testid="header-search-button-submit"]');
 
-  const title = await page.title();
-  const url = page.url();
+  // Step 3: Wait for results to load
+  console.log('Waiting for search results...');
+  await page.waitForSelector('tbody[data-product-code]', { timeout: 15000 });
 
-  return [{ title, url, scrapedAt: new Date().toISOString() }];
+  // Step 4: Extract all product codes from tbody elements
+  const productCodes = await page.$$eval('tbody[data-product-code]', (tbodies) =>
+    tbodies.map((tbody) => tbody.getAttribute('data-product-code') ?? '')
+  );
+
+  console.log(`Found ${productCodes.length} product code(s):`);
+  productCodes.forEach((code) => console.log(`  - ${code}`));
+
+  return productCodes.map((code) => ({
+    productCode: code,
+    query,
+    scrapedAt: new Date().toISOString(),
+  }));
 }
 
 export async function runScraper(config: ScraperConfig): Promise<ScrapeResult> {
-  let browser: Browser | undefined;
+  let context: BrowserContext | undefined;
 
   try {
-    console.log('Launching browser...');
-    browser = await chromium.launch({ headless: config.headless });
-
-    const context: BrowserContext = await browser.newContext({
+    console.log(`Launching browser (persistent profile: ${USER_DATA_DIR})...`);
+    context = await chromium.launchPersistentContext(USER_DATA_DIR, {
+      headless: config.headless,
       userAgent:
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
     });
 
-    const page: Page = await context.newPage();
+    const page: Page = context.pages()[0] ?? await context.newPage();
 
     // Perform login if credentials provided
     if (config.login) {
       await login(page, config.login);
     }
 
-    // Navigate to target page
-    console.log(`Navigating to: ${config.url}`);
-    await page.goto(config.url, { waitUntil: 'networkidle' });
-
-    // Scrape data
-    const data = await scrapeData(page, config.url);
+    // Search and scrape product codes
+    const data = await searchAndScrape(page, config.searchQuery);
     console.log(`Scraped ${data.length} record(s)`);
-
-    await context.close();
 
     return { success: true, data };
   } catch (error) {
@@ -92,26 +105,20 @@ export async function runScraper(config: ScraperConfig): Promise<ScrapeResult> {
     console.error(`Scraper error: ${message}`);
     return { success: false, data: [], error: message };
   } finally {
-    await browser?.close();
+    await context?.close();
   }
 }
 
 // --- Entry point ---
 
 const config: ScraperConfig = {
-  // TODO: Replace with the target website URL
-  url: 'https://example.com/parts',
-  headless: true,
-
-  // TODO: Uncomment and fill in if the site requires login
-  // login: {
-  //   loginUrl: 'https://example.com/login',
-  //   usernameSelector: '#username',
-  //   passwordSelector: '#password',
-  //   submitSelector: 'button[type="submit"]',
-  //   username: process.env.SCRAPER_USERNAME ?? '',
-  //   password: process.env.SCRAPER_PASSWORD ?? '',
-  // },
+  searchQuery: process.env.SEARCH_QUERY ?? '',
+  headless: false,
+  login: {
+    loginUrl: 'https://pl.e-cat.intercars.eu/pl/',
+    email: process.env.INTERCARS_EMAIL ?? 'zmddmarek@gmail.com',
+    password: process.env.INTERCARS_PASSWORD ?? '',
+  },
 };
 
 runScraper(config).then((result) => {
