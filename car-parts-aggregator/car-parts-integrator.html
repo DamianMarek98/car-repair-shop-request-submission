@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Car Parts Integrator — Search & Compare</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #232734;
+    --border: #2e3346;
+    --text: #e4e6f0;
+    --text-muted: #8b8fa3;
+    --accent: #4f8cff;
+    --accent-hover: #6da0ff;
+    --green: #34d399;
+    --yellow: #fbbf24;
+    --red: #f87171;
+    --orange: #fb923c;
+    --shop1: #4f8cff;
+    --shop2: #a78bfa;
+    --shop3: #f472b6;
+    --radius: 10px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── Sidebar ── */
+  .layout { display: flex; min-height: 100vh; }
+
+  .sidebar {
+    width: 240px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .logo {
+    font-size: 18px;
+    font-weight: 700;
+    padding: 0 8px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--accent);
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 12px;
+  }
+
+  .logo svg { flex-shrink: 0; }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    color: var(--text-muted);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active { background: var(--accent); color: #fff; }
+
+  .nav-section {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    padding: 16px 12px 6px;
+  }
+
+  /* ── Main ── */
+  .main { flex: 1; padding: 32px 40px; overflow-x: auto; }
+
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 28px;
+  }
+
+  .page-header h1 { font-size: 24px; font-weight: 700; }
+  .page-header p { color: var(--text-muted); font-size: 14px; margin-top: 4px; }
+
+  /* ── Search Bar ── */
+  .search-area {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 28px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .search-input-wrap {
+    flex: 1;
+    min-width: 280px;
+    position: relative;
+  }
+
+  .search-input-wrap svg {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+  }
+
+  .search-input {
+    width: 100%;
+    padding: 12px 16px 12px 42px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 15px;
+    outline: none;
+    transition: border .2s;
+  }
+
+  .search-input::placeholder { color: var(--text-muted); }
+  .search-input:focus { border-color: var(--accent); }
+
+  .btn {
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all .15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-outline {
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+  }
+  .btn-outline:hover { border-color: var(--text-muted); color: var(--text); }
+
+  /* ── Stats Cards ── */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+  }
+
+  .stat-card .label { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+  .stat-card .value { font-size: 22px; font-weight: 700; }
+  .stat-card .sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+  /* ── Shop Legend ── */
+  .legend {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+
+  /* ── Comparison Table ── */
+  .table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .table-header-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .table-header-bar h2 { font-size: 16px; font-weight: 600; }
+
+  .table-tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--surface2);
+    padding: 3px;
+    border-radius: 8px;
+  }
+
+  .table-tab {
+    padding: 6px 14px;
+    font-size: 13px;
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--text-muted);
+    border: none;
+    background: none;
+    transition: all .15s;
+  }
+
+  .table-tab:hover { color: var(--text); }
+  .table-tab.active { background: var(--accent); color: #fff; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  thead th {
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    color: var(--text-muted);
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  tbody td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+
+  tbody tr:last-child td { border-bottom: none; }
+
+  /* Row grouping: each "part group" shares a subtle background band */
+  .group-start td { border-top: 2px solid var(--border); }
+
+  .part-number {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--text);
+    font-family: 'SF Mono', 'Fira Code', monospace;
+  }
+
+  .part-name {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .part-type {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+  }
+
+  .type-original { background: rgba(79,140,255,.15); color: var(--shop1); }
+  .type-substitute { background: rgba(251,191,36,.15); color: var(--yellow); }
+
+  .shop-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .shop-1 { background: rgba(79,140,255,.12); color: var(--shop1); }
+  .shop-2 { background: rgba(167,139,250,.12); color: var(--shop2); }
+  .shop-3 { background: rgba(244,114,182,.12); color: var(--shop3); }
+
+  .price {
+    font-weight: 700;
+    font-size: 15px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+  }
+
+  .price-lowest { color: var(--green); }
+
+  .availability {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+  }
+
+  .avail-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .avail-instock .avail-dot { background: var(--green); }
+  .avail-instock { color: var(--green); }
+  .avail-limited .avail-dot { background: var(--yellow); }
+  .avail-limited { color: var(--yellow); }
+  .avail-outofstock .avail-dot { background: var(--red); }
+  .avail-outofstock { color: var(--red); }
+  .avail-onorder .avail-dot { background: var(--orange); }
+  .avail-onorder { color: var(--orange); }
+
+  .qty { color: var(--text-muted); }
+  .delivery { color: var(--text-muted); font-size: 12px; }
+
+  .actions-cell {
+    display: flex;
+    gap: 6px;
+  }
+
+  .btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all .15s;
+  }
+
+  .btn-cart { background: var(--accent); color: #fff; }
+  .btn-cart:hover { background: var(--accent-hover); }
+  .btn-detail {
+    background: var(--surface2);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+  }
+  .btn-detail:hover { color: var(--text); }
+
+  /* ── Highlight lowest price row ── */
+  .lowest-row td { background: rgba(52,211,153,.04); }
+
+  /* ── Group header row ── */
+  .group-header td {
+    background: var(--surface2);
+    padding: 10px 16px;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--accent);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .group-header .gh-flex {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .group-header .gh-number {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 14px;
+  }
+
+  .group-header .gh-name {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .group-header .gh-type {
+    margin-left: auto;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 1100px) {
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .sidebar { display: none; }
+    .main { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <div class="logo">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+      PartsFinder
+    </div>
+    <div class="nav-item active">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      Search & Compare
+    </div>
+    <div class="nav-item">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      Orders
+    </div>
+    <div class="nav-item">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="14" x="2" y="5" rx="2"/><path d="M2 10h20"/></svg>
+      Price Lists
+    </div>
+    <div class="nav-section">Shops</div>
+    <div class="nav-item">
+      <span class="legend-dot" style="background:var(--shop1)"></span>
+      AutoParts Pro
+    </div>
+    <div class="nav-item">
+      <span class="legend-dot" style="background:var(--shop2)"></span>
+      MotoZone
+    </div>
+    <div class="nav-item">
+      <span class="legend-dot" style="background:var(--shop3)"></span>
+      CarGo Parts
+    </div>
+    <div class="nav-section">Settings</div>
+    <div class="nav-item">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+      Configuration
+    </div>
+  </aside>
+
+  <!-- ── Main Content ── -->
+  <main class="main">
+
+    <div class="page-header">
+      <div>
+        <h1>Search & Compare Parts</h1>
+        <p>Search by OEM part number — compare prices across all connected shops</p>
+      </div>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="search-area">
+      <div class="search-input-wrap">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <input class="search-input" type="text" placeholder="Enter OEM part number, e.g. 04E 115 561 H" value="04E 115 561 H" />
+      </div>
+      <button class="btn btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        Search All Shops
+      </button>
+      <button class="btn btn-outline">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M7 12h10M10 18h4"/></svg>
+        Filters
+      </button>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="label">Results Found</div>
+        <div class="value">14</div>
+        <div class="sub">Across 3 shops</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Lowest Price</div>
+        <div class="value" style="color:var(--green)">€18.42</div>
+        <div class="sub">AutoParts Pro — substitute</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">In Stock Now</div>
+        <div class="value">9 / 14</div>
+        <div class="sub">64% availability</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Unique Parts</div>
+        <div class="value">5</div>
+        <div class="sub">1 original + 4 substitutes</div>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="legend">
+      <div class="legend-item"><span class="legend-dot" style="background:var(--shop1)"></span> AutoParts Pro</div>
+      <div class="legend-item"><span class="legend-dot" style="background:var(--shop2)"></span> MotoZone</div>
+      <div class="legend-item"><span class="legend-dot" style="background:var(--shop3)"></span> CarGo Parts</div>
+      <div class="legend-item" style="margin-left:12px"><span class="avail-dot" style="background:var(--green);width:10px;height:10px;border-radius:50%;display:inline-block"></span> In Stock</div>
+      <div class="legend-item"><span class="avail-dot" style="background:var(--yellow);width:10px;height:10px;border-radius:50%;display:inline-block"></span> Limited</div>
+      <div class="legend-item"><span class="avail-dot" style="background:var(--orange);width:10px;height:10px;border-radius:50%;display:inline-block"></span> On Order</div>
+      <div class="legend-item"><span class="avail-dot" style="background:var(--red);width:10px;height:10px;border-radius:50%;display:inline-block"></span> Out of Stock</div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+      <div class="table-header-bar">
+        <h2>Comparison Table</h2>
+        <div class="table-tabs">
+          <button class="table-tab active">Grouped View</button>
+          <button class="table-tab">Flat List</button>
+          <button class="table-tab">Lowest Price</button>
+        </div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Part Number</th>
+            <th>Brand / Name</th>
+            <th>Type</th>
+            <th>Shop</th>
+            <th>Net Price</th>
+            <th>Gross Price</th>
+            <th>Availability</th>
+            <th>Qty</th>
+            <th>Delivery</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <!-- ═══════ GROUP 1: Original Part ═══════ -->
+          <tr class="group-header group-start">
+            <td colspan="10">
+              <div class="gh-flex">
+                <span class="gh-number">04E 115 561 H</span>
+                <span class="gh-name">Oil Filter — VAG Original</span>
+                <span class="gh-type"><span class="part-type type-original">Original</span></span>
+              </div>
+            </td>
+          </tr>
+          <tr class="lowest-row">
+            <td class="part-number">04E 115 561 H</td>
+            <td class="part-name">VAG Oil Filter</td>
+            <td><span class="part-type type-original">Original</span></td>
+            <td><span class="shop-badge shop-1">AutoParts Pro</span></td>
+            <td class="price price-lowest">€22.15</td>
+            <td class="price" style="font-size:13px;color:var(--text-muted)">€27.24</td>
+            <td><span class="availability avail-instock"><span class="avail-dot"></span> In Stock</span></td>
+            <td class="qty">48</td>
+            <td class="delivery">Next day</td>
+            <td><div class="actions-cell"><button class="btn-sm btn-cart">+ Cart</button><button class="btn-sm btn-detail">Details</button></div></td>
+          </tr>
+          <tr>
+            <td class="part-number">04E 115 561 H</td>
+            <td class="part-name">VAG Oil Filter</td>
+            <td><span class="part-type type-original">Original</span></td>
+            <td><span class="shop-badge shop-2">MotoZone</span></td>
+            <td class="price">€24.80</td>
+            <td class="price" style="font-size:13px;color:var(--text-muted)">€30.50</td>
+            <td><span class="availability avail-instock"><span class="avail-dot"></span> In Stock</span></td>
+            <td class="qty">12</td>
+            <td class="delivery">Next day</td>
+            <td><div class="actions-cell"><button class="btn-sm btn-cart">+ Cart</button><button class="btn-sm btn-detail">Details</button></div></td>
+          </tr>
+          <tr>
+            <td class="part-number">04E 115 561 H</td>
+            <td class="part-name">VAG Oil Filter</td>
+            <td><span class="part-type type-original">Original</span></td>
+            <td><span class="shop-badge shop-3">CarGo Parts</span></td>
+            <td class="price">€25.90</td>
+            <td class="price" style="font-size:13px;color:var(--text-muted)">€31.86</td>
+            <td><span class="availability avail-limited"><span class="avail-dot"></span> Limited (3)</span></td>
+            <td class="qty">3</td>
+            <td class="delivery">Next day</td>
+            <td><div class="actions-cell"><button class="btn-sm btn-cart">+ Cart</button><button class="btn-sm btn-detail">Details</button></div></td>
+          </tr>
+
+          <!-- ═══════ GROUP 2: Substitute — MANN ═══════ -->
+          <tr class="group-header group-start">
+            <td colspan="10">
+              <div class="gh-flex">
+                <span class="gh-number">W 712/94</span>
+                <span class="gh-name">MANN-FILTER Oil Filter</span>
+                <span class="gh-type"><span class="part-type type-substitute">Substitute</span></span>
+              </div>
+            </td>
+          </tr>
+          <tr class="lowest-row">
+            <td class="part-number">W 712/94</td>
+            <td class="part-name">MANN-FILTER</td>
+            <td><span class="part-type type-substitute">Substitute</span></td>
+            <td><span class="shop-badge shop-1">AutoParts Pro</span></td>
+            <td class="price price-lowest">€18.42</td>
+            <td class="price" style="font-size:13px;color:var(--text-muted)">€22.66</td>
+            <td><span class="availability avail-instock"><span class="avail-dot"></span> In Stock</span></td>
+            <td class="qty">120</td>
+            <td class="delivery">Same day</td>
+            <td><div class="actions-cell"><button class="btn-sm btn-cart">+ Cart</button><button class="btn-sm btn-detail">Details</button></div></td>
+          </tr>
+          <tr>
+            <td class="part-number">W 712/94</td>
+            <td class="part-name">MANN-FILTER</td>
+            <td><span class="part-type type-substitute">Substitute</span></td>
+            <td><span class="shop-badge shop-2">MotoZone</span></td>
+            <td class="price">€19.10</td>
+            <td class="price" style="font-size:13px;color:var(--text-muted)">€23.49</td>
+            <td><span class="availability avail-instock"><span class="avail-dot"></span> In Stock</span></td>
+            <td class="qty">64</td>
+            <td class="delivery">Next day</td>
+            <td><div class="actions-cell"><button class="btn-sm btn-cart">+ Cart</button><button class="btn-sm btn-detail">Details</button></div></td>
+          </tr>
+          <tr>
+            <td class="part-number">W 712/94</td>
+            <td class="part-name">MANN-FILTER</td>
+            <td><span class="part-type type-substitute">Substitute</span></td>
+            <td><span class="shop-badge shop-3">CarGo Parts</span></td>
+            <td class="price">€20.55</td>
+            <td class="price" style="font-size:13px;color:var(--text-muted)">€25.28</td>
+            <td><span class="availability avail-onorder"><span class="avail-dot"></span> On Order</span></td>
+            <td class="qty">0</td>
+            <td class="delivery">3–5 days</td>
+            <td><div class="actions-cell"><button class="btn-sm btn-cart">+ Cart</button><button class="btn-sm btn-detail">Details</button></div></td>
+          </tr>
+
+          <!-- ═══════ GROUP 3: Substitute — BOSCH ═══════ -->
+          <tr class="group-header group-start">
+            <td colspan="10">
+              <div class="gh-flex">
+                <span class="gh-number">F 026 407 116</span>
+                <span class="gh-name">BOSCH Oil Filter</span>
+                <span class="gh-type"><span class="part-type type-substitute">Substitute</span></span>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td class="part-number">F 026 407 116</td>
+            <td class="part-name">BOSCH</td>
+            <td><span class="part-type type-substitute">Substitute</span></td>
+            <td><span class="shop-badge shop-1">AutoParts Pro</span></td>
+            <td class="price">€19.80</td>
+            <td class="price" style="font-size:13px;color:var(--text-muted)">€24.35</td>
+            <td><span class="availability avail-instock"><span class="avail-dot"></span> In Stock</span></td>
+            <td class="qty">35</td>
+            <td class="delivery">Same day</td>
+            <td><div class="actions-cell"><button class="btn-sm btn-cart">+ Cart</button><button class="btn-sm btn-detail">Details</button></div></td>
+          </tr>
+          <tr class="lowest-row">
+            <td class="part-number">F 026 407 116</td>
+            <td class="part-name">BOSCH</td>
+            <td><span class="part-type type-substitute">Substitute</span></td>
+            <td><span class="shop-badge shop-2">MotoZone</span></td>
+            <td class="price price-lowest">€18.95</td>
+            <td class="price" style="font-size:13px;color:var(--text-muted)">€23.31</td>
+            <td><span class="availability avail-limited"><span class="avail-dot"></span> Limited (5)</span></td>
+            <td class="qty">5</td>
+            <td class="delivery">Next day</td>
+            <td><div class="actions-cell"><button class="btn-sm btn-cart">+ Cart</button><button class="btn-sm btn-detail">Details</button></div></td>
+          </tr>
+          <tr>
+            <td class="part-number">F 026 407 116</td>
+            <td class="part-name">BOSCH</td>
+            <td><span class="part-type type-substitute">Substitute</span></td>
+            <td><span class="shop-badge shop-3">CarGo Parts</span></td>
+            <td class="price">€21.40</td>
+            <td class="price" style="font-size:13px;color:var(--text-muted)">€26.32</td>
+            <td><span class="availability avail-outofstock"><span class="avail-dot"></span> Out of Stock</span></td>
+            <td class="qty">0</td>
+            <td class="delivery">—</td>
+            <td><div class="actions-cell"><button class="btn-sm btn-cart" style="opacity:.4;pointer-events:none">+ Cart</button><button class="btn-sm btn-detail">Details</button></div></td>
+          </tr>
+
+          <!-- ═══════ GROUP 4: Substitute — FILTRON ═══════ -->
+          <tr class="group-header group-start">
+            <td colspan="10">
+              <div class="gh-flex">
+                <span class="gh-number">OP 616/3</span>
+                <span class="gh-name">FILTRON Oil Filter</span>
+                <span class="gh-type"><span class="part-type type-substitute">Substitute</span></span>
+              </div>
+            </td>
+          </tr>
+          <tr class="lowest-row">
+            <td class="part-number">OP 616/3</td>
+            <td class="part-name">FILTRON</td>
+            <td><span class="part-type type-substitute">Substitute</span></td>
+            <td><span class="shop-badge shop-2">MotoZone</span></td>
+            <td class="price price-lowest">€12.30</td>
+            <td class="price" style="font-size:13px;color:var(--text-muted)">€15.13</td>
+            <td><span class="availability avail-instock"><span class="avail-dot"></span> In Stock</span></td>
+            <td class="qty">200+</td>
+            <td class="delivery">Same day</td>
+            <td><div class="actions-cell"><button class="btn-sm btn-cart">+ Cart</button><button class="btn-sm btn-detail">Details</button></div></td>
+          </tr>
+          <tr>
+            <td class="part-number">OP 616/3</td>
+            <td class="part-name">FILTRON</td>
+            <td><span class="part-type type-substitute">Substitute</span></td>
+            <td><span class="shop-badge shop-3">CarGo Parts</span></td>
+            <td class="price">€13.10</td>
+            <td class="price" style="font-size:13px;color:var(--text-muted)">€16.11</td>
+            <td><span class="availability avail-instock"><span class="avail-dot"></span> In Stock</span></td>
+            <td class="qty">88</td>
+            <td class="delivery">Next day</td>
+            <td><div class="actions-cell"><button class="btn-sm btn-cart">+ Cart</button><button class="btn-sm btn-detail">Details</button></div></td>
+          </tr>
+          <tr>
+            <td class="part-number">OP 616/3</td>
+            <td class="part-name">FILTRON</td>
+            <td><span class="part-type type-substitute">Substitute</span></td>
+            <td><span class="shop-badge shop-1">AutoParts Pro</span></td>
+            <td class="price">€13.50</td>
+            <td class="price" style="font-size:13px;color:var(--text-muted)">€16.61</td>
+            <td><span class="availability avail-limited"><span class="avail-dot"></span> Limited (7)</span></td>
+            <td class="qty">7</td>
+            <td class="delivery">Next day</td>
+            <td><div class="actions-cell"><button class="btn-sm btn-cart">+ Cart</button><button class="btn-sm btn-detail">Details</button></div></td>
+          </tr>
+
+          <!-- ═══════ GROUP 5: Substitute — KNECHT/MAHLE ═══════ -->
+          <tr class="group-header group-start">
+            <td colspan="10">
+              <div class="gh-flex">
+                <span class="gh-number">OC 593/4</span>
+                <span class="gh-name">KNECHT / MAHLE Oil Filter</span>
+                <span class="gh-type"><span class="part-type type-substitute">Substitute</span></span>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td class="part-number">OC 593/4</td>
+            <td class="part-name">KNECHT / MAHLE</td>
+            <td><span class="part-type type-substitute">Substitute</span></td>
+            <td><span class="shop-badge shop-1">AutoParts Pro</span></td>
+            <td class="price">€21.00</td>
+            <td class="price" style="font-size:13px;color:var(--text-muted)">€25.83</td>
+            <td><span class="availability avail-instock"><span class="avail-dot"></span> In Stock</span></td>
+            <td class="qty">22</td>
+            <td class="delivery">Next day</td>
+            <td><div class="actions-cell"><button class="btn-sm btn-cart">+ Cart</button><button class="btn-sm btn-detail">Details</button></div></td>
+          </tr>
+          <tr class="lowest-row">
+            <td class="part-number">OC 593/4</td>
+            <td class="part-name">KNECHT / MAHLE</td>
+            <td><span class="part-type type-substitute">Substitute</span></td>
+            <td><span class="shop-badge shop-3">CarGo Parts</span></td>
+            <td class="price price-lowest">€19.75</td>
+            <td class="price" style="font-size:13px;color:var(--text-muted)">€24.29</td>
+            <td><span class="availability avail-instock"><span class="avail-dot"></span> In Stock</span></td>
+            <td class="qty">15</td>
+            <td class="delivery">Same day</td>
+            <td><div class="actions-cell"><button class="btn-sm btn-cart">+ Cart</button><button class="btn-sm btn-detail">Details</button></div></td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+
+  </main>
+</div>
+</body>
+</html>
