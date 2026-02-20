@@ -1,0 +1,242 @@
+import { type BrowserContext, type Frame, type Page } from 'playwright';
+import { chromium } from 'playwright-extra';
+import StealthPlugin from 'puppeteer-extra-plugin-stealth';
+import path from 'path';
+import { parseApcatHTML, type ApcatProductData } from './apcatParser';
+
+// Apply stealth plugin to avoid bot detection
+chromium.use(StealthPlugin());
+
+// Persistent browser data directory (stores cookies, sessions across runs)
+const USER_DATA_DIR = path.resolve(process.cwd(), '.browser-data-apcat');
+
+export interface ScrapeResult {
+  success: boolean;
+  data: ApcatProductData[] | null;
+  error?: string;
+}
+
+export interface ApcatLoginConfig {
+  loginUrl: string;
+  username: string;
+  password: string;
+}
+
+export interface ScraperConfig {
+  searchQuery: string;
+  login?: ApcatLoginConfig;
+  headless: boolean;
+}
+
+/**
+ * Dismiss the colorbox overlay modal if it is visible.
+ * The colorbox (#cboxOverlay + #cboxClose) lives inside the main iframe,
+ * so we must check all frames — not just the top-level page.
+ */
+async function dismissColorbox(page: Page): Promise<boolean> {
+  for (const frame of page.frames()) {
+    const cboxOverlay = await frame.$('#cboxOverlay');
+    if (cboxOverlay && await cboxOverlay.isVisible()) {
+      console.log('Colorbox overlay detected — closing...');
+      await frame.click('#cboxClose');
+      await page.waitForTimeout(1000);
+      return true;
+    }
+  }
+  return false;
+}
+
+async function login(page: Page, config: ScraperConfig['login']): Promise<void> {
+  if (!config) return;
+
+  // Step 1: Navigate to login page
+  console.log(`Navigating to login page: ${config.loginUrl}`);
+  await page.goto(config.loginUrl, { waitUntil: 'networkidle' });
+
+  // Check if already logged in — the username label is present on the post-login page
+  const userLabel = page.locator('span.usrNameLable', { hasText: config.username });
+  if (await userLabel.count() > 0) {
+    console.log(`Already logged in as: ${config.username}`);
+    return;
+  }
+
+  // The login form lives inside an iframe — get the correct frame
+  console.log('Looking for login iframe...');
+  const frames = page.frames();
+  console.log(`Found ${frames.length} frame(s): ${frames.map(f => f.url()).join(', ')}`);
+
+  // Find the frame that contains the login form (has the username input)
+  let loginFrame: Frame | null = null;
+  for (const frame of frames) {
+    const input = await frame.$('input[name="username"]');
+    if (input) {
+      loginFrame = frame;
+      console.log(`Login form found in frame: ${frame.url()}`);
+      break;
+    }
+  }
+
+  if (!loginFrame) {
+    throw new Error('Could not find login form in any frame');
+  }
+
+  // Fill in username
+  console.log('Entering username...');
+  await loginFrame.fill('input[name="username"]', config.username);
+
+  // Fill in password
+  console.log('Entering password...');
+  await loginFrame.fill('input[name="password"]', config.password);
+
+  // Click the Login button
+  console.log('Submitting login form...');
+  await loginFrame.click('input[name="login"]');
+
+  // Wait for the iframe to settle after login (no full page navigation — iframe updates in place)
+  await page.waitForTimeout(3000);
+
+  // Step 2 (optional): Handle "new session" prompt — appears when another session is already active
+  // Check in all frames since the prompt may be inside the iframe
+  for (const frame of page.frames()) {
+    const newSessionPrompt = await frame.$('span:has-text("Do you want to open a new session by deleting the current session?")');
+    if (newSessionPrompt) {
+      console.log('Active session detected — confirming new session...');
+      await frame.click('#ok');
+      await page.waitForTimeout(2000);
+      break;
+    }
+  }
+
+  // Step 3 (optional): Dismiss "Information" notification modal if it appears
+  // Check in all frames since the modal may be inside the iframe
+  for (const frame of page.frames()) {
+    const infoModal = await frame.$('div.topframe.title');
+    if (infoModal) {
+      const text = await infoModal.textContent();
+      if (text?.includes('Information')) {
+        console.log('Information modal detected — closing...');
+        await frame.click('div.notificationBtn.btn');
+        await page.waitForTimeout(2000);
+        break;
+      }
+    }
+  }
+
+  // Step 4 (optional): Dismiss colorbox overlay if present on the main page
+  await dismissColorbox(page);
+
+  console.log('Login completed');
+}
+
+async function searchAndScrape(page: Page, query: string): Promise<ApcatProductData[]> {
+  // Dismiss any colorbox overlay that may be blocking clicks
+  await dismissColorbox(page);
+
+  // Find the frame that contains the search input (same iframe as the main catalogue)
+  console.log(`Searching for: ${query}`);
+  let searchFrame: Frame | null = null;
+  for (const frame of page.frames()) {
+    const input = await frame.$('#tp_articlesearch_txt_articleSearch');
+    if (input) {
+      searchFrame = frame;
+      console.log(`Search form found in frame: ${frame.url()}`);
+      break;
+    }
+  }
+
+  if (!searchFrame) {
+    throw new Error('Could not find search input in any frame');
+  }
+
+  // Step 1: Fill in the article search input
+  await searchFrame.fill('#tp_articlesearch_txt_articleSearch', query);
+
+  // Step 2: Click the search button
+  console.log('Clicking search button...');
+  await searchFrame.click('#tp_articlesearch_articleSearch_imgBtn');
+
+  // Step 3: Wait for results to load
+  console.log('Waiting for search results to load...');
+  await page.waitForTimeout(3000);
+
+  // Step 4: Capture frame HTML and parse results
+  console.log('Capturing frame HTML...');
+  const htmlContent = await searchFrame.content();
+
+  console.log('Parsing product data...');
+  const products = parseApcatHTML(htmlContent);
+
+  console.log(`Found ${products.length} product(s)`);
+
+  return products;
+}
+
+export async function runScraper(config: ScraperConfig): Promise<ScrapeResult> {
+  let context: BrowserContext | undefined;
+
+  try {
+    console.log(`Launching browser (persistent profile: ${USER_DATA_DIR})...`);
+    context = await chromium.launchPersistentContext(USER_DATA_DIR, {
+      headless: config.headless,
+      userAgent:
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+    });
+
+    const page: Page = context.pages()[0] ?? (await context.newPage());
+
+    // Perform login if credentials provided
+    if (config.login) {
+      await login(page, config.login);
+    }
+
+    // Search and scrape
+    const data = await searchAndScrape(page, config.searchQuery);
+    console.log(`Scraped ${data.length} record(s)`);
+
+    return { success: true, data };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`Scraper error: ${message}`);
+    return { success: false, data: null, error: message };
+  } finally {
+    await context?.close();
+  }
+}
+
+// --- Entry point (only when run directly, not when imported by the server) ---
+
+if (require.main === module) {
+  const config: ScraperConfig = {
+    searchQuery: process.env.SEARCH_QUERY ?? '',
+    headless: false,
+    login: {
+      loginUrl: 'https://apcat.eu/',
+      username: process.env.APCAT_USERNAME ?? '',
+      password: process.env.APCAT_PASSWORD ?? '',
+    },
+  };
+
+  runScraper(config).then((result) => {
+    if (result.success && result.data) {
+      console.log('Scrape completed successfully!');
+      console.log(`Found ${result.data.length} products\n`);
+
+      const tableData = result.data.map((product, index) => ({
+        index: index + 1,
+        dealerPartNumber: product.dealerPartNumber,
+        availability: product.availability.join(' | '),
+        prices: product.prices.join(' | '),
+      }));
+
+      console.table(tableData);
+
+      if (result.data.length > 0) {
+        console.log('\n=== Detailed view of first product ===');
+        console.log(JSON.stringify(result.data[0], null, 2));
+      }
+    } else {
+      console.error('Scraping failed:', result.error);
+      process.exit(1);
+    }
+  });
+}
