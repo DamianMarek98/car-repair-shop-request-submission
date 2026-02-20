@@ -47,78 +47,63 @@ async function handleSearch() {
   clearError();
   showSpinner();
 
-  // Reset all tables to loading state
+  // Reset all tables to loading state — all start searching immediately
   setTableStatus('interparts-status', 'Wyszukiwanie…');
-  setTableStatus('apcat-status', 'Oczekiwanie…');
-  setTableStatus('autopartner-status', 'Oczekiwanie…');
+  setTableStatus('apcat-status', 'Wyszukiwanie…');
+  setTableStatus('autopartner-status', 'Wyszukiwanie…');
   setTbodyLoading('interparts-tbody', 9);
   setTbodyLoading('apcat-tbody', 5);
   setTbodyLoading('autopartner-tbody', 5);
 
-  try {
-    // ── Step 1: Inter Parts ──────────────────────────────────
-    console.log('[Search] Calling Inter Parts API…');
-    setTableStatus('interparts-status', 'Wyszukiwanie…');
-
-    let interPartsResult;
-    try {
-      interPartsResult = await searchInterParts(query);
-    } catch (err) {
+  // Fire all three searches in parallel — each renders results as soon as it completes
+  const interPartsPromise = searchInterParts(query)
+    .catch(err => {
       console.error('[InterParts] API error:', err);
-      interPartsResult = { success: false, error: err.message };
-    }
+      return { success: false, error: err.message };
+    })
+    .then(result => {
+      if (result.success) {
+        displayInterPartsResults(result.data);
+        setTableStatus('interparts-status', `${result.data.length} wynik(ów)`);
+      } else {
+        displayTbodyError('interparts-tbody', 9, result.error || 'Błąd wyszukiwania');
+        setTableStatus('interparts-status', 'Błąd');
+      }
+    });
 
-    if (interPartsResult.success) {
-      displayInterPartsResults(interPartsResult.data);
-      setTableStatus('interparts-status', `${interPartsResult.data.length} wynik(ów)`);
-    } else {
-      displayTbodyError('interparts-tbody', 9, interPartsResult.error || 'Błąd wyszukiwania');
-      setTableStatus('interparts-status', 'Błąd');
-    }
-
-    // ── Step 2: APCAT (after Inter Parts finishes) ───────────
-    console.log('[Search] Calling APCAT API…');
-    setTableStatus('apcat-status', 'Wyszukiwanie…');
-
-    let apcatResult;
-    try {
-      apcatResult = await searchApcat(query);
-    } catch (err) {
+  const apcatPromise = searchApcat(query)
+    .catch(err => {
       console.error('[APCAT] API error:', err);
-      apcatResult = { success: false, error: err.message };
-    }
+      return { success: false, error: err.message };
+    })
+    .then(result => {
+      if (result.success) {
+        displayApcatResults(result.data);
+        setTableStatus('apcat-status', `${result.data ? result.data.length : 0} wynik(ów)`);
+      } else {
+        displayTbodyError('apcat-tbody', 5, result.error || 'Błąd wyszukiwania');
+        setTableStatus('apcat-status', 'Błąd');
+      }
+    });
 
-    if (apcatResult.success) {
-      displayApcatResults(apcatResult.data);
-      setTableStatus('apcat-status', `${apcatResult.data ? apcatResult.data.length : 0} wynik(ów)`);
-    } else {
-      displayTbodyError('apcat-tbody', 5, apcatResult.error || 'Błąd wyszukiwania');
-      setTableStatus('apcat-status', 'Błąd');
-    }
-
-    // ── Step 3: Auto Partner (after APCAT finishes) ────────────
-    console.log('[Search] Calling Auto Partner API…');
-    setTableStatus('autopartner-status', 'Wyszukiwanie…');
-
-    let autoPartnerResult;
-    try {
-      autoPartnerResult = await searchAutoPartner(query);
-    } catch (err) {
+  const autoPartnerPromise = searchAutoPartner(query)
+    .catch(err => {
       console.error('[AutoPartner] API error:', err);
-      autoPartnerResult = { success: false, error: err.message };
-    }
+      return { success: false, error: err.message };
+    })
+    .then(result => {
+      if (result.success) {
+        displayAutoPartnerResults(result.data);
+        setTableStatus('autopartner-status', `${result.data ? result.data.length : 0} wynik(ów)`);
+      } else {
+        displayTbodyError('autopartner-tbody', 5, result.error || 'Błąd wyszukiwania');
+        setTableStatus('autopartner-status', 'Błąd');
+      }
+    });
 
-    if (autoPartnerResult.success) {
-      displayAutoPartnerResults(autoPartnerResult.data);
-      setTableStatus('autopartner-status', `${autoPartnerResult.data ? autoPartnerResult.data.length : 0} wynik(ów)`);
-    } else {
-      displayTbodyError('autopartner-tbody', 5, autoPartnerResult.error || 'Błąd wyszukiwania');
-      setTableStatus('autopartner-status', 'Błąd');
-    }
-
-  } finally {
-    hideSpinner();
-  }
+  // Hide spinner only after all searches complete (regardless of success/failure)
+  await Promise.allSettled([interPartsPromise, apcatPromise, autoPartnerPromise]);
+  hideSpinner();
 }
 
 // ── API calls ─────────────────────────────────────────────────
