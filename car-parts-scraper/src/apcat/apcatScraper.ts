@@ -35,11 +35,15 @@ export interface ScraperConfig {
  */
 async function dismissColorbox(page: Page): Promise<boolean> {
   for (const frame of page.frames()) {
-    const cboxOverlay = await frame.$('#cboxOverlay');
-    if (cboxOverlay && await cboxOverlay.isVisible()) {
+    const closeBtn = await frame.$('#cboxClose');
+    if (closeBtn && await closeBtn.isVisible()) {
       console.log('Colorbox overlay detected — closing...');
-      await frame.click('#cboxClose');
-      await page.waitForTimeout(1000);
+      try {
+        await frame.click('#cboxClose', { timeout: 5000 });
+        await page.waitForTimeout(1000);
+      } catch (err) {
+        console.warn('Could not close colorbox overlay, continuing...', err);
+      }
       return true;
     }
   }

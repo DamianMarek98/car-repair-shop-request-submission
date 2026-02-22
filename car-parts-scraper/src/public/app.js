@@ -21,6 +21,23 @@ const SHOP_BADGE_CLASS = {
   [Shop.AUTO_PARTNER]: 'shop-autopartner',
 };
 
+// ── Part number normalization (for grouping across shops) ────
+function normalizePartNumber(str) {
+  const upper = str.toUpperCase().trim();
+  const tokens = upper.split(/\s+/);
+
+  const cores = tokens
+    .filter(t => /\d/.test(t))          // keep only tokens that contain digits
+    .map(t => t.replace(/^[A-Z]+/, '')) // strip leading-only alpha prefix
+    .filter(Boolean);                    // drop empty results
+
+  if (cores.length === 0) return upper;  // fallback: return original
+
+  // Pick the longest core as the canonical key
+  cores.sort((a, b) => b.length - a.length);
+  return cores[0];
+}
+
 // ── DOM ready ────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   console.log('DOM loaded, initializing event listeners');
@@ -48,12 +65,17 @@ async function handleSearch() {
   showSpinner();
 
   // Reset all tables to loading state — all start searching immediately
+  setTableStatus('grouped-status', 'Wyszukiwanie…');
   setTableStatus('interparts-status', 'Wyszukiwanie…');
   setTableStatus('apcat-status', 'Wyszukiwanie…');
   setTableStatus('autopartner-status', 'Wyszukiwanie…');
+  setTbodyLoading('grouped-tbody', 5);
   setTbodyLoading('interparts-tbody', 6);
   setTbodyLoading('apcat-tbody', 6);
   setTbodyLoading('autopartner-tbody', 6);
+
+  // Collect items from all shops for the grouped table
+  const groupedItems = [];
 
   // Fire all three searches in parallel — each renders results as soon as it completes
   const interPartsPromise = searchInterParts(query)
@@ -65,6 +87,8 @@ async function handleSearch() {
       if (result.success) {
         displayInterPartsResults(result.data);
         setTableStatus('interparts-status', `${result.data.length} wynik(ów)`);
+        // Collect for grouped table
+        result.data.forEach(p => groupedItems.push(normalizeForGrouping(Shop.INTER_PARTS, p)));
       } else {
         displayTbodyError('interparts-tbody', 6, result.error || 'Błąd wyszukiwania');
         setTableStatus('interparts-status', 'Błąd');
@@ -80,6 +104,8 @@ async function handleSearch() {
       if (result.success) {
         displayApcatResults(result.data);
         setTableStatus('apcat-status', `${result.data ? result.data.length : 0} wynik(ów)`);
+        // Collect for grouped table
+        (result.data || []).forEach(p => groupedItems.push(normalizeForGrouping(Shop.APCAT, p)));
       } else {
         displayTbodyError('apcat-tbody', 6, result.error || 'Błąd wyszukiwania');
         setTableStatus('apcat-status', 'Błąd');
@@ -95,14 +121,17 @@ async function handleSearch() {
       if (result.success) {
         displayAutoPartnerResults(result.data);
         setTableStatus('autopartner-status', `${result.data ? result.data.length : 0} wynik(ów)`);
+        // Collect for grouped table
+        (result.data || []).forEach(p => groupedItems.push(normalizeForGrouping(Shop.AUTO_PARTNER, p)));
       } else {
         displayTbodyError('autopartner-tbody', 6, result.error || 'Błąd wyszukiwania');
         setTableStatus('autopartner-status', 'Błąd');
       }
     });
 
-  // Hide spinner only after all searches complete (regardless of success/failure)
+  // Wait for all searches, then build grouped table
   await Promise.allSettled([interPartsPromise, apcatPromise, autoPartnerPromise]);
+  displayGroupedResults(groupedItems, query);
   hideSpinner();
 }
 
@@ -282,6 +311,164 @@ function createAutoPartnerRow(product, index) {
   `;
 
   return tr;
+}
+
+// ── Grouped results (Zgrupowany wynik) ──────────────────────
+
+/**
+ * Map a product from any shop into a uniform shape for grouping.
+ */
+function normalizeForGrouping(shop, product) {
+  let number, producer, availabilityHtml, priceHtml;
+
+  if (shop === Shop.INTER_PARTS) {
+    number = product.sku;
+    producer = product.manufacturer;
+    priceHtml = `
+      <div style="line-height:1.5">
+        <div class="price" style="font-size:13px">${escapeHtml(product.priceGross)}</div>
+        <div class="price" style="font-size:11px;color:var(--text-muted)">${escapeHtml(product.priceRetail)}</div>
+      </div>`;
+    // Build mini availability table (same logic as createInterPartsRow)
+    const qtys = product.quantities || [];
+    const branches = product.branchAvailability || [];
+    const routes = product.routeDeparture || [];
+    const rowCount = Math.max(qtys.length, branches.length, routes.length);
+    if (rowCount > 0) {
+      const thS = 'padding:2px 4px;font-size:10px;color:var(--text-muted);font-weight:600;text-align:left;border-bottom:1px solid var(--border)';
+      const tdS = 'padding:2px 4px;font-size:11px;white-space:nowrap';
+      let rows = '';
+      for (let i = 0; i < rowCount; i++) {
+        rows += `<tr><td style="${tdS}">${escapeHtml(qtys[i] || '')}</td><td style="${tdS}">${escapeHtml(branches[i] || '')}</td><td style="${tdS}">${escapeHtml(routes[i] || '')}</td></tr>`;
+      }
+      availabilityHtml = `<table style="width:100%;border-collapse:collapse"><thead><tr><th style="${thS}">Ilość</th><th style="${thS}">W filii</th><th style="${thS}">Wyjazd</th></tr></thead><tbody>${rows}</tbody></table>`;
+    } else {
+      availabilityHtml = '—';
+    }
+  } else if (shop === Shop.APCAT) {
+    number = product.dealerPartNumber;
+    producer = product.producer;
+    availabilityHtml = (product.availability && product.availability.length > 0)
+      ? product.availability.map(a => `<div>${escapeHtml(a)}</div>`).join('')
+      : '—';
+    priceHtml = (product.prices && product.prices.length > 0)
+      ? product.prices.map(p => `<div class="price" style="font-size:11px">${escapeHtml(p)}</div>`).join('')
+      : '—';
+  } else {
+    // Auto Partner
+    number = product.name;
+    producer = product.producer;
+    availabilityHtml = escapeHtml(product.availability);
+    priceHtml = `<span class="price" style="font-size:13px">${escapeHtml(product.price)}</span>`;
+  }
+
+  // Determine if this item has meaningful availability data
+  let hasAvailability = false;
+  if (shop === Shop.INTER_PARTS) {
+    hasAvailability = (product.quantities && product.quantities.length > 0)
+      || (product.branchAvailability && product.branchAvailability.length > 0);
+  } else if (shop === Shop.APCAT) {
+    hasAvailability = product.availability && product.availability.length > 0
+      && product.availability.some(a => !/^.*--$/.test(a.trim()));
+  } else {
+    hasAvailability = !!product.availability && product.availability.trim() !== ''
+      && product.availability.trim() !== '0' && product.availability.trim() !== '0 [0]';
+  }
+
+  return {
+    shop,
+    number: number || '',
+    producer: producer || '',
+    availabilityHtml,
+    priceHtml,
+    hasAvailability,
+    normalizedKey: normalizePartNumber(number || ''),
+  };
+}
+
+/**
+ * Render the grouped results table from all collected items.
+ * @param {Array} items - normalized items from all shops
+ * @param {string} searchQuery - the original search query (for prioritizing matching groups)
+ */
+function displayGroupedResults(items, searchQuery) {
+  const tbody = document.getElementById('grouped-tbody');
+  tbody.innerHTML = '';
+
+  if (!items || items.length === 0) {
+    tbody.innerHTML = emptyRow(5, 'Nie znaleziono wyników');
+    setTableStatus('grouped-status', '0 wynik(ów)');
+    return;
+  }
+
+  // Group by normalized key
+  const groups = new Map();
+  items.forEach(item => {
+    const key = item.normalizedKey;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(item);
+  });
+
+  // Sort groups: exact match to search query first, then groups with availability, then the rest
+  const normalizedQuery = normalizePartNumber(searchQuery || '');
+  const sortedKeys = [...groups.keys()].sort((a, b) => {
+    const aMatch = a === normalizedQuery;
+    const bMatch = b === normalizedQuery;
+    if (aMatch !== bMatch) return aMatch ? -1 : 1;
+
+    // Then: groups that have at least one item with availability come first
+    const aHasAvail = groups.get(a).some(i => i.hasAvailability);
+    const bHasAvail = groups.get(b).some(i => i.hasAvailability);
+    if (aHasAvail !== bHasAvail) return aHasAvail ? -1 : 1;
+
+    // Fallback: alphabetical
+    return a.localeCompare(b);
+  });
+
+  let totalItems = 0;
+  sortedKeys.forEach(key => {
+    const groupItems = groups.get(key);
+
+    // Sort items within group: items with availability first
+    groupItems.sort((a, b) => {
+      if (a.hasAvailability !== b.hasAvailability) return a.hasAvailability ? -1 : 1;
+      return 0;
+    });
+
+    totalItems += groupItems.length;
+
+    // Group header row
+    const headerTr = document.createElement('tr');
+    headerTr.className = 'group-header';
+    headerTr.innerHTML = `
+      <td colspan="5">
+        <div class="gh-flex">
+          <span class="gh-number">${escapeHtml(key)}</span>
+          <span style="font-size:12px;color:var(--text-muted);font-weight:400">${groupItems.length} wynik(ów) z ${countUniqueShops(groupItems)} sklep(ów)</span>
+        </div>
+      </td>`;
+    tbody.appendChild(headerTr);
+
+    // Item rows within the group
+    groupItems.forEach((item, idx) => {
+      const tr = document.createElement('tr');
+      if (idx === 0) tr.className = 'group-start';
+      tr.innerHTML = `
+        <td class="part-number">${escapeHtml(item.number)}</td>
+        <td>${shopBadge(item.shop)}</td>
+        <td>${escapeHtml(item.producer)}</td>
+        <td class="delivery">${item.availabilityHtml}</td>
+        <td>${item.priceHtml}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  });
+
+  setTableStatus('grouped-status', `${totalItems} wynik(ów) w ${sortedKeys.length} grup(ach)`);
+}
+
+function countUniqueShops(items) {
+  return new Set(items.map(i => i.shop)).size;
 }
 
 // ── Shared helpers ────────────────────────────────────────────

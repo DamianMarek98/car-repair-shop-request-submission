@@ -345,10 +345,34 @@
       </button>
     </div>
 
-
+    <!-- Zgrupowany wynik (Grouped Results) -->
+    <div class="table-wrap" id="grouped-table-wrap">
+      <div class="table-header-bar">
+        <h2>Zgrupowany wynik</h2>
+        <span id="grouped-status" style="font-size:13px;color:var(--text-muted)"></span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Numer</th>
+            <th>Sklep</th>
+            <th>Producent</th>
+            <th>Dostępność</th>
+            <th>Cena</th>
+          </tr>
+        </thead>
+        <tbody id="grouped-tbody">
+          <tr>
+            <td colspan="5" style="text-align:center;padding:40px;color:var(--text-muted)">
+              Wyszukaj części, aby zobaczyć wyniki
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
     <!-- Inter Parts Table -->
-    <div class="table-wrap" id="interparts-table-wrap">
+    <div class="table-wrap" id="interparts-table-wrap" style="margin-top:28px">
       <div class="table-header-bar">
         <h2>Inter Parts</h2>
         <span id="interparts-status" style="font-size:13px;color:var(--text-muted)"></span>
