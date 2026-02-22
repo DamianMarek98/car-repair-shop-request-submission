@@ -4,6 +4,7 @@ import * as cheerio from 'cheerio';
 
 export interface AutoPartnerProductData {
   name: string;         // e.g. "75117223E MD"
+  producer: string;     // e.g. "VALEO" (from <b class="producer-name">)
   availability: string; // e.g. "3 [0]"
   price: string;        // e.g. "144,39 PLN brutto"
 }
@@ -49,8 +50,13 @@ export function parseAutoPartnerHTML(htmlContent: string): AutoPartnerProductDat
     // Located in: span.marked.name-labels (text content, excluding the trailing <br>)
     const name = $row.find('span.marked.name-labels').first().text().trim();
 
+    // --- producer ---
+    // Located in: <b class="producer-name">VALEO</b> (may be absent)
+    const producer = $row.find('b.producer-name').first().text().trim();
+
     products.push({
       name: name || 'N/A',
+      producer: producer || '',
       availability: availabilityText,
       price,
     });
@@ -73,6 +79,7 @@ function main() {
   const tableData = products.map((product, index) => ({
     index: index + 1,
     name: product.name,
+    producer: product.producer,
     availability: product.availability,
     price: product.price,
   }));

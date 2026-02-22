@@ -51,9 +51,9 @@ async function handleSearch() {
   setTableStatus('interparts-status', 'Wyszukiwanie…');
   setTableStatus('apcat-status', 'Wyszukiwanie…');
   setTableStatus('autopartner-status', 'Wyszukiwanie…');
-  setTbodyLoading('interparts-tbody', 9);
-  setTbodyLoading('apcat-tbody', 5);
-  setTbodyLoading('autopartner-tbody', 5);
+  setTbodyLoading('interparts-tbody', 6);
+  setTbodyLoading('apcat-tbody', 6);
+  setTbodyLoading('autopartner-tbody', 6);
 
   // Fire all three searches in parallel — each renders results as soon as it completes
   const interPartsPromise = searchInterParts(query)
@@ -66,7 +66,7 @@ async function handleSearch() {
         displayInterPartsResults(result.data);
         setTableStatus('interparts-status', `${result.data.length} wynik(ów)`);
       } else {
-        displayTbodyError('interparts-tbody', 9, result.error || 'Błąd wyszukiwania');
+        displayTbodyError('interparts-tbody', 6, result.error || 'Błąd wyszukiwania');
         setTableStatus('interparts-status', 'Błąd');
       }
     });
@@ -81,7 +81,7 @@ async function handleSearch() {
         displayApcatResults(result.data);
         setTableStatus('apcat-status', `${result.data ? result.data.length : 0} wynik(ów)`);
       } else {
-        displayTbodyError('apcat-tbody', 5, result.error || 'Błąd wyszukiwania');
+        displayTbodyError('apcat-tbody', 6, result.error || 'Błąd wyszukiwania');
         setTableStatus('apcat-status', 'Błąd');
       }
     });
@@ -96,7 +96,7 @@ async function handleSearch() {
         displayAutoPartnerResults(result.data);
         setTableStatus('autopartner-status', `${result.data ? result.data.length : 0} wynik(ów)`);
       } else {
-        displayTbodyError('autopartner-tbody', 5, result.error || 'Błąd wyszukiwania');
+        displayTbodyError('autopartner-tbody', 6, result.error || 'Błąd wyszukiwania');
         setTableStatus('autopartner-status', 'Błąd');
       }
     });
@@ -158,7 +158,7 @@ function displayInterPartsResults(products) {
   tbody.innerHTML = '';
 
   if (!products || products.length === 0) {
-    tbody.innerHTML = emptyRow(9, 'Nie znaleziono wyników');
+    tbody.innerHTML = emptyRow(6, 'Nie znaleziono wyników');
     return;
   }
 
@@ -170,19 +170,41 @@ function displayInterPartsResults(products) {
 function createInterPartsRow(product, index) {
   const tr = document.createElement('tr');
 
-  const quantities = formatArray(product.quantities);
-  const branchAvail = formatArray(product.branchAvailability);
-  const routeDept = formatArray(product.routeDeparture);
+  // Build a mini availability table from parallel arrays (Ilość, W filii, Wyjazd trasy)
+  const qtys = product.quantities || [];
+  const branches = product.branchAvailability || [];
+  const routes = product.routeDeparture || [];
+  const rowCount = Math.max(qtys.length, branches.length, routes.length);
+
+  let availabilityHtml = '—';
+  if (rowCount > 0) {
+    const thStyle = 'padding:2px 6px;font-size:11px;color:var(--text-muted);font-weight:600;text-align:left;border-bottom:1px solid var(--border)';
+    const tdStyle = 'padding:2px 6px;font-size:12px;white-space:nowrap';
+    let rows = '';
+    for (let i = 0; i < rowCount; i++) {
+      rows += `<tr>
+        <td style="${tdStyle}">${escapeHtml(qtys[i] || '')}</td>
+        <td style="${tdStyle}">${escapeHtml(branches[i] || '')}</td>
+        <td style="${tdStyle}">${escapeHtml(routes[i] || '')}</td>
+      </tr>`;
+    }
+    availabilityHtml = `
+      <table style="width:100%;border-collapse:collapse">
+        <thead><tr>
+          <th style="${thStyle}">Ilość</th>
+          <th style="${thStyle}">W filii (GDP)</th>
+          <th style="${thStyle}">Wyjazd trasy</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  }
 
   tr.innerHTML = `
     <td style="text-align:center;color:var(--text-muted)">${index}</td>
     <td class="part-number">${escapeHtml(product.sku)}</td>
     <td>${shopBadge(Shop.INTER_PARTS)}</td>
     <td class="part-name">${escapeHtml(product.manufacturer)}</td>
-    <td class="qty">${quantities}</td>
-    <td class="delivery">${branchAvail}</td>
-    <td class="delivery">${routeDept}</td>
-    <td class="qty">${escapeHtml(product.stock)}</td>
+    <td class="delivery" style="padding:4px">${availabilityHtml}</td>
     <td>
       <div style="line-height:1.5">
         <div class="price">${escapeHtml(product.priceGross)}</div>
@@ -200,7 +222,7 @@ function displayApcatResults(products) {
   tbody.innerHTML = '';
 
   if (!products || products.length === 0) {
-    tbody.innerHTML = emptyRow(5, 'Nie znaleziono wyników');
+    tbody.innerHTML = emptyRow(6, 'Nie znaleziono wyników');
     return;
   }
 
@@ -224,6 +246,7 @@ function createApcatRow(product, index) {
     <td style="text-align:center;color:var(--text-muted)">${index}</td>
     <td class="part-number">${escapeHtml(product.dealerPartNumber)}</td>
     <td>${shopBadge(Shop.APCAT)}</td>
+    <td>${escapeHtml(product.producer)}</td>
     <td class="delivery" style="line-height:1.8">${availability}</td>
     <td><div style="line-height:1.8">${prices}</div></td>
   `;
@@ -237,7 +260,7 @@ function displayAutoPartnerResults(products) {
   tbody.innerHTML = '';
 
   if (!products || products.length === 0) {
-    tbody.innerHTML = emptyRow(5, 'Nie znaleziono wyników');
+    tbody.innerHTML = emptyRow(6, 'Nie znaleziono wyników');
     return;
   }
 
@@ -253,6 +276,7 @@ function createAutoPartnerRow(product, index) {
     <td style="text-align:center;color:var(--text-muted)">${index}</td>
     <td class="part-number">${escapeHtml(product.name)}</td>
     <td>${shopBadge(Shop.AUTO_PARTNER)}</td>
+    <td>${escapeHtml(product.producer)}</td>
     <td class="delivery">${escapeHtml(product.availability)}</td>
     <td class="price" style="font-size:13px">${escapeHtml(product.price)}</td>
   `;
