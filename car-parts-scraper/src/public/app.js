@@ -70,7 +70,7 @@ async function handleSearch() {
   setTableStatus('apcat-status', 'Wyszukiwanie…');
   setTableStatus('autopartner-status', 'Wyszukiwanie…');
   setTbodyLoading('grouped-tbody', 5);
-  setTbodyLoading('interparts-tbody', 6);
+  setTbodyLoading('interparts-tbody', 7);
   setTbodyLoading('apcat-tbody', 6);
   setTbodyLoading('autopartner-tbody', 6);
 
@@ -90,7 +90,7 @@ async function handleSearch() {
         // Collect for grouped table
         result.data.forEach(p => groupedItems.push(normalizeForGrouping(Shop.INTER_PARTS, p)));
       } else {
-        displayTbodyError('interparts-tbody', 6, result.error || 'Błąd wyszukiwania');
+        displayTbodyError('interparts-tbody', 7, result.error || 'Błąd wyszukiwania');
         setTableStatus('interparts-status', 'Błąd');
       }
     });
@@ -187,7 +187,7 @@ function displayInterPartsResults(products) {
   tbody.innerHTML = '';
 
   if (!products || products.length === 0) {
-    tbody.innerHTML = emptyRow(6, 'Nie znaleziono wyników');
+    tbody.innerHTML = emptyRow(7, 'Nie znaleziono wyników');
     return;
   }
 
@@ -228,6 +228,10 @@ function createInterPartsRow(product, index) {
       </table>`;
   }
 
+  const linkCell = product.link
+    ? `<td><a href="${escapeHtml(product.link)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="padding:6px 14px;font-size:13px">Kup</a></td>`
+    : `<td style="color:var(--text-muted)">—</td>`;
+
   tr.innerHTML = `
     <td style="text-align:center;color:var(--text-muted)">${index}</td>
     <td class="part-number">${escapeHtml(product.sku)}</td>
@@ -240,6 +244,7 @@ function createInterPartsRow(product, index) {
         <div class="price" style="font-size:13px;color:var(--text-muted)">${escapeHtml(product.priceRetail)}</div>
       </div>
     </td>
+    ${linkCell}
   `;
 
   return tr;
@@ -363,7 +368,7 @@ function normalizeForGrouping(shop, product) {
   }
 
   // Determine if this item has meaningful availability data
-  let hasAvailability = false;
+  let hasAvailability;
   if (shop === Shop.INTER_PARTS) {
     hasAvailability = (product.quantities && product.quantities.length > 0)
       || (product.branchAvailability && product.branchAvailability.length > 0);

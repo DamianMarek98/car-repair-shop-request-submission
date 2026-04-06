@@ -13,6 +13,7 @@ export interface InterPartsProductData {
   priceRetail: string;             // Cena detal. (retail gross)
   productCode?: string;            // Internal Inter Cars code (E1A06E)
   productName?: string;            // Product name for context
+  link?: string;                   // Product page link
 }
 
 export function parseInterPartsHTML(htmlContent: string): InterPartsProductData[] {
@@ -27,8 +28,11 @@ export function parseInterPartsHTML(htmlContent: string): InterPartsProductData[
     // Extract product code
     const productCode = $product.attr('data-product-code') || '';
 
-    // Extract SKU
-    const sku = $product.find('a.activenumber.activenumber--listingcollapsed').first().text().trim();
+    // Extract SKU and link
+    const skuAnchor = $product.find('a.activenumber.activenumber--listingcollapsed').first();
+    const sku = skuAnchor.text().trim();
+    const linkHref = skuAnchor.attr('href');
+    const link = linkHref ? `https://pl.e-cat.intercars.eu${linkHref}` : undefined;
 
     // Extract manufacturer (with multiple fallback strategies)
     let manufacturer = '';
@@ -122,6 +126,7 @@ export function parseInterPartsHTML(htmlContent: string): InterPartsProductData[
       priceRetail: priceRetail || 'N/A',
       productCode,
       productName,
+      link,
     };
 
     products.push(productData);
