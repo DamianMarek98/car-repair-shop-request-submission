@@ -7,6 +7,7 @@ export interface AutoPartnerProductData {
   producer: string;     // e.g. "VALEO" (from <b class="producer-name">)
   availability: string; // e.g. "3 [0]"
   price: string;        // e.g. "144,39 PLN brutto"
+  link?: string;        // Product page link from data-details-url
 }
 
 export function parseAutoPartnerHTML(htmlContent: string): AutoPartnerProductData[] {
@@ -54,11 +55,15 @@ export function parseAutoPartnerHTML(htmlContent: string): AutoPartnerProductDat
     // Located in: <b class="producer-name">VALEO</b> (may be absent)
     const producer = $row.find('b.producer-name').first().text().trim();
 
+    // --- link ---
+    const link = $row.attr('data-details-url') || undefined;
+
     products.push({
       name: name || 'N/A',
       producer: producer || '',
       availability: availabilityText,
       price,
+      link,
     });
   });
 
