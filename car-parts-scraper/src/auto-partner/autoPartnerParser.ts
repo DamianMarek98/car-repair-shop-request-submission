@@ -7,6 +7,7 @@ export interface AutoPartnerProductData {
   producer: string;     // e.g. "VALEO" (from <b class="producer-name">)
   availability: string; // e.g. "3 [0]"
   price: string;        // e.g. "144,39 PLN brutto"
+  priceNetto: string;   // e.g. "96,75 PLN netto" (from data-original-title on span.price-text)
   link?: string;        // Product page link from data-details-url
 }
 
@@ -47,6 +48,11 @@ export function parseAutoPartnerHTML(htmlContent: string): AutoPartnerProductDat
 
     const price = `${priceValue} ${currency} brutto`.trim();
 
+    // --- priceNetto ---
+    // Located in: td.price span.price-text[data-original-title] e.g. "96,75 PLN netto"
+    const priceNettoRaw = $priceText.attr('data-original-title') || '';
+    const priceNetto = priceNettoRaw.trim();
+
     // --- name ---
     // Located in: span.marked.name-labels (text content, excluding the trailing <br>)
     const name = $row.find('span.marked.name-labels').first().text().trim();
@@ -63,6 +69,7 @@ export function parseAutoPartnerHTML(htmlContent: string): AutoPartnerProductDat
       producer: producer || '',
       availability: availabilityText,
       price,
+      priceNetto,
       link,
     });
   });

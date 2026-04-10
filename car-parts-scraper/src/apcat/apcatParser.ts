@@ -7,11 +7,23 @@ export interface ApcatProductData {
   producer: string;           // Producer/manufacturer name, e.g. "MEAT & DORIA" (from einspeiser rows)
   availability: string[];     // Stock table entries, e.g. ["24h --", "CD 1", "HUB --", "48h --"]
   prices: string[];           // Price rows, e.g. ["Net purchase: 131,54 PLN", "Gross purchase: 161,79 PLN", ...]
+  bonus: string;              // Loyalty bonus value, e.g. "10,08 zł", or empty string if absent
 }
 
 export function parseApcatHTML(htmlContent: string): ApcatProductData[] {
   const $ = cheerio.load(htmlContent);
   const products: ApcatProductData[] = [];
+
+  // Pre-collect all bonus values globally in document order.
+  // The bonus widget is a <div> nested inside a <span> inside a <td>, and HTML parsers
+  // (htmlparser2 / parse5) may foster-parent the <div> out of the <span>, which means
+  // $row.find('div.bonus_info_widget_text') returns empty even when the element exists.
+  // Collecting globally and assigning by product index is the reliable alternative.
+  const bonusValues: string[] = [];
+  $('div.bonus_info_widget_text').each((_i, el) => {
+    const raw = $(el).text().trim();
+    bonusValues.push(raw.replace(/^bonus:\s*/i, '').trim());
+  });
 
   // Iterate all rows with a row_type attribute. Producer rows (row_type="einspeiser")
   // appear before their product rows (row_type="artikel1"). We track the current producer
@@ -82,11 +94,15 @@ export function parseApcatHTML(htmlContent: string): ApcatProductData[] {
       });
     }
 
+    // bonus: assigned by document order from the pre-collected global list
+    const bonus = bonusValues[products.length] ?? '';
+
     products.push({
       dealerPartNumber: dealerPartNumber || 'N/A',
       producer: currentProducer,
       availability,
       prices,
+      bonus,
     });
   });
 

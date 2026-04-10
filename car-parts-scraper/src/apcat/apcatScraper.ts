@@ -163,6 +163,14 @@ async function searchAndScrape(page: Page, query: string): Promise<ApcatProductD
   console.log('Waiting for search results to load...');
   await page.waitForTimeout(3000);
 
+  // Step 3b: Wait for ERP bonus widgets to be injected (loaded asynchronously by APCAT)
+  try {
+    await searchFrame.waitForSelector('div.bonus_info_widget_text', { timeout: 5000 });
+    console.log('ERP bonus widgets loaded');
+  } catch {
+    console.log('No bonus widgets appeared within timeout — product may have no bonus');
+  }
+
   // Step 4: Capture frame HTML and parse results
   console.log('Capturing frame HTML...');
   const htmlContent = await searchFrame.content();

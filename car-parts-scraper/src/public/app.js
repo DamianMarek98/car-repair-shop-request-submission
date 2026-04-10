@@ -38,6 +38,26 @@ function normalizePartNumber(str) {
   return cores[0];
 }
 
+// ── Availability detection ────────────────────────────────────
+function isInterPartsAvailable(product) {
+  return (product.quantities && product.quantities.length > 0)
+      || (product.branchAvailability && product.branchAvailability.length > 0);
+}
+
+// Entries look like "24h --", "CD 1", "HUB 4". Available if at least one has a numeric value.
+function isApcatAvailable(product) {
+  if (!product.availability || product.availability.length === 0) return false;
+  return product.availability.some(a => {
+    const value = a.trim().split(/\s+/).pop();
+    return value !== '--' && /\d/.test(value);
+  });
+}
+
+function isAutoPartnerAvailable(product) {
+  const av = (product.availability || '').trim();
+  return av !== '' && av !== '0' && av !== '0 [0]';
+}
+
 // ── DOM ready ────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   console.log('DOM loaded, initializing event listeners');
@@ -52,6 +72,16 @@ document.addEventListener('DOMContentLoaded', () => {
   searchInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') handleSearch();
   });
+
+  function wireFilterCheckbox(checkboxId, tableWrapId) {
+    document.getElementById(checkboxId)?.addEventListener('change', function () {
+      document.getElementById(tableWrapId).classList.toggle('filter-available', this.checked);
+    });
+  }
+  wireFilterCheckbox('filter-grouped',     'grouped-table-wrap');
+  wireFilterCheckbox('filter-interparts',  'interparts-table-wrap');
+  wireFilterCheckbox('filter-apcat',       'apcat-table-wrap');
+  wireFilterCheckbox('filter-autopartner', 'autopartner-table-wrap');
 
   console.log('Event listeners attached successfully');
 });
@@ -71,7 +101,7 @@ async function handleSearch() {
   setTableStatus('autopartner-status', 'Wyszukiwanie…');
   setTbodyLoading('grouped-tbody', 5);
   setTbodyLoading('interparts-tbody', 7);
-  setTbodyLoading('apcat-tbody', 6);
+  setTbodyLoading('apcat-tbody', 7);
   setTbodyLoading('autopartner-tbody', 7);
 
   // Collect items from all shops for the grouped table
@@ -107,7 +137,7 @@ async function handleSearch() {
         // Collect for grouped table
         (result.data || []).forEach(p => groupedItems.push(normalizeForGrouping(Shop.APCAT, p)));
       } else {
-        displayTbodyError('apcat-tbody', 6, result.error || 'Błąd wyszukiwania');
+        displayTbodyError('apcat-tbody', 7, result.error || 'Błąd wyszukiwania');
         setTableStatus('apcat-status', 'Błąd');
       }
     });
@@ -198,6 +228,7 @@ function displayInterPartsResults(products) {
 
 function createInterPartsRow(product, index) {
   const tr = document.createElement('tr');
+  tr.dataset.available = String(isInterPartsAvailable(product));
 
   // Build a mini availability table from parallel arrays (Ilość, W filii, Wyjazd trasy)
   const qtys = product.quantities || [];
@@ -256,7 +287,7 @@ function displayApcatResults(products) {
   tbody.innerHTML = '';
 
   if (!products || products.length === 0) {
-    tbody.innerHTML = emptyRow(6, 'Nie znaleziono wyników');
+    tbody.innerHTML = emptyRow(7, 'Nie znaleziono wyników');
     return;
   }
 
@@ -267,6 +298,7 @@ function displayApcatResults(products) {
 
 function createApcatRow(product, index) {
   const tr = document.createElement('tr');
+  tr.dataset.available = String(isApcatAvailable(product));
 
   const availability = product.availability.length > 0
     ? product.availability.map(a => `<div>${escapeHtml(a)}</div>`).join('')
@@ -276,6 +308,10 @@ function createApcatRow(product, index) {
     ? product.prices.map(p => `<div class="price" style="font-size:13px">${escapeHtml(p)}</div>`).join('')
     : '—';
 
+  const bonusHtml = product.bonus
+    ? `<span style="color:var(--green);font-weight:600">${escapeHtml(product.bonus)}</span>`
+    : '<span style="color:var(--text-muted)">—</span>';
+
   tr.innerHTML = `
     <td style="text-align:center;color:var(--text-muted)">${index}</td>
     <td class="part-number">${escapeHtml(product.dealerPartNumber)}</td>
@@ -283,6 +319,7 @@ function createApcatRow(product, index) {
     <td>${escapeHtml(product.producer)}</td>
     <td class="delivery" style="line-height:1.8">${availability}</td>
     <td><div style="line-height:1.8">${prices}</div></td>
+    <td>${bonusHtml}</td>
   `;
 
   return tr;
@@ -305,6 +342,7 @@ function displayAutoPartnerResults(products) {
 
 function createAutoPartnerRow(product, index) {
   const tr = document.createElement('tr');
+  tr.dataset.available = String(isAutoPartnerAvailable(product));
 
   const linkCell = product.link
     ? `<td><a href="${escapeHtml(product.link)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="padding:6px 14px;font-size:13px">Kup</a></td>`
@@ -316,7 +354,12 @@ function createAutoPartnerRow(product, index) {
     <td>${shopBadge(Shop.AUTO_PARTNER)}</td>
     <td>${escapeHtml(product.producer)}</td>
     <td class="delivery">${escapeHtml(product.availability)}</td>
-    <td class="price" style="font-size:13px">${escapeHtml(product.price)}</td>
+    <td>
+      <div style="line-height:1.5">
+        <div class="price" style="font-size:13px">${escapeHtml(product.price)}</div>
+        <div class="price" style="font-size:13px;color:var(--text-muted)">${escapeHtml(product.priceNetto || '')}</div>
+      </div>
+    </td>
     ${linkCell}
   `;
 
@@ -385,6 +428,11 @@ function normalizeForGrouping(shop, product) {
       && product.availability.trim() !== '0' && product.availability.trim() !== '0 [0]';
   }
 
+  let isAvailable;
+  if (shop === Shop.INTER_PARTS)   isAvailable = isInterPartsAvailable(product);
+  else if (shop === Shop.APCAT)    isAvailable = isApcatAvailable(product);
+  else                             isAvailable = isAutoPartnerAvailable(product);
+
   return {
     shop,
     number: number || '',
@@ -393,6 +441,7 @@ function normalizeForGrouping(shop, product) {
     priceHtml,
     hasAvailability,
     normalizedKey: normalizePartNumber(number || ''),
+    isAvailable,
   };
 }
 
@@ -450,11 +499,11 @@ function displayGroupedResults(items, searchQuery) {
     // Group header row
     const headerTr = document.createElement('tr');
     headerTr.className = 'group-header';
+    headerTr.dataset.available = String(groupItems.some(i => i.isAvailable));
     headerTr.innerHTML = `
       <td colspan="5">
         <div class="gh-flex">
           <span class="gh-number">${escapeHtml(key)}</span>
-          <span style="font-size:12px;color:var(--text-muted);font-weight:400">${groupItems.length} wynik(ów) z ${countUniqueShops(groupItems)} sklep(ów)</span>
         </div>
       </td>`;
     tbody.appendChild(headerTr);
@@ -463,6 +512,7 @@ function displayGroupedResults(items, searchQuery) {
     groupItems.forEach((item, idx) => {
       const tr = document.createElement('tr');
       if (idx === 0) tr.className = 'group-start';
+      tr.dataset.available = String(item.isAvailable);
       tr.innerHTML = `
         <td class="part-number">${escapeHtml(item.number)}</td>
         <td>${shopBadge(item.shop)}</td>
@@ -474,7 +524,7 @@ function displayGroupedResults(items, searchQuery) {
     });
   });
 
-  setTableStatus('grouped-status', `${totalItems} wynik(ów) w ${sortedKeys.length} grup(ach)`);
+  setTableStatus('grouped-status', `${totalItems} wynik(ów)`);
 }
 
 function countUniqueShops(items) {
