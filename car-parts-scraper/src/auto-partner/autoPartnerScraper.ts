@@ -131,6 +131,9 @@ export async function runScraper(config: ScraperConfig): Promise<ScrapeResult> {
       headless: config.headless,
       userAgent:
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+      args: ['--window-size=1,1', '--window-position=-32000,-32000', '--start-minimized', '--disable-features=CalculateNativeWinOcclusion', // prevents Windows from snapping off-screen windows back
+        '--no-first-run',      // skips the "welcome" screen that can steal focus
+        '--no-default-browser-check'],
     });
 
     const page: Page = context.pages()[0] ?? await context.newPage();

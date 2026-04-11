@@ -158,9 +158,15 @@ async function searchAndScrape(page: Page, query: string): Promise<ApcatProductD
   // Step 1: Fill in the article search input
   await searchFrame.fill('#tp_articlesearch_txt_articleSearch', query);
 
+  // Dismiss any colorbox overlay that may be blocking clicks
+  await dismissColorbox(page);
+
   // Step 2: Click the search button
   console.log('Clicking search button...');
   await searchFrame.click('#tp_articlesearch_articleSearch_imgBtn');
+
+// Dismiss any colorbox overlay that may be blocking clicks
+  await dismissColorbox(page);
 
   // Step 3: Wait for results to load
   console.log('Waiting for search results to load...');
@@ -195,6 +201,9 @@ export async function runScraper(config: ScraperConfig): Promise<ScrapeResult> {
       headless: config.headless,
       userAgent:
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+      args: ['--window-size=1,1', '--window-position=-32000,-32000', '--start-minimized', '--disable-features=CalculateNativeWinOcclusion', // prevents Windows from snapping off-screen windows back
+        '--no-first-run',      // skips the "welcome" screen that can steal focus
+        '--no-default-browser-check'],
     });
 
     const page: Page = context.pages()[0] ?? (await context.newPage());
