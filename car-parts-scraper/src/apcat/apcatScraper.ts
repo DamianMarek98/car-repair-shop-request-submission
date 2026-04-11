@@ -111,6 +111,9 @@ async function login(page: Page, config: ScraperConfig['login']): Promise<void> 
     }
   }
 
+  // Step 2,5 (optional): Dismiss colorbox overlay if present on the main page (2,5 because it can be displayed between step 2 and 3 in some cases)
+  await dismissColorbox(page);
+
   // Step 3 (optional): Dismiss "Information" notification modal if it appears
   // Check in all frames since the modal may be inside the iframe
   for (const frame of page.frames()) {
