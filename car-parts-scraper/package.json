@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Playwright-based scraper for car parts aggregation from external websites",
   "private": true,
+  "type": "module",
   "scripts": {
     "build": "tsc && npm run copy-static",
     "copy-static": "cp -r src/public dist/",

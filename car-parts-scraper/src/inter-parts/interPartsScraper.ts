@@ -2,7 +2,7 @@ import { type BrowserContext, type Page } from 'playwright';
 import { chromium } from 'playwright-extra';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 import path from 'path';
-import { parseInterPartsHTML, InterPartsProductData } from './interPartsParser';
+import { parseInterPartsHTML, InterPartsProductData } from './interPartsParser.js';
 
 // Apply stealth plugin to avoid bot detection
 chromium.use(StealthPlugin());
@@ -151,7 +151,7 @@ export async function runScraper(config: ScraperConfig): Promise<ScrapeResult> {
 
 // --- Entry point (only when run directly, not when imported by the server) ---
 
-if (require.main === module) {
+if (process.argv[1] === new URL(import.meta.url).pathname) {
   const config: ScraperConfig = {
     searchQuery: process.env.SEARCH_QUERY ?? '8200505191',
     headless: false,

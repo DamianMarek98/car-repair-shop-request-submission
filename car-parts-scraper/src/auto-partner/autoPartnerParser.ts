@@ -105,6 +105,6 @@ function main() {
 }
 
 // Run the parser only when executed directly, not when imported as a module
-if (require.main === module) {
+if (process.argv[1] === new URL(import.meta.url).pathname) {
   main();
 }
