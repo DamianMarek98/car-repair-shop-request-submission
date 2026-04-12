@@ -2,7 +2,7 @@ import { type BrowserContext, type Frame, type Page } from 'playwright';
 import { chromium } from 'playwright-extra';
 import StealthPlugin from 'puppeteer-extra-plugin-stealth';
 import path from 'path';
-import { parseApcatHTML, type ApcatProductData } from './apcatParser';
+import { parseApcatHTML, type ApcatProductData } from './apcatParser.js';
 
 // Apply stealth plugin to avoid bot detection
 chromium.use(StealthPlugin());
@@ -101,13 +101,24 @@ async function login(page: Page, config: ScraperConfig['login']): Promise<void> 
 
   // Step 2 (optional): Handle "new session" prompt — appears when another session is already active
   // Check in all frames since the prompt may be inside the iframe
-  for (const frame of page.frames()) {
-    const newSessionPrompt = await frame.$('span:has-text("Do you want to open a new session by deleting the current session?")');
-    if (newSessionPrompt) {
-      console.log('Active session detected — confirming new session...');
-      await frame.click('#ok');
-      await page.waitForTimeout(2000);
-      break;
+  const NEW_SESSION_MAX_RETRIES = 3;
+  const NEW_SESSION_RETRY_DELAY_MS = 1000;
+  let newSessionHandled = false;
+  for (let attempt = 1; attempt <= NEW_SESSION_MAX_RETRIES; attempt++) {
+    for (const frame of page.frames()) {
+      const newSessionPrompt = await frame.$('span:has-text("Do you want to open a new session by deleting the current session?")');
+      if (newSessionPrompt) {
+        console.log('Active session detected — confirming new session...');
+        await frame.click('#ok');
+        await page.waitForTimeout(2000);
+        newSessionHandled = true;
+        break;
+      }
+    }
+    if (newSessionHandled) break;
+    if (attempt < NEW_SESSION_MAX_RETRIES) {
+      console.log(`New session prompt not found (attempt ${attempt}/${NEW_SESSION_MAX_RETRIES}), waiting ${NEW_SESSION_RETRY_DELAY_MS}ms...`);
+      await page.waitForTimeout(NEW_SESSION_RETRY_DELAY_MS);
     }
   }
 
@@ -115,12 +126,11 @@ async function login(page: Page, config: ScraperConfig['login']): Promise<void> 
   await dismissColorbox(page);
 
   // Step 3 (optional): Dismiss "Information" notification modal if it appears
-  // Check in all frames since the modal may be inside the iframe
+  // The modal loads inside a cboxIframe whose src contains Notification.aspx
   for (const frame of page.frames()) {
-    const infoModal = await frame.$('div.topframe.title');
-    if (infoModal) {
-      const text = await infoModal.textContent();
-      if (text?.includes('Information')) {
+    if (frame.url().includes('Notification.aspx')) {
+      const closeBtn = await frame.$('div.notificationBtn.btn');
+      if (closeBtn) {
         console.log('Information modal detected — closing...');
         await frame.click('div.notificationBtn.btn');
         await page.waitForTimeout(2000);
@@ -141,13 +151,23 @@ async function searchAndScrape(page: Page, query: string): Promise<ApcatProductD
 
   // Find the frame that contains the search input (same iframe as the main catalogue)
   console.log(`Searching for: ${query}`);
+  const SEARCH_INPUT_MAX_RETRIES = 5;
+  const SEARCH_INPUT_RETRY_DELAY_MS = 2000;
+
   let searchFrame: Frame | null = null;
-  for (const frame of page.frames()) {
-    const input = await frame.$('#tp_articlesearch_txt_articleSearch');
-    if (input) {
-      searchFrame = frame;
-      console.log(`Search form found in frame: ${frame.url()}`);
-      break;
+  for (let attempt = 1; attempt <= SEARCH_INPUT_MAX_RETRIES; attempt++) {
+    for (const frame of page.frames()) {
+      const input = await frame.$('#tp_articlesearch_txt_articleSearch');
+      if (input) {
+        searchFrame = frame;
+        console.log(`Search form found in frame: ${frame.url()}`);
+        break;
+      }
+    }
+    if (searchFrame) break;
+    if (attempt < SEARCH_INPUT_MAX_RETRIES) {
+      console.log(`Search input not found (attempt ${attempt}/${SEARCH_INPUT_MAX_RETRIES}), waiting ${SEARCH_INPUT_RETRY_DELAY_MS}ms...`);
+      await page.waitForTimeout(SEARCH_INPUT_RETRY_DELAY_MS);
     }
   }
 
@@ -199,6 +219,7 @@ export async function runScraper(config: ScraperConfig): Promise<ScrapeResult> {
     console.log(`Launching browser (persistent profile: ${USER_DATA_DIR})...`);
     context = await chromium.launchPersistentContext(USER_DATA_DIR, {
       headless: config.headless,
+      locale: 'en-US',
       userAgent:
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
       args: ['--window-size=1,1', '--window-position=-32000,-32000', '--start-minimized', '--disable-features=CalculateNativeWinOcclusion', // prevents Windows from snapping off-screen windows back
@@ -229,7 +250,7 @@ export async function runScraper(config: ScraperConfig): Promise<ScrapeResult> {
 
 // --- Entry point (only when run directly, not when imported by the server) ---
 
-if (require.main === module) {
+if (process.argv[1] === new URL(import.meta.url).pathname) {
   const config: ScraperConfig = {
     searchQuery: process.env.SEARCH_QUERY ?? '',
     headless: false,
