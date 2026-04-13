@@ -29,14 +29,15 @@ export interface ScraperConfig {
 }
 
 /**
- * Dismiss the colorbox overlay modal if it is visible.
- * The colorbox (#cboxOverlay + #cboxClose) lives inside the main iframe,
- * so we must check all frames — not just the top-level page.
+ * Dismiss any blocking overlay frames:
+ * - Colorbox overlay (#cboxClose) — lives inside the main iframe
+ * - Information notification modal (cboxIframe with src Notification.aspx)
  */
-async function dismissColorbox(page: Page): Promise<boolean> {
+async function dismissFrames(page: Page): Promise<void> {
   for (const frame of page.frames()) {
-    const closeBtn = await frame.$('#cboxClose');
-    if (closeBtn && await closeBtn.isVisible()) {
+    // Colorbox overlay
+    const colorboxClose = await frame.$('#cboxClose');
+    if (colorboxClose && await colorboxClose.isVisible()) {
       console.log('Colorbox overlay detected — closing...');
       try {
         await frame.click('#cboxClose', { timeout: 5000 });
@@ -44,10 +45,18 @@ async function dismissColorbox(page: Page): Promise<boolean> {
       } catch (err) {
         console.warn('Could not close colorbox overlay, continuing...', err);
       }
-      return true;
+    }
+
+    // Information notification modal
+    if (frame.url().includes('Notification.aspx')) {
+      const notificationClose = await frame.$('div.notificationBtn.btn');
+      if (notificationClose) {
+        console.log('Information modal detected — closing...');
+        await frame.click('div.notificationBtn.btn');
+        await page.waitForTimeout(2000);
+      }
     }
   }
-  return false;
 }
 
 async function login(page: Page, config: ScraperConfig['login']): Promise<void> {
@@ -122,33 +131,13 @@ async function login(page: Page, config: ScraperConfig['login']): Promise<void> 
     }
   }
 
-  // Step 2,5 (optional): Dismiss colorbox overlay if present on the main page (2,5 because it can be displayed between step 2 and 3 in some cases)
-  await dismissColorbox(page);
-
-  // Step 3 (optional): Dismiss "Information" notification modal if it appears
-  // The modal loads inside a cboxIframe whose src contains Notification.aspx
-  for (const frame of page.frames()) {
-    if (frame.url().includes('Notification.aspx')) {
-      const closeBtn = await frame.$('div.notificationBtn.btn');
-      if (closeBtn) {
-        console.log('Information modal detected — closing...');
-        await frame.click('div.notificationBtn.btn');
-        await page.waitForTimeout(2000);
-        break;
-      }
-    }
-  }
-
-  // Step 4 (optional): Dismiss colorbox overlay if present on the main page
-  await dismissColorbox(page);
+  // Step 3: Dismiss colorbox overlay and/or information modal
+  await dismissFrames(page);
 
   console.log('Login completed');
 }
 
 async function searchAndScrape(page: Page, query: string): Promise<ApcatProductData[]> {
-  // Dismiss any colorbox overlay that may be blocking clicks
-  await dismissColorbox(page);
-
   // Find the frame that contains the search input (same iframe as the main catalogue)
   console.log(`Searching for: ${query}`);
   const SEARCH_INPUT_MAX_RETRIES = 5;
@@ -168,6 +157,8 @@ async function searchAndScrape(page: Page, query: string): Promise<ApcatProductD
     if (attempt < SEARCH_INPUT_MAX_RETRIES) {
       console.log(`Search input not found (attempt ${attempt}/${SEARCH_INPUT_MAX_RETRIES}), waiting ${SEARCH_INPUT_RETRY_DELAY_MS}ms...`);
       await page.waitForTimeout(SEARCH_INPUT_RETRY_DELAY_MS);
+      // Dismiss any colorbox overlay that may be blocking clicks
+      await dismissFrames(page);
     }
   }
 
@@ -178,15 +169,12 @@ async function searchAndScrape(page: Page, query: string): Promise<ApcatProductD
   // Step 1: Fill in the article search input
   await searchFrame.fill('#tp_articlesearch_txt_articleSearch', query);
 
-  // Dismiss any colorbox overlay that may be blocking clicks
-  await dismissColorbox(page);
-
   // Step 2: Click the search button
   console.log('Clicking search button...');
   await searchFrame.click('#tp_articlesearch_articleSearch_imgBtn');
 
 // Dismiss any colorbox overlay that may be blocking clicks
-  await dismissColorbox(page);
+  await dismissFrames(page);
 
   // Step 3: Wait for results to load
   console.log('Waiting for search results to load...');
