@@ -139,6 +139,7 @@ async function login(page: Page, config: ScraperConfig['login']): Promise<void> 
 
 async function searchAndScrape(page: Page, query: string): Promise<ApcatProductData[]> {
   // Find the frame that contains the search input (same iframe as the main catalogue)
+  await page.waitForTimeout(3000);
   console.log(`Searching for: ${query}`);
   const SEARCH_INPUT_MAX_RETRIES = 5;
   const SEARCH_INPUT_RETRY_DELAY_MS = 2000;
@@ -146,7 +147,7 @@ async function searchAndScrape(page: Page, query: string): Promise<ApcatProductD
   let searchFrame: Frame | null = null;
   for (let attempt = 1; attempt <= SEARCH_INPUT_MAX_RETRIES; attempt++) {
     for (const frame of page.frames()) {
-      const input = await frame.$('#tp_articlesearch_txt_articleSearch');
+      const input = await frame.$('#home_txt_art_direkt');
       if (input) {
         searchFrame = frame;
         console.log(`Search form found in frame: ${frame.url()}`);
@@ -157,29 +158,25 @@ async function searchAndScrape(page: Page, query: string): Promise<ApcatProductD
     if (attempt < SEARCH_INPUT_MAX_RETRIES) {
       console.log(`Search input not found (attempt ${attempt}/${SEARCH_INPUT_MAX_RETRIES}), waiting ${SEARCH_INPUT_RETRY_DELAY_MS}ms...`);
       await page.waitForTimeout(SEARCH_INPUT_RETRY_DELAY_MS);
-      // Dismiss any colorbox overlay that may be blocking clicks
       await dismissFrames(page);
     }
   }
 
   if (!searchFrame) {
-    throw new Error('Could not find search input in any frame');
+    throw new Error('Could not find search input (#home_txt_art_direkt) in any frame');
   }
 
-  // Step 1: Fill in the article search input
-  await searchFrame.fill('#tp_articlesearch_txt_articleSearch', query);
-
-  // Step 2: Click the search button
-  console.log('Clicking search button...');
-  await searchFrame.click('#tp_articlesearch_articleSearch_imgBtn');
-
-// Dismiss any colorbox overlay that may be blocking clicks
   await dismissFrames(page);
+  // Step 1: Fill in the search input and submit with Enter
+  await searchFrame.fill('#home_txt_art_direkt', query);
+  await dismissFrames(page);
+  console.log('Submitting search with Enter...');
+  await searchFrame.press('#home_txt_art_direkt', 'Enter');
 
   // Step 3: Wait for results to load
   console.log('Waiting for search results to load...');
   await page.waitForTimeout(3000);
-
+  await dismissFrames(page);
   // Step 3b: Wait for ERP bonus widgets to be injected (loaded asynchronously by APCAT)
   try {
     await searchFrame.waitForSelector('div.bonus_info_widget_text', { timeout: 5000 });
