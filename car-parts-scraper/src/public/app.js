@@ -21,6 +21,87 @@ const SHOP_BADGE_CLASS = {
   [Shop.AUTO_PARTNER]: 'shop-autopartner',
 };
 
+// ── Recent searches (localStorage) ──────────────────────────
+const RECENT_SEARCHES_KEY = 'recentSearches';
+const MAX_RECENT_SEARCHES = 50;
+
+function getRecentSearches() {
+  try {
+    return JSON.parse(localStorage.getItem(RECENT_SEARCHES_KEY) || '[]');
+  } catch { return []; }
+}
+
+function saveRecentSearch(query) {
+  const q = query.trim();
+  if (!q) return;
+  let searches = getRecentSearches().filter(s => s !== q);
+  searches.unshift(q);
+  if (searches.length > MAX_RECENT_SEARCHES) searches.length = MAX_RECENT_SEARCHES;
+  localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(searches));
+}
+
+function removeRecentSearch(query) {
+  const searches = getRecentSearches().filter(s => s !== query);
+  localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(searches));
+}
+
+// ── Price parsing ────────────────────────────────────────────
+// Extracts a numeric price from a Polish-format string like "177,12 PLN"
+function parsePrice(str) {
+  if (!str) return Infinity;
+  const match = str.match(/([\d\s]+,\d{2})/);
+  if (!match) return Infinity;
+  return parseFloat(match[1].replace(/\s/g, '').replace(',', '.'));
+}
+
+function getInterPartsPrice(product) {
+  return parsePrice(product.priceGross);
+}
+
+function getApcatPrice(product) {
+  if (!product.prices || product.prices.length === 0) return Infinity;
+  const gross = product.prices.find(p => /Gross purchase/i.test(p) || /Zakup brutto/i.test(p));
+  return gross ? parsePrice(gross) : parsePrice(product.prices[0]);
+}
+
+function getAutoPartnerPrice(product) {
+  return parsePrice(product.price);
+}
+
+// ── Stored data for re-sorting ──────────────────────────────
+let storedInterPartsProducts = [];
+let storedApcatProducts = [];
+let storedAutoPartnerProducts = [];
+let storedGroupedItems = [];
+let storedSearchQuery = '';
+
+// ── Sort state ──────────────────────────────────────────────
+// 'none' | 'asc' | 'desc'
+const sortState = {
+  grouped: 'none',
+  interparts: 'none',
+  apcat: 'none',
+  autopartner: 'none',
+};
+
+function cycleSortState(key) {
+  if (sortState[key] === 'none') sortState[key] = 'asc';
+  else if (sortState[key] === 'asc') sortState[key] = 'desc';
+  else sortState[key] = 'none';
+  return sortState[key];
+}
+
+function updateSortHeader(thId, state) {
+  const th = document.getElementById(thId);
+  if (!th) return;
+  th.classList.remove('sort-asc', 'sort-desc');
+  th.dataset.sort = state;
+  const icon = th.querySelector('.sort-icon');
+  if (state === 'asc') { th.classList.add('sort-asc'); icon.textContent = '▲'; }
+  else if (state === 'desc') { th.classList.add('sort-desc'); icon.textContent = '▼'; }
+  else { icon.textContent = '⇅'; }
+}
+
 // ── Part number normalization (for grouping across shops) ────
 function normalizePartNumber(str) {
   const upper = str.toUpperCase().trim();
@@ -68,9 +149,94 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!searchBtn) { console.error('Search button not found!'); return; }
   if (!searchInput) { console.error('Search input not found!'); return; }
 
-  searchBtn.addEventListener('click', () => handleSearch());
-  searchInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') handleSearch();
+  searchBtn.addEventListener('click', () => { hideRecentDropdown(); handleSearch(); });
+  // Note: Enter key is handled in the keydown listener below (with dropdown support)
+
+  // ── Recent searches dropdown ──────────────────────────────
+  const recentDropdown = document.getElementById('recent-dropdown');
+  let recentActiveIdx = -1;
+
+  function renderRecentDropdown(filter) {
+    const all = getRecentSearches();
+    const f = (filter || '').trim().toLowerCase();
+    const filtered = f ? all.filter(s => s.toLowerCase().includes(f)) : all;
+    recentActiveIdx = -1;
+
+    if (filtered.length === 0) {
+      recentDropdown.innerHTML = '';
+      recentDropdown.classList.remove('visible');
+      return;
+    }
+
+    recentDropdown.innerHTML = filtered.map((s, i) =>
+      `<div class="recent-item" data-index="${i}" data-query="${escapeHtml(s)}">
+        <span>${escapeHtml(s)}</span>
+        <button class="recent-item-remove" data-query="${escapeHtml(s)}">&times;</button>
+      </div>`
+    ).join('');
+    recentDropdown.classList.add('visible');
+  }
+
+  function hideRecentDropdown() {
+    recentDropdown.classList.remove('visible');
+    recentActiveIdx = -1;
+  }
+
+  function selectRecentItem(query) {
+    searchInput.value = query;
+    hideRecentDropdown();
+    handleSearch();
+  }
+
+  searchInput.addEventListener('input', () => renderRecentDropdown(searchInput.value));
+  searchInput.addEventListener('focus', () => renderRecentDropdown(searchInput.value));
+
+  document.addEventListener('click', (e) => {
+    if (!searchInput.contains(e.target) && !recentDropdown.contains(e.target)) {
+      hideRecentDropdown();
+    }
+  });
+
+  recentDropdown.addEventListener('click', (e) => {
+    const removeBtn = e.target.closest('.recent-item-remove');
+    if (removeBtn) {
+      e.stopPropagation();
+      removeRecentSearch(removeBtn.dataset.query);
+      renderRecentDropdown(searchInput.value);
+      return;
+    }
+    const item = e.target.closest('.recent-item');
+    if (item) selectRecentItem(item.dataset.query);
+  });
+
+  searchInput.addEventListener('keydown', (e) => {
+    const items = recentDropdown.querySelectorAll('.recent-item');
+    if (!recentDropdown.classList.contains('visible') || items.length === 0) {
+      if (e.key === 'Enter') { hideRecentDropdown(); handleSearch(); }
+      return;
+    }
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      recentActiveIdx = Math.min(recentActiveIdx + 1, items.length - 1);
+      items.forEach((el, i) => el.classList.toggle('active', i === recentActiveIdx));
+      items[recentActiveIdx]?.scrollIntoView({ block: 'nearest' });
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      recentActiveIdx = Math.max(recentActiveIdx - 1, 0);
+      items.forEach((el, i) => el.classList.toggle('active', i === recentActiveIdx));
+      items[recentActiveIdx]?.scrollIntoView({ block: 'nearest' });
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (recentActiveIdx >= 0 && items[recentActiveIdx]) {
+        selectRecentItem(items[recentActiveIdx].dataset.query);
+      } else {
+        hideRecentDropdown();
+        handleSearch();
+      }
+    } else if (e.key === 'Escape') {
+      hideRecentDropdown();
+    }
   });
 
   function wireFilterCheckbox(checkboxId, tableWrapId) {
@@ -83,6 +249,38 @@ document.addEventListener('DOMContentLoaded', () => {
   wireFilterCheckbox('filter-apcat',       'apcat-table-wrap');
   wireFilterCheckbox('filter-autopartner', 'autopartner-table-wrap');
 
+  // Sort click handlers
+  document.getElementById('sort-interparts')?.addEventListener('click', () => {
+    const state = cycleSortState('interparts');
+    updateSortHeader('sort-interparts', state);
+    displayInterPartsResults(storedInterPartsProducts, state);
+  });
+  document.getElementById('sort-apcat')?.addEventListener('click', () => {
+    const state = cycleSortState('apcat');
+    updateSortHeader('sort-apcat', state);
+    displayApcatResults(storedApcatProducts, state);
+  });
+  document.getElementById('sort-autopartner')?.addEventListener('click', () => {
+    const state = cycleSortState('autopartner');
+    updateSortHeader('sort-autopartner', state);
+    displayAutoPartnerResults(storedAutoPartnerProducts, state);
+  });
+  document.getElementById('sort-grouped')?.addEventListener('click', () => {
+    const state = cycleSortState('grouped');
+    updateSortHeader('sort-grouped', state);
+    displayGroupedResults(storedGroupedItems, storedSearchQuery, state);
+  });
+
+  // Tab switching
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.table-wrap').forEach(w => w.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.tab).classList.add('active');
+    });
+  });
+
   console.log('Event listeners attached successfully');
 });
 
@@ -91,15 +289,34 @@ async function handleSearch() {
   const query = document.querySelector('.search-input').value.trim();
   if (!query) { showError('Proszę wprowadzić numer części'); return; }
 
+  saveRecentSearch(query);
   clearError();
   showSpinner();
+
+  // Reset sort state
+  for (const key of Object.keys(sortState)) {
+    sortState[key] = 'none';
+  }
+  updateSortHeader('sort-grouped', 'none');
+  updateSortHeader('sort-interparts', 'none');
+  updateSortHeader('sort-apcat', 'none');
+  updateSortHeader('sort-autopartner', 'none');
+  storedInterPartsProducts = [];
+  storedApcatProducts = [];
+  storedAutoPartnerProducts = [];
+  storedGroupedItems = [];
+  storedSearchQuery = query;
 
   // Reset all tables to loading state — all start searching immediately
   setTableStatus('grouped-status', 'Wyszukiwanie…');
   setTableStatus('interparts-status', 'Wyszukiwanie…');
   setTableStatus('apcat-status', 'Wyszukiwanie…');
   setTableStatus('autopartner-status', 'Wyszukiwanie…');
-  setTbodyLoading('grouped-tbody', 5);
+  setTabBadge('tab-badge-grouped', '…');
+  setTabBadge('tab-badge-interparts', '…');
+  setTabBadge('tab-badge-apcat', '…');
+  setTabBadge('tab-badge-autopartner', '…');
+  setTbodyLoading('grouped-tbody', 6);
   setTbodyLoading('interparts-tbody', 7);
   setTbodyLoading('apcat-tbody', 7);
   setTbodyLoading('autopartner-tbody', 7);
@@ -115,13 +332,16 @@ async function handleSearch() {
     })
     .then(result => {
       if (result.success) {
+        storedInterPartsProducts = result.data;
         displayInterPartsResults(result.data);
         setTableStatus('interparts-status', `${result.data.length} wynik(ów)`);
+        setTabBadge('tab-badge-interparts', result.data.length);
         // Collect for grouped table
         result.data.forEach(p => groupedItems.push(normalizeForGrouping(Shop.INTER_PARTS, p)));
       } else {
         displayTbodyError('interparts-tbody', 7, result.error || 'Błąd wyszukiwania');
         setTableStatus('interparts-status', 'Błąd');
+        setTabBadge('tab-badge-interparts', '!');
       }
     });
 
@@ -132,13 +352,16 @@ async function handleSearch() {
     })
     .then(result => {
       if (result.success) {
-        displayApcatResults(result.data);
-        setTableStatus('apcat-status', `${result.data ? result.data.length : 0} wynik(ów)`);
+        storedApcatProducts = result.data || [];
+        displayApcatResults(storedApcatProducts);
+        setTableStatus('apcat-status', `${storedApcatProducts.length} wynik(ów)`);
+        setTabBadge('tab-badge-apcat', storedApcatProducts.length);
         // Collect for grouped table
-        (result.data || []).forEach(p => groupedItems.push(normalizeForGrouping(Shop.APCAT, p)));
+        storedApcatProducts.forEach(p => groupedItems.push(normalizeForGrouping(Shop.APCAT, p)));
       } else {
         displayTbodyError('apcat-tbody', 7, result.error || 'Błąd wyszukiwania');
         setTableStatus('apcat-status', 'Błąd');
+        setTabBadge('tab-badge-apcat', '!');
       }
     });
 
@@ -149,19 +372,24 @@ async function handleSearch() {
     })
     .then(result => {
       if (result.success) {
-        displayAutoPartnerResults(result.data);
-        setTableStatus('autopartner-status', `${result.data ? result.data.length : 0} wynik(ów)`);
+        storedAutoPartnerProducts = result.data || [];
+        displayAutoPartnerResults(storedAutoPartnerProducts);
+        setTableStatus('autopartner-status', `${storedAutoPartnerProducts.length} wynik(ów)`);
+        setTabBadge('tab-badge-autopartner', storedAutoPartnerProducts.length);
         // Collect for grouped table
-        (result.data || []).forEach(p => groupedItems.push(normalizeForGrouping(Shop.AUTO_PARTNER, p)));
+        storedAutoPartnerProducts.forEach(p => groupedItems.push(normalizeForGrouping(Shop.AUTO_PARTNER, p)));
       } else {
         displayTbodyError('autopartner-tbody', 7, result.error || 'Błąd wyszukiwania');
         setTableStatus('autopartner-status', 'Błąd');
+        setTabBadge('tab-badge-autopartner', '!');
       }
     });
 
   // Wait for all searches, then build grouped table
   await Promise.allSettled([interPartsPromise, apcatPromise, autoPartnerPromise]);
+  storedGroupedItems = groupedItems;
   displayGroupedResults(groupedItems, query);
+  setTabBadge('tab-badge-grouped', groupedItems.length);
   hideSpinner();
 }
 
@@ -212,7 +440,7 @@ async function searchAutoPartner(query) {
 }
 
 // ── Inter Parts rendering ─────────────────────────────────────
-function displayInterPartsResults(products) {
+function displayInterPartsResults(products, sortDir) {
   const tbody = document.getElementById('interparts-tbody');
   tbody.innerHTML = '';
 
@@ -221,7 +449,11 @@ function displayInterPartsResults(products) {
     return;
   }
 
-  products.forEach((product, index) => {
+  let sorted = [...products];
+  if (sortDir === 'asc') sorted.sort((a, b) => getInterPartsPrice(a) - getInterPartsPrice(b));
+  else if (sortDir === 'desc') sorted.sort((a, b) => getInterPartsPrice(b) - getInterPartsPrice(a));
+
+  sorted.forEach((product, index) => {
     tbody.appendChild(createInterPartsRow(product, index + 1));
   });
 }
@@ -282,7 +514,7 @@ function createInterPartsRow(product, index) {
 }
 
 // ── APCAT rendering ───────────────────────────────────────────
-function displayApcatResults(products) {
+function displayApcatResults(products, sortDir) {
   const tbody = document.getElementById('apcat-tbody');
   tbody.innerHTML = '';
 
@@ -291,7 +523,11 @@ function displayApcatResults(products) {
     return;
   }
 
-  products.forEach((product, index) => {
+  let sorted = [...products];
+  if (sortDir === 'asc') sorted.sort((a, b) => getApcatPrice(a) - getApcatPrice(b));
+  else if (sortDir === 'desc') sorted.sort((a, b) => getApcatPrice(b) - getApcatPrice(a));
+
+  sorted.forEach((product, index) => {
     tbody.appendChild(createApcatRow(product, index + 1));
   });
 }
@@ -326,7 +562,7 @@ function createApcatRow(product, index) {
 }
 
 // ── Auto Partner rendering ────────────────────────────────────
-function displayAutoPartnerResults(products) {
+function displayAutoPartnerResults(products, sortDir) {
   const tbody = document.getElementById('autopartner-tbody');
   tbody.innerHTML = '';
 
@@ -335,7 +571,11 @@ function displayAutoPartnerResults(products) {
     return;
   }
 
-  products.forEach((product, index) => {
+  let sorted = [...products];
+  if (sortDir === 'asc') sorted.sort((a, b) => getAutoPartnerPrice(a) - getAutoPartnerPrice(b));
+  else if (sortDir === 'desc') sorted.sort((a, b) => getAutoPartnerPrice(b) - getAutoPartnerPrice(a));
+
+  sorted.forEach((product, index) => {
     tbody.appendChild(createAutoPartnerRow(product, index + 1));
   });
 }
@@ -433,6 +673,17 @@ function normalizeForGrouping(shop, product) {
   else if (shop === Shop.APCAT)    isAvailable = isApcatAvailable(product);
   else                             isAvailable = isAutoPartnerAvailable(product);
 
+  let link = null;
+  if (shop === Shop.INTER_PARTS || shop === Shop.AUTO_PARTNER) {
+    link = product.link ?? null;
+  }
+
+  // Extract numeric price for sorting
+  let sortPrice;
+  if (shop === Shop.INTER_PARTS) sortPrice = getInterPartsPrice(product);
+  else if (shop === Shop.APCAT) sortPrice = getApcatPrice(product);
+  else sortPrice = getAutoPartnerPrice(product);
+
   return {
     shop,
     number: number || '',
@@ -442,6 +693,8 @@ function normalizeForGrouping(shop, product) {
     hasAvailability,
     normalizedKey: normalizePartNumber(number || ''),
     isAvailable,
+    link,
+    sortPrice,
   };
 }
 
@@ -449,13 +702,14 @@ function normalizeForGrouping(shop, product) {
  * Render the grouped results table from all collected items.
  * @param {Array} items - normalized items from all shops
  * @param {string} searchQuery - the original search query (for prioritizing matching groups)
+ * @param priceSortDir direction of sorting
  */
-function displayGroupedResults(items, searchQuery) {
+function displayGroupedResults(items, searchQuery, priceSortDir) {
   const tbody = document.getElementById('grouped-tbody');
   tbody.innerHTML = '';
 
   if (!items || items.length === 0) {
-    tbody.innerHTML = emptyRow(5, 'Nie znaleziono wyników');
+    tbody.innerHTML = emptyRow(6, 'Nie znaleziono wyników');
     setTableStatus('grouped-status', '0 wynik(ów)');
     return;
   }
@@ -468,19 +722,28 @@ function displayGroupedResults(items, searchQuery) {
     groups.get(key).push(item);
   });
 
-  // Sort groups: exact match to search query first, then groups with availability, then the rest
+  // Compute min price per group for sorting
+  const groupMinPrice = new Map();
+  groups.forEach((groupItems, key) => {
+    const min = Math.min(...groupItems.map(i => i.sortPrice));
+    groupMinPrice.set(key, min);
+  });
+
   const normalizedQuery = normalizePartNumber(searchQuery || '');
   const sortedKeys = [...groups.keys()].sort((a, b) => {
+    // When price sort is active, it takes priority
+    if (priceSortDir === 'asc') return groupMinPrice.get(a) - groupMinPrice.get(b);
+    if (priceSortDir === 'desc') return groupMinPrice.get(b) - groupMinPrice.get(a);
+
+    // Default: exact match first, then availability, then alphabetical
     const aMatch = a === normalizedQuery;
     const bMatch = b === normalizedQuery;
     if (aMatch !== bMatch) return aMatch ? -1 : 1;
 
-    // Then: groups that have at least one item with availability come first
     const aHasAvail = groups.get(a).some(i => i.hasAvailability);
     const bHasAvail = groups.get(b).some(i => i.hasAvailability);
     if (aHasAvail !== bHasAvail) return aHasAvail ? -1 : 1;
 
-    // Fallback: alphabetical
     return a.localeCompare(b);
   });
 
@@ -488,11 +751,17 @@ function displayGroupedResults(items, searchQuery) {
   sortedKeys.forEach(key => {
     const groupItems = groups.get(key);
 
-    // Sort items within group: items with availability first
-    groupItems.sort((a, b) => {
-      if (a.hasAvailability !== b.hasAvailability) return a.hasAvailability ? -1 : 1;
-      return 0;
-    });
+    // Sort items within group by price when price sort is active, otherwise by availability
+    if (priceSortDir === 'asc') {
+      groupItems.sort((a, b) => a.sortPrice - b.sortPrice);
+    } else if (priceSortDir === 'desc') {
+      groupItems.sort((a, b) => b.sortPrice - a.sortPrice);
+    } else {
+      groupItems.sort((a, b) => {
+        if (a.hasAvailability !== b.hasAvailability) return a.hasAvailability ? -1 : 1;
+        return 0;
+      });
+    }
 
     totalItems += groupItems.length;
 
@@ -501,7 +770,7 @@ function displayGroupedResults(items, searchQuery) {
     headerTr.className = 'group-header';
     headerTr.dataset.available = String(groupItems.some(i => i.isAvailable));
     headerTr.innerHTML = `
-      <td colspan="5">
+      <td colspan="6">
         <div class="gh-flex">
           <span class="gh-number">${escapeHtml(key)}</span>
         </div>
@@ -513,12 +782,16 @@ function displayGroupedResults(items, searchQuery) {
       const tr = document.createElement('tr');
       if (idx === 0) tr.className = 'group-start';
       tr.dataset.available = String(item.isAvailable);
+      const kupCell = item.link
+        ? `<td><a href="${escapeHtml(item.link)}" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="padding:6px 14px;font-size:13px">Kup</a></td>`
+        : `<td style="color:var(--text-muted)">—</td>`;
       tr.innerHTML = `
         <td class="part-number">${escapeHtml(item.number)}</td>
         <td>${shopBadge(item.shop)}</td>
         <td>${escapeHtml(item.producer)}</td>
         <td class="delivery">${item.availabilityHtml}</td>
         <td>${item.priceHtml}</td>
+        ${kupCell}
       `;
       tbody.appendChild(tr);
     });
@@ -579,6 +852,11 @@ function displayTbodyError(tbodyId, colspan, message) {
 
 function setTableStatus(statusId, text) {
   document.getElementById(statusId).textContent = text;
+}
+
+function setTabBadge(badgeId, value) {
+  const el = document.getElementById(badgeId);
+  if (el) el.textContent = value;
 }
 
 // ── Spinner ───────────────────────────────────────────────────

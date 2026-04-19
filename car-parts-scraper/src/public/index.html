@@ -90,6 +90,22 @@
   .search-input::placeholder { color: var(--text-muted); }
   .search-input:focus { border-color: var(--accent); }
 
+  /* ── Recent searches dropdown ── */
+  .recent-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    max-height: 240px;
+    overflow-y: auto;
+  }
+
   .btn {
     padding: 12px 24px;
     border-radius: 8px;
@@ -191,6 +207,78 @@
   }
   .filter-label input[type="checkbox"] { cursor: pointer; accent-color: var(--accent); }
 
+  /* ── Sortable column header ── */
+  .th-sortable {
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    padding-right: 24px !important;
+  }
+  .th-sortable:hover { color: var(--text); }
+  .th-sortable .sort-icon {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    opacity: 0.4;
+    transition: opacity .15s;
+  }
+  .th-sortable:hover .sort-icon { opacity: 0.7; }
+  .th-sortable.sort-asc .sort-icon,
+  .th-sortable.sort-desc .sort-icon { color: var(--accent); opacity: 1; }
+
+  /* ── Tab Bar ── */
+  .tab-bar {
+    display: flex;
+    gap: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius) var(--radius) 0 0;
+    margin-bottom: 0;
+    overflow-x: auto;
+  }
+
+  .tab-btn {
+    padding: 14px 24px;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: var(--text-muted);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .15s;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .tab-btn:hover { color: var(--text); background: var(--surface2); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .tab-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 10px;
+    background: var(--surface2);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+  }
+
+  .tab-btn.active .tab-badge { background: rgba(79,140,255,.15); color: var(--accent); }
+
+  /* ── Tab content visibility ── */
+  .table-wrap { display: none; }
+  .table-wrap.active { display: block; }
+  .table-wrap.active { border-top-left-radius: 0; border-top-right-radius: 0; }
+
   /* ── Responsive ── */
   @media (max-width: 1100px) {
     .main { padding: 20px; }
@@ -211,7 +299,8 @@
     <div class="search-area">
       <div class="search-input-wrap">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-        <input class="search-input" type="text" placeholder="Wprowadź numer OEM, np. 04E 115 561 H" value="" />
+        <input class="search-input" type="text" placeholder="Wprowadź numer OEM, np. 04E 115 561 H" value="" autocomplete="off" />
+        <div class="recent-dropdown" id="recent-dropdown"></div>
       </div>
       <button class="btn btn-primary" id="search-btn">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
@@ -219,8 +308,16 @@
       </button>
     </div>
 
+    <!-- Tab Bar -->
+    <div class="tab-bar">
+      <button class="tab-btn active" data-tab="grouped-table-wrap">Zgrupowany wynik <span class="tab-badge" id="tab-badge-grouped">—</span></button>
+      <button class="tab-btn" data-tab="interparts-table-wrap">Inter Parts <span class="tab-badge" id="tab-badge-interparts">—</span></button>
+      <button class="tab-btn" data-tab="apcat-table-wrap">APCAT <span class="tab-badge" id="tab-badge-apcat">—</span></button>
+      <button class="tab-btn" data-tab="autopartner-table-wrap">Auto Partner <span class="tab-badge" id="tab-badge-autopartner">—</span></button>
+    </div>
+
     <!-- Zgrupowany wynik (Grouped Results) -->
-    <div class="table-wrap" id="grouped-table-wrap">
+    <div class="table-wrap active" id="grouped-table-wrap">
       <div class="table-header-bar">
         <h2>Zgrupowany wynik</h2>
         <span id="grouped-status" style="font-size:13px;color:var(--text-muted)"></span>
@@ -233,12 +330,13 @@
             <th>Sklep</th>
             <th>Producent</th>
             <th>Dostępność</th>
-            <th>Cena</th>
+            <th class="th-sortable" id="sort-grouped" data-sort="none">Cena<span class="sort-icon">⇅</span></th>
+            <th>Kup</th>
           </tr>
         </thead>
         <tbody id="grouped-tbody">
           <tr>
-            <td colspan="5" style="text-align:center;padding:40px;color:var(--text-muted)">
+            <td colspan="6" style="text-align:center;padding:40px;color:var(--text-muted)">
               Wyszukaj części, aby zobaczyć wyniki
             </td>
           </tr>
@@ -247,7 +345,7 @@
     </div>
 
     <!-- Inter Parts Table -->
-    <div class="table-wrap" id="interparts-table-wrap" style="margin-top:28px">
+    <div class="table-wrap" id="interparts-table-wrap" >
       <div class="table-header-bar">
         <h2>Inter Parts</h2>
         <span id="interparts-status" style="font-size:13px;color:var(--text-muted)"></span>
@@ -261,7 +359,7 @@
             <th>Sklep</th>
             <th>Producent</th>
             <th>Dostępność</th>
-            <th>Cena BRUTTO / Cena detal.</th>
+            <th class="th-sortable" id="sort-interparts" data-sort="none">Cena BRUTTO / Cena detal.<span class="sort-icon">⇅</span></th>
             <th>Link</th>
           </tr>
         </thead>
@@ -276,7 +374,7 @@
     </div>
 
     <!-- APCAT Table -->
-    <div class="table-wrap" id="apcat-table-wrap" style="margin-top:28px">
+    <div class="table-wrap" id="apcat-table-wrap" >
       <div class="table-header-bar">
         <h2>APCAT</h2>
         <span id="apcat-status" style="font-size:13px;color:var(--text-muted)"></span>
@@ -290,7 +388,7 @@
             <th>Sklep</th>
             <th>Producent</th>
             <th>Dostępność</th>
-            <th>Cena</th>
+            <th class="th-sortable" id="sort-apcat" data-sort="none">Cena<span class="sort-icon">⇅</span></th>
             <th>BONUS</th>
           </tr>
         </thead>
@@ -305,7 +403,7 @@
     </div>
 
     <!-- Auto Partner Table -->
-    <div class="table-wrap" id="autopartner-table-wrap" style="margin-top:28px">
+    <div class="table-wrap" id="autopartner-table-wrap" >
       <div class="table-header-bar">
         <h2>Auto Partner</h2>
         <span id="autopartner-status" style="font-size:13px;color:var(--text-muted)"></span>
@@ -319,7 +417,7 @@
             <th>Sklep</th>
             <th>Producent</th>
             <th>Dostępność</th>
-            <th>Cena</th>
+            <th class="th-sortable" id="sort-autopartner" data-sort="none">Cena<span class="sort-icon">⇅</span></th>
             <th>Link</th>
           </tr>
         </thead>
