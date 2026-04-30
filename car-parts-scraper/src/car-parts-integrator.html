@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RENOCAR Wyszukiwarka Części</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #232734;
+    --border: #2e3346;
+    --text: #e4e6f0;
+    --text-muted: #8b8fa3;
+    --accent: #4f8cff;
+    --accent-hover: #6da0ff;
+    --green: #34d399;
+    --yellow: #fbbf24;
+    --red: #f87171;
+    --orange: #fb923c;
+    --shop1: #4f8cff;
+    --shop2: #a78bfa;
+    --shop3: #f472b6;
+    --radius: 10px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── Main ── */
+  .main { padding: 32px 40px; overflow-x: auto; min-height: 100vh; }
+
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 28px;
+  }
+
+  .page-header h1 { font-size: 24px; font-weight: 700; }
+  .page-header p { color: var(--text-muted); font-size: 14px; margin-top: 4px; }
+
+  /* ── Search Bar ── */
+  .search-area {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 28px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .search-input-wrap {
+    flex: 1;
+    min-width: 280px;
+    position: relative;
+  }
+
+  .search-input-wrap svg {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+  }
+
+  .search-input {
+    width: 100%;
+    padding: 12px 16px 12px 42px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 15px;
+    outline: none;
+    transition: border .2s;
+  }
+
+  .search-input::placeholder { color: var(--text-muted); }
+  .search-input:focus { border-color: var(--accent); }
+
+  .btn {
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all .15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-outline {
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+  }
+  .btn-outline:hover { border-color: var(--text-muted); color: var(--text); }
+
+
+  /* ── Shop Legend ── */
+  .legend {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+
+  /* ── Comparison Table ── */
+  .table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .table-header-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .table-header-bar h2 { font-size: 16px; font-weight: 600; }
+
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  thead th {
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    color: var(--text-muted);
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  tbody td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+
+  tbody tr:last-child td { border-bottom: none; }
+
+  /* Row grouping: each "part group" shares a subtle background band */
+  .group-start td { border-top: 2px solid var(--border); }
+
+  .part-number {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--text);
+    font-family: 'SF Mono', 'Fira Code', monospace;
+  }
+
+  .part-name {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .part-type {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+  }
+
+  .type-original { background: rgba(79,140,255,.15); color: var(--shop1); }
+  .type-substitute { background: rgba(251,191,36,.15); color: var(--yellow); }
+
+  .shop-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .shop-intercars {
+    background: rgba(248,113,113,.15);
+    color: var(--red);
+    border: 1px solid rgba(248,113,113,.3);
+  }
+
+  .price {
+    font-weight: 700;
+    font-size: 15px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+  }
+
+  .price-lowest { color: var(--green); }
+
+  .availability {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+  }
+
+  .avail-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .avail-instock .avail-dot { background: var(--green); }
+  .avail-instock { color: var(--green); }
+  .avail-limited .avail-dot { background: var(--yellow); }
+  .avail-limited { color: var(--yellow); }
+  .avail-outofstock .avail-dot { background: var(--red); }
+  .avail-outofstock { color: var(--red); }
+  .avail-onorder .avail-dot { background: var(--orange); }
+  .avail-onorder { color: var(--orange); }
+
+  .qty { color: var(--text-muted); }
+  .delivery { color: var(--text-muted); font-size: 12px; }
+
+
+  /* ── Highlight lowest price row ── */
+  .lowest-row td { background: rgba(52,211,153,.04); }
+
+  /* ── Group header row ── */
+  .group-header td {
+    background: var(--surface2);
+    padding: 10px 16px;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--accent);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .group-header .gh-flex {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .group-header .gh-number {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 14px;
+  }
+
+  .group-header .gh-name {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .group-header .gh-type {
+    margin-left: auto;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 1100px) {
+    .main { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+  <!-- ── Main Content ── -->
+  <main class="main">
+
+    <div class="page-header">
+      <div>
+        <h1>RENOCAR Wyszukiwarka Części</h1>
+      </div>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="search-area">
+      <div class="search-input-wrap">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <input class="search-input" type="text" placeholder="Enter OEM part number, e.g. 04E 115 561 H" value="04E 115 561 H" />
+      </div>
+      <button class="btn btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        Wyszukaj
+      </button>
+    </div>
+
+
+
+    <!-- Table -->
+    <div class="table-wrap">
+      <div class="table-header-bar">
+        <h2>Comparison Table</h2>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Identyfikator produktu (SKU)</th>
+            <th>Sklep</th>
+            <th>Producent</th>
+            <th>Ilość</th>
+            <th>W filii (GDP)</th>
+            <th>Wyjazd trasy</th>
+            <th>Stan</th>
+            <th>Cena BRUTTO / Cena detal.</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <tr>
+            <td style="text-align:center;color:var(--text-muted)">1</td>
+            <td class="part-number">8200505191</td>
+            <td><span class="shop-badge shop-intercars">Inter Cars</span></td>
+            <td class="part-name">OE RENAULT</td>
+            <td class="qty">—</td>
+            <td class="delivery">—</td>
+            <td class="delivery">—</td>
+            <td class="qty">0</td>
+            <td>
+              <div style="line-height:1.5">
+                <div class="price" style="font-size:13px;color:var(--text-muted)">N/A</div>
+                <div class="price" style="font-size:13px;color:var(--text-muted)">- PLN</div>
+              </div>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="text-align:center;color:var(--text-muted)">2</td>
+            <td class="part-number">82 00 505 191</td>
+            <td><span class="shop-badge shop-intercars">Inter Cars</span></td>
+            <td class="part-name">OE RENAULT</td>
+            <td class="qty"><div style="line-height:1.5">9<br>6</div></td>
+            <td class="delivery"><div style="line-height:1.5">Jutro 05:00<br>Pojutrze 05:00</div></td>
+            <td class="delivery"><div style="line-height:1.5">Jutro 07:30<br>Pojutrze 07:30</div></td>
+            <td class="qty">0</td>
+            <td>
+              <div style="line-height:1.5">
+                <div class="price">177,12 PLN</div>
+                <div class="price" style="font-size:13px;color:var(--text-muted)">237,14 PLN</div>
+              </div>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="text-align:center;color:var(--text-muted)">3</td>
+            <td class="part-number">VAL348204</td>
+            <td><span class="shop-badge shop-intercars">Inter Cars</span></td>
+            <td class="part-name">VALEO</td>
+            <td class="qty"><div style="line-height:1.5">2<br>>10</div></td>
+            <td class="delivery"><div style="line-height:1.5">Teraz<br>Jutro 05:00</div></td>
+            <td class="delivery"><div style="line-height:1.5">Jutro 07:30<br>Jutro 07:30</div></td>
+            <td class="qty">2</td>
+            <td>
+              <div style="line-height:1.5">
+                <div class="price">84,46 PLN</div>
+                <div class="price" style="font-size:13px;color:var(--text-muted)">199,67 PLN</div>
+              </div>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="text-align:center;color:var(--text-muted)">4</td>
+            <td class="part-number">MD75117223E</td>
+            <td><span class="shop-badge shop-intercars">Inter Cars</span></td>
+            <td class="part-name">MEAT & DORIA</td>
+            <td class="qty">>10</td>
+            <td class="delivery">Jutro 05:00</td>
+            <td class="delivery">Jutro 07:30</td>
+            <td class="qty">0</td>
+            <td>
+              <div style="line-height:1.5">
+                <div class="price">118,41 PLN</div>
+                <div class="price" style="font-size:13px;color:var(--text-muted)">213,12 PLN</div>
+              </div>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="text-align:center;color:var(--text-muted)">5</td>
+            <td class="part-number">ENT900033</td>
+            <td><span class="shop-badge shop-intercars">Inter Cars</span></td>
+            <td class="part-name">ENGITECH</td>
+            <td class="qty">>10</td>
+            <td class="delivery">Jutro 05:00</td>
+            <td class="delivery">Jutro 07:30</td>
+            <td class="qty">0</td>
+            <td>
+              <div style="line-height:1.5">
+                <div class="price">64,66 PLN</div>
+                <div class="price" style="font-size:13px;color:var(--text-muted)">118,65 PLN</div>
+              </div>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="text-align:center;color:var(--text-muted)">6</td>
+            <td class="part-number">MD75117223</td>
+            <td><span class="shop-badge shop-intercars">Inter Cars</span></td>
+            <td class="part-name">MEAT & DORIA</td>
+            <td class="qty">—</td>
+            <td class="delivery">—</td>
+            <td class="delivery">—</td>
+            <td class="qty">0</td>
+            <td>
+              <div style="line-height:1.5">
+                <div class="price">346,65 PLN</div>
+                <div class="price" style="font-size:13px;color:var(--text-muted)">678,37 PLN</div>
+              </div>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="text-align:center;color:var(--text-muted)">7</td>
+            <td class="part-number">V46-11-0019</td>
+            <td><span class="shop-badge shop-intercars">Inter Cars</span></td>
+            <td class="part-name">VEMO</td>
+            <td class="qty">—</td>
+            <td class="delivery">—</td>
+            <td class="delivery">—</td>
+            <td class="qty">0</td>
+            <td>
+              <div style="line-height:1.5">
+                <div class="price">249,86 PLN</div>
+                <div class="price" style="font-size:13px;color:var(--text-muted)">559,86 PLN</div>
+              </div>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="text-align:center;color:var(--text-muted)">8</td>
+            <td class="part-number">805000000061</td>
+            <td><span class="shop-badge shop-intercars">Inter Cars</span></td>
+            <td class="part-name">MAGNETI MARELLI</td>
+            <td class="qty">—</td>
+            <td class="delivery">—</td>
+            <td class="delivery">—</td>
+            <td class="qty">0</td>
+            <td>
+              <div style="line-height:1.5">
+                <div class="price">50,75 PLN</div>
+                <div class="price" style="font-size:13px;color:var(--text-muted)">104,17 PLN</div>
+              </div>
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+
+  </main>
+</body>
+</html>

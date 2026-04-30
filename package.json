@@ -3,6 +3,9 @@
     "build:submission-portal": "npm --prefix submission-portal run build:prod",
     "build:admin-portal": "npm --prefix repair-requests-portal run build:prod",
     "install:submission-portal": "npm --prefix submission-portal run install:prod",
-    "install:admin-portal": "npm --prefix repair-requests-portal run install:prod"
+    "install:admin-portal": "npm --prefix repair-requests-portal run install:prod",
+    "install:scraper": "npm --prefix car-parts-scraper install",
+    "scrape": "npm --prefix car-parts-scraper run scrape",
+    "build:scraper": "npm --prefix car-parts-scraper run build"
   }
 }

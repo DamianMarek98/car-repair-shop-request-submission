@@ -1,0 +1,6 @@
+node_modules/
+dist/
+.browser-data/
+debug-screenshot.png
+.env
+.env.local
