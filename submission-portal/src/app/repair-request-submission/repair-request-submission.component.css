@@ -6,7 +6,7 @@ mat-form-field {
 mat-card {
   margin: auto;
   padding: 16px;
-  background-color: rgb(245, 245, 242);
+  background-color: #f4f5f7;
 }
 
 mat-card-title {
@@ -20,13 +20,39 @@ mat-card-title {
   justify-content: flex-start;
   text-align: center;
   padding-top: 2vh;
-  background-color: #fcc603;
-  height: 98vh
+  background-color: #282b3e;
+  color: #ffffff;
+  height: 98vh;
+}
+
+.center-container h5 {
+  color: #ffffff;
+  font-family: 'Poppins', Arial, sans-serif;
+  padding: 0 16px;
+}
+
+.center-container a {
+  color: #e00008;
+}
+
+.form-header img,
+.center-container img {
+  width: 100%;
+  max-width: 500px;
 }
 
 .form-header {
-  background-color: #fcc603;
+  background-color: #282b3e;
+  color: #ffffff;
   padding-bottom: 1vh;
+}
+
+.form-header h5 {
+  color: #ffffff;
+  font-family: 'Poppins', Arial, sans-serif;
+  font-weight: 600;
+  margin: 0;
+  padding: 8px 0;
 }
 
 .page-container {
@@ -34,33 +60,46 @@ mat-card-title {
 }
 
 :host ::ng-deep .mat-mdc-text-field-wrapper {
-  --mdc-outlined-text-field-label-text-color: #000 !important;
-  --mdc-outlined-text-field-outline-color: #000 !important;
-  --mdc-outlined-text-field-focus-outline-color: #000 !important;
+  --mdc-outlined-text-field-label-text-color: #272626 !important;
+  --mdc-outlined-text-field-outline-color: #d0d0d0 !important;
+  --mdc-outlined-text-field-focus-outline-color: #e00008 !important;
 }
 
 :host ::ng-deep .mat-mdc-text-field-wrapper {
-  --mdc-outlined-text-field-focus-label-text-color: #000 !important;
+  --mdc-outlined-text-field-focus-label-text-color: #e00008 !important;
 }
 
 :host ::ng-deep .mat-mdc-text-field-wrapper {
-  --mdc-outlined-text-field-input-text-color: #000 !important;
+  --mdc-outlined-text-field-input-text-color: #272626 !important;
 }
+
 :host ::ng-deep .mat-mdc-text-field-wrapper {
-  --mdc-outlined-text-field-caret-color: #000 !important;
+  --mdc-outlined-text-field-caret-color: #e00008 !important;
 }
+
 :host ::ng-deep .mat-mdc-checkbox {
-  --mat-checkbox-label-text-color: #000 !important;
+  --mat-checkbox-label-text-color: #272626 !important;
 }
+
 :host ::ng-deep .mat-mdc-raised-button {
-  --mdc-protected-button-label-text-color: #000 !important;
-  --mdc-protected-button-container-color: #fcc603 !important;
-  background-color: #fcc603 !important;
-  color: black !important;
+  --mdc-protected-button-label-text-color: #ffffff !important;
+  --mdc-protected-button-container-color: #e00008 !important;
+  background-color: #e00008 !important;
+  color: #ffffff !important;
+  font-family: 'Poppins', Arial, sans-serif !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.5px !important;
+  border-radius: 8px !important;
+  padding: 10px 24px !important;
+}
+
+:host ::ng-deep .mat-mdc-raised-button:hover:not([disabled]) {
+  --mdc-protected-button-container-color: #b80006 !important;
+  background-color: #b80006 !important;
 }
 
 :host ::ng-deep .mat-mdc-progress-spinner {
-  --mdc-circular-progress-active-indicator-color: #000 !important;
+  --mdc-circular-progress-active-indicator-color: #ffffff !important;
 }
 
 .sticky-bottom {
@@ -69,9 +108,12 @@ mat-card-title {
   left: 0;
   width: 100%;
   z-index: 1000;
-  background: #fcc603;
-  box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+  background: #282b3e;
+  color: #ffffff;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.2);
   padding-top: 1vh;
   padding-bottom: 0.5vh;
   text-align: center;
+  font-family: 'Poppins', Arial, sans-serif;
+  font-size: 14px;
 }
