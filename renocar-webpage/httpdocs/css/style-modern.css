@@ -144,6 +144,10 @@ a {
         background: var(--navy);
         padding: 8px 0;
     }
+
+    .navbar-offcanvas.in {
+        z-index: 1001;
+    }
 }
 
 /* Marketing Section - Full bleed background
