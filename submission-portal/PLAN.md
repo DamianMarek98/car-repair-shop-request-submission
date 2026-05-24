@@ -21,21 +21,21 @@
 
 > **Follow this order.** Later phases reference changes from earlier ones.
 
-1. Phase 1.1 — fix date FormControl (crash risk)
-2. Phase 1.2 — fix email error messages
-3. Phase 1.3 — add submission failure feedback
-4. Phase 1.4 — fix success screen typos
-5. Phase 2.1 — fix UnavailableDay type
-6. Phase 4.9 — remove dead CSS (housekeeping before CSS edits)
-7. Phase 4.2 — merge `::ng-deep` blocks
-8. Phase 4.3 — fix sticky footer padding
-9. Phase 4.1 — move inline styles to CSS classes *(touches HTML + CSS simultaneously)*
-10. Phase 4.5 — date picker locale + hint fix
-11. Phase 4.6 — add logo dimensions
-12. Phase 4.7 — add textarea character counter
-13. Phase 4.8 — add from/to time range validation
-14. Phase 3 — all SEO changes (all in `index.html`, do as one block)
-15. Phase 5 — accessibility (after all functional changes are stable)
+1. [x] Phase 1.1 — fix date FormControl (crash risk)
+2. [x] Phase 1.2 — fix email error messages
+3. [x] Phase 1.3 — add submission failure feedback
+4. [x] Phase 1.4 — fix success screen typos
+5. [ ] Phase 2.1 — fix UnavailableDay type
+6. [ ] Phase 4.9 — remove dead CSS (housekeeping before CSS edits)
+7. [ ] Phase 4.2 — merge `::ng-deep` blocks
+8. [ ] Phase 4.3 — fix sticky footer padding
+9. [ ] Phase 4.1 — move inline styles to CSS classes *(touches HTML + CSS simultaneously)*
+10. [ ] Phase 4.5 — date picker locale + hint fix
+11. [ ] Phase 4.6 — add logo dimensions
+12. [ ] Phase 4.7 — add textarea character counter
+13. [ ] Phase 4.8 — add from/to time range validation
+14. [ ] Phase 3 — all SEO changes (all in `index.html`, do as one block)
+15. [ ] Phase 5 — accessibility (after all functional changes are stable)
 
 ---
 
@@ -732,7 +732,7 @@ mat-card-title {
 ### Phase 5.3 – Add `autocomplete` Attributes to Personal Data Fields
 **File:** `src/app/repair-request-submission/repair-request-submission.component.html`
 
-Add `autocomplete` to each personal data input (email is already handled in Phase 1.2):
+Add `autocomplete` to each personal data input (`autocomplete="email"` already applied in Phase 1.2):
 ```html
 <input matInput formControlName="firstName"  required autocomplete="given-name">
 <input matInput formControlName="lastName"   required autocomplete="family-name">

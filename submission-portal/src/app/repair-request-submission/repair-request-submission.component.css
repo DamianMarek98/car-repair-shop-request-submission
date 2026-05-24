@@ -62,11 +62,11 @@ mat-card-title {
 :host ::ng-deep .mat-mdc-text-field-wrapper {
   --mdc-outlined-text-field-label-text-color: #272626 !important;
   --mdc-outlined-text-field-outline-color: #d0d0d0 !important;
-  --mdc-outlined-text-field-focus-outline-color: #e00008 !important;
+  --mdc-outlined-text-field-focus-outline-color: #282b3e !important;
 }
 
 :host ::ng-deep .mat-mdc-text-field-wrapper {
-  --mdc-outlined-text-field-focus-label-text-color: #e00008 !important;
+  --mdc-outlined-text-field-focus-label-text-color: #282b3e !important;
 }
 
 :host ::ng-deep .mat-mdc-text-field-wrapper {
@@ -100,6 +100,18 @@ mat-card-title {
 
 :host ::ng-deep .mat-mdc-progress-spinner {
   --mdc-circular-progress-active-indicator-color: #ffffff !important;
+}
+
+.submission-error {
+  color: #b80006;
+  font-size: 14px;
+  margin-top: 8px;
+  margin-bottom: 4px;
+  padding: 8px 12px;
+  border: 1px solid #e00008;
+  border-radius: 4px;
+  background-color: #fff5f5;
+  text-align: left;
 }
 
 .sticky-bottom {
