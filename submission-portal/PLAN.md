@@ -34,7 +34,7 @@
 11. [ ] Phase 4.6 — add logo dimensions
 12. [ ] Phase 4.7 — add textarea character counter
 13. [ ] Phase 4.8 — add from/to time range validation
-14. [ ] Phase 3 — all SEO changes (all in `index.html`, do as one block)
+14. [x] Phase 3 — all SEO changes (all in `index.html`, do as one block)
 15. [ ] Phase 5 — accessibility (after all functional changes are stable)
 
 ---
@@ -264,6 +264,8 @@ return days.findIndex(unavailableDay =>
 ---
 
 ### Phase 3.5 – Fix JSON-LD Structured Data
+**⚠️ Open issue:** The `telephone` field in JSON-LD uses `"+48690182354"` but the visible footer and noscript use `(58) 520-19-14` = `+48585201914`. These are different numbers — confirm with owner which is correct.
+
 **Replace the entire `<script type="application/ld+json">` block:**
 ```html
 <script type="application/ld+json">
