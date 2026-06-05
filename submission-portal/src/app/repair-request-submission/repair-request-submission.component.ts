@@ -58,7 +58,7 @@ export class RepairRequestSubmissionComponent implements OnInit {
   constructor(private fb: FormBuilder, private repairRequestService: RepairRequestService, private unavailableDaysService: UnavailableDaysService, private cdr: ChangeDetectorRef) {
     this.repairForm = this.fb.group({
       vin: ['', [Validators.minLength(17), Validators.maxLength(17)]],
-      plateNumber: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(7)]],
+      plateNumber: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(8)]],
       issueDescription: ['', [Validators.required, Validators.maxLength(500)]],
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
