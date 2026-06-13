@@ -6,9 +6,9 @@ export class StatusMapper {
         if (status === 'NEW') {
           return 'Nowe';
         } else if (status === 'APPOINTMENT_MADE') {
-          return 'Zakończono';
-        } else if (status === 'HANDLED') {
           return 'Umówiono';
+        } else if (status === 'HANDLED') {
+          return 'Zakończono';
         }
 
         return 'NIEZNANY';
@@ -16,7 +16,7 @@ export class StatusMapper {
 
     static mapStatusToColor(status: string | undefined): string {
       if (!status) {
-          return 'Brak';
+          return 'transparent';
       }
       if (status === 'NEW') {
         return '#95f0fc';
@@ -26,6 +26,6 @@ export class StatusMapper {
         return '#e0e0d1';
       }
 
-      return 'NIEZNANY';
+      return 'transparent';
   }
 }
