@@ -12,7 +12,7 @@ import java.util.List;
 import static car.repair.shop.commons.patterns.PhoneNumberPattern.PHONE_NUMBER_PATTERN;
 
 public record SubmitRepairRequestDto(@Size(min = 17, max = 17, message = "The length of vin must be exactly 17 characters") String vin,
-                                     @Size(min = 6, max = 7, message = "The length of plate number must be 6 or 7 characters") String plateNumber,
+                                     @Size(min = 6, max = 8, message = "The length of plate number must be 6 to 8 characters") String plateNumber,
                                      @NotNull @Size(max = 500, message = "Max issue description length is 500 characters") String issueDescription,
                                      @NotNull String firstName,
                                      @NotNull String lastName,
