@@ -1,0 +1,491 @@
+/* ==========================================================================
+   RENO CAR - Modern CSS Overrides
+   Loaded AFTER style.css to modernize the visual appearance
+   ========================================================================== */
+
+/* CSS Custom Properties
+   ========================================================================== */
+:root {
+    --motrio-red: #e00008;
+    --motrio-red-dark: #b80006;
+    --motrio-red-light: #ff1a1a;
+    --navy: #282b3e;
+    --navy-light: #3a3d52;
+    --gray-bg: #f4f5f7;
+    --gray-border: #e0e0e0;
+    --tan: #e0c9b7;
+    --text-primary: #272626;
+    --text-secondary: #7c7b7b;
+    --white: #ffffff;
+    --transition-fast: 0.2s ease;
+    --transition-medium: 0.3s ease;
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+}
+
+/* New Combined Logo
+   ========================================================================== */
+.logo-new {
+    max-width: 100%;
+    height: auto;
+    max-height: 100px;
+}
+
+@media (max-width: 767px) {
+    .logo-new {
+        max-height: 110px;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo-new {
+        max-height: 95px;
+    }
+}
+
+/* Base Improvements
+   ========================================================================== */
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    line-height: 1.6;
+}
+
+a {
+    transition: color var(--transition-fast);
+}
+
+/* Typography - Mobile
+   ========================================================================== */
+@media (max-width: 767px) {
+    h1 {
+        font-size: 26px;
+    }
+
+    h2 {
+        font-size: 22px;
+    }
+
+    .header-line {
+        margin-top: 24px;
+        margin-bottom: 24px;
+    }
+
+    .header-line2 {
+        margin-top: 24px;
+        margin-bottom: 24px;
+    }
+}
+
+/* Navigation - Desktop
+   ========================================================================== */
+@media (min-width: 768px) {
+    .nav > li {
+        border-left: none;
+        border-right: none;
+    }
+
+    .nav > li > a {
+        position: relative;
+        transition: background-color var(--transition-fast);
+        padding: 12px 16px;
+        font-size: 15px;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+    }
+
+    .nav > li > a::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        width: 0;
+        height: 3px;
+        background: var(--white);
+        transition: width var(--transition-medium), left var(--transition-medium);
+    }
+
+    .nav > li > a:hover::after,
+    .nav > li.active > a::after {
+        width: 100%;
+        left: 0;
+    }
+}
+
+/* Navigation - Mobile (Touch targets)
+   ========================================================================== */
+@media (max-width: 767px) {
+    .navbar-offcanvas .nav > li > a {
+        padding: 14px 20px;
+        font-size: 16px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .navbar-offcanvas {
+        width: 280px !important;
+    }
+}
+
+/* Sticky Mobile Header
+   ========================================================================== */
+@media (max-width: 767px) {
+    .offcanvas-but-wrap {
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        background: var(--navy);
+        padding: 8px 0;
+    }
+
+    .navbar-offcanvas.in {
+        z-index: 1001;
+    }
+}
+
+/* Marketing Section - Full bleed background
+   ========================================================================== */
+.marketing {
+    background: var(--gray-bg);
+    padding: 8px 0 16px 0;
+}
+
+/* Marketing Box Cards
+   ========================================================================== */
+.market-box {
+    background: var(--white);
+    border-radius: var(--radius-md);
+    padding: 24px 20px 16px 20px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-border);
+    transition: box-shadow var(--transition-medium), transform var(--transition-medium);
+}
+
+.market-box:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.market-box i {
+    border-radius: var(--radius-sm);
+}
+
+/* Section Separators - Short accent line
+   ========================================================================== */
+.header-line {
+    border-bottom: 2px solid var(--motrio-red);
+    max-width: 80px;
+    margin-top: 48px;
+    margin-bottom: 48px;
+    height: auto;
+}
+
+@media (max-width: 767px) {
+    .header-line {
+        margin-top: 28px;
+        margin-bottom: 28px;
+    }
+}
+
+/* Images - Modern treatment
+   ========================================================================== */
+.img-big {
+    border: none;
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow var(--transition-medium);
+}
+
+.img-big:hover {
+    box-shadow: var(--shadow-md);
+}
+
+/* Gallery image hover
+   ========================================================================== */
+a[data-lightbox] img {
+    transition: transform var(--transition-medium), box-shadow var(--transition-medium);
+}
+
+a[data-lightbox] img:hover {
+    transform: scale(1.03);
+    box-shadow: var(--shadow-md);
+}
+
+/* Testimonial Badges - Fully circular
+   ========================================================================== */
+.testimonials span {
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    line-height: 44px;
+    font-size: 22px;
+    padding-top: 0;
+}
+
+/* Buttons
+   ========================================================================== */
+.btn-primary {
+    border: 2px solid var(--motrio-red);
+    border-radius: var(--radius-sm);
+    padding: 10px 24px;
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    transition: all var(--transition-fast);
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+}
+
+.btn:active {
+    transform: scale(0.97);
+}
+
+/* Form Inputs
+   ========================================================================== */
+.form-control {
+    border: 1px solid var(--gray-border);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    font-size: 15px;
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.form-control:focus {
+    border-color: var(--motrio-red);
+    box-shadow: 0 0 0 3px rgba(224, 0, 8, 0.15);
+    outline: none;
+}
+
+.formularz label {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 6px;
+    color: var(--text-primary);
+}
+
+/* Footer
+   ========================================================================== */
+.footer .container {
+    padding-top: 40px;
+    padding-bottom: 24px;
+}
+
+.footer p,
+.footer p > a,
+.footer .links,
+.footer .links a {
+    font-size: 13px;
+}
+
+.footer .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    justify-content: flex-end;
+}
+
+.footer .links span {
+    display: none;
+}
+
+.footer .links a {
+    transition: color var(--transition-fast);
+}
+
+/* Back to Top
+   ========================================================================== */
+.back-top {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    margin-top: 0;
+    z-index: 900;
+}
+
+.back-top p {
+    margin: 0;
+}
+
+.back-top a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    background: var(--navy);
+    color: var(--white);
+    border-radius: 50%;
+    transition: background var(--transition-fast);
+    text-decoration: none;
+    box-shadow: var(--shadow-md);
+}
+
+.back-top a:hover {
+    background: var(--motrio-red);
+    text-decoration: none;
+}
+
+.back-top .fa-arrow-circle-o-up {
+    color: var(--white);
+    font-size: 20px;
+}
+
+.back-top .fa-arrow-circle-o-up:hover {
+    color: var(--white);
+}
+
+/* Slider - Modern treatment
+   ========================================================================== */
+.bx-viewport {
+    border: none;
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-md);
+}
+
+/* Slider CTA button (rendered via bxSlider caption from title attr)
+   ========================================================================== */
+.bx-caption .slide-cta {
+    display: inline-block;
+    background: var(--motrio-red);
+    color: #fff;
+    padding: 10px 24px;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    text-decoration: none;
+    letter-spacing: 0.5px;
+}
+
+.bx-caption .slide-cta:hover {
+    background: #b3000a;
+    color: #fff;
+    text-decoration: none;
+}
+
+/* News items
+   ========================================================================== */
+.news-wyd {
+    padding-bottom: 8px;
+}
+
+.news-wyd img {
+    border-radius: var(--radius-sm);
+}
+
+/* Offer list
+   ========================================================================== */
+.ul-oferta {
+    line-height: 200%;
+}
+
+/* Homepage section navigation titles (O Firmie / Oferta / Ceny)
+   Preserve original H1 visual appearance after semantic correction
+   ========================================================================== */
+h2.section-nav-title {
+    color: var(--navy);
+    font-size: 32px;
+    font-weight: bold;
+}
+
+/* Mobile CTA Bar
+   ========================================================================== */
+.mobile-cta-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    display: flex;
+    background: var(--navy);
+    border-top: 2px solid var(--motrio-red);
+}
+
+.mobile-cta-bar a {
+    flex: 1;
+    text-align: center;
+    padding: 14px;
+    color: white;
+    font-weight: 600;
+    text-decoration: none;
+    font-family: 'Poppins', sans-serif;
+    font-size: 15px;
+    transition: background var(--transition-fast);
+}
+
+.mobile-cta-bar a:hover,
+.mobile-cta-bar a:focus {
+    color: white;
+    text-decoration: none;
+}
+
+.mobile-cta-bar a:first-child {
+    background: var(--motrio-red);
+}
+
+.mobile-cta-bar a i {
+    margin-right: 6px;
+}
+
+@media (max-width: 767px) {
+    body {
+        padding-bottom: 52px;
+    }
+
+    .back-top {
+        bottom: 64px;
+    }
+}
+
+@media (min-width: 768px) {
+    .mobile-cta-bar {
+        display: none !important;
+    }
+}
+
+/* Responsive iframes
+   ========================================================================== */
+@media (max-width: 767px) {
+    iframe[src*="google.com/maps"] {
+        aspect-ratio: 16 / 9;
+        height: auto;
+        border-radius: var(--radius-sm);
+    }
+}
+
+/* Fix bxSlider caption media queries (order: largest first)
+   ========================================================================== */
+@media (max-width: 767px) {
+    .bx-caption h5 {
+        font-size: 145%;
+    }
+}
+
+@media (max-width: 600px) {
+    .bx-caption h5 {
+        font-size: 125%;
+    }
+}
+
+@media (max-width: 480px) {
+    .bx-caption h5 {
+        font-size: 100%;
+    }
+}
+
+@media (max-width: 360px) {
+    .bx-caption h5 {
+        font-size: 80%;
+    }
+}

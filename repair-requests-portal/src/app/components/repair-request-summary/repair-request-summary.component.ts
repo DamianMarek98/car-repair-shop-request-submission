@@ -43,21 +43,16 @@ export class RepairRequestSummaryComponent implements OnInit {
     return StatusMapper.mapStatus(status);
   }
 
+  chipClass(status: string | undefined): string {
+    return StatusMapper.mapStatusToChipClass(status);
+  }
+
   markRepairRequestAsHandled() {
     this.repairRequestService.markRepairRequestAsHandled(this.repairRequestId).subscribe(() => this.loadRepairRequest());
   }
 
   markRepairRequestAsAppointmentMade() {
     this.repairRequestService.markRepairRequestAsAppointmentMade(this.repairRequestId).subscribe(() => this.loadRepairRequest());
-  }
-
-  mapStatusToColor(status: string | undefined) {
-    if (!status) {
-      return {};
-    }
-    return {
-      'background-color': StatusMapper.mapStatusToColor(status)
-    }
   }
 
   toBrowserTimeZone(datetime: string | undefined) {

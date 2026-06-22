@@ -14,18 +14,32 @@ export class StatusMapper {
         return 'NIEZNANY';
     }
 
-    static mapStatusToColor(status: string | undefined): string {
-      if (!status) {
-          return 'Brak';
-      }
+    /** CSS class for the status chip/badge (see .status-chip rules in styles.css). */
+    static mapStatusToChipClass(status: string | undefined): string {
       if (status === 'NEW') {
-        return '#95f0fc';
+        return 'status-chip--new';
       } else if (status === 'APPOINTMENT_MADE') {
-        return '#009933';
+        return 'status-chip--appointment';
       } else if (status === 'HANDLED') {
-        return '#e0e0d1';
+        return 'status-chip--handled';
       }
 
-      return 'NIEZNANY';
+      return 'status-chip--unknown';
+    }
+
+    /** Softened background tint applied to a table row to convey status at a glance. */
+    static mapStatusToRowColor(status: string | undefined): string {
+      if (!status) {
+          return 'transparent';
+      }
+      if (status === 'NEW') {
+        return '#ffe39e';
+      } else if (status === 'APPOINTMENT_MADE') {
+        return '#aee3bd';
+      } else if (status === 'HANDLED') {
+        return '#d3dae0';
+      }
+
+      return 'transparent';
   }
 }

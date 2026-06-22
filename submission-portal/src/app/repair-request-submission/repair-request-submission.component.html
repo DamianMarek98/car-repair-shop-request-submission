@@ -2,7 +2,7 @@
   <div class="form-container" style="text-align: center;">
     <div class="form-header">
       <a href="https://renocar.pl/" target="_blank" rel="noopener noreferrer" title="Przejdź do strony RENO CAR">
-        <div><img src="	https://renocar.pl/images/logo.png" alt="Renocar logo" style="transform: scale(0.85)"></div>
+        <div><img src="/logo-motrio-new.png" alt="RENO CAR - Pogwarancyjny Serwis Renault | Motrio"></div>
       </a>
       <h5>Umów się</h5>
     </div>
@@ -63,11 +63,13 @@
       </mat-form-field>
 
       <mat-form-field class="form-field" appearance="outline">
-        <mat-label> Email
-        </mat-label>
-        <input matInput formControlName="email"  required>
-        <mat-error *ngIf="repairForm.get('email')?.hasError && repairForm.get('email')?.invalid">
+        <mat-label>Email</mat-label>
+        <input matInput formControlName="email" required autocomplete="email">
+        <mat-error *ngIf="repairForm.get('email')?.hasError('required')">
           <span>To pole jest wymagane.</span>
+        </mat-error>
+        <mat-error *ngIf="repairForm.get('email')?.hasError('email')">
+          <span>Nieprawidłowy adres e-mail.</span>
         </mat-error>
       </mat-form-field>
 
@@ -135,6 +137,10 @@
         </mat-error>
       </div>
 
+      <div *ngIf="submissionError" class="submission-error">
+        Wystąpił błąd podczas wysyłania zgłoszenia. Spróbuj ponownie lub skontaktuj się telefonicznie.
+      </div>
+
       <div style="margin-top: 10px; ">
         <button mat-raised-button type="submit" [disabled]="isLoading || repairForm.invalid">
           <span *ngIf="!isLoading">Wyślij</span>
@@ -155,8 +161,10 @@
 <ng-template #submittedComponent>
   <div class="center-container">
     <a href="https://renocar.pl/" target="_blank" rel="noopener noreferrer">
-      <div><img src="	https://renocar.pl/images/logo.png" alt="Renocar logo"></div>
+      <div><img src="/logo-motrio-new.png" alt="RENO CAR - Pogwarancyjny Serwis Renault | Motrio"></div>
     </a>
-    <h5>Przyjeliśmy Twoje zgłoszenie, przyjrzymy się mu i skontaktujemy się w celu ustelnia szczegółów wizyty. <a href="https://renocar.pl/kontakt/" target="_blank" rel="noopener noreferrer">W razie wątpliowości odezwij się</a>.</h5>
+    <h5>Przyjęliśmy Twoje zgłoszenie, przyjrzymy się mu i skontaktujemy się w celu ustalenia
+      szczegółów wizyty. <a href="https://renocar.pl/kontakt/"
+      rel="noopener noreferrer">W razie wątpliwości odezwij się</a>.</h5>
   </div>
 </ng-template>

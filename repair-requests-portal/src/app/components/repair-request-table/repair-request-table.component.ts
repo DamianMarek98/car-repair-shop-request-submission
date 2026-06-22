@@ -50,22 +50,16 @@ export class RepairRequestTableComponent implements OnInit, AfterViewInit {
 
   loadPage(event: PageEvent) {
     this.loading = true;
-    this.sleep(5000).then(() => {
-      this.repairRequestService.searchRequests(event.pageIndex, event.pageSize).subscribe({
-        next: repairRequestsPage => {
-          this.dataSource.data = repairRequestsPage.content;
-          this.numberOfElements = repairRequestsPage.totalElements;
-          this.loading = false;
-        },
-        error: () => {
-          this.loading = false;
-        }
-      });
+    this.repairRequestService.searchRequests(event.pageIndex, event.pageSize).subscribe({
+      next: repairRequestsPage => {
+        this.dataSource.data = repairRequestsPage.content;
+        this.numberOfElements = repairRequestsPage.totalElements;
+        this.loading = false;
+      },
+      error: () => {
+        this.loading = false;
+      }
     });
-  }
-
-  sleep(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   ngAfterViewInit() {
@@ -76,9 +70,13 @@ export class RepairRequestTableComponent implements OnInit, AfterViewInit {
     return StatusMapper.mapStatus(status);
   }
 
+  chipClass(status: string): string {
+    return StatusMapper.mapStatusToChipClass(status);
+  }
+
   mapStatusToColor(status: string) {
     return {
-      'background-color': StatusMapper.mapStatusToColor(status)
+      'background-color': StatusMapper.mapStatusToRowColor(status)
     }
   }
 

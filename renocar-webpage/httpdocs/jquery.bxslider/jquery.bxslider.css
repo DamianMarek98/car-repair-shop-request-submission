@@ -100,7 +100,7 @@
 
 .bx-wrapper .bx-pager.bx-default-pager a:hover,
 .bx-wrapper .bx-pager.bx-default-pager a.active {
-	background: #ffd046;
+	background: #e00008;
 	border: 1px solid #b1b1b1;
 }
 
@@ -195,7 +195,7 @@
 	bottom: 5px;
 	left: 0;
 	background-size:cover;
-	background: rgba(0, 0, 0, 0.40);
+	background: rgba(40, 43, 62, 0.75);
 	width: 100%;
 }
 
@@ -206,14 +206,14 @@
 	font-size: .85em;
 	padding: 10px;
 }
-	
+
 /* style dla strony big */
 @media screen and (min-width: 768px) {
 	.bx-wrapper .bx-caption {
 		position: absolute;
 		bottom: 20px;
 		left: 0;
-		background: rgba(0, 0, 0, 0.40);
+		background: rgba(40, 43, 62, 0.75);
 		width: 100%;
 	}
 	

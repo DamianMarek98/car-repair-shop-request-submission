@@ -1,5 +1,110 @@
 /* You can add global styles to this file, and also import other style files */
 @import '../node_modules/@angular/material/prebuilt-themes/azure-blue.css';
 
+/* ===== Motrio design tokens ===== */
+:root {
+  --motrio-navy: #282b3e;
+  --motrio-navy-dark: #1f2230;
+  --motrio-red: #e00008;
+  --motrio-red-hover: #b80006;
+  --motrio-surface: #f4f5f7;
+  --motrio-card: #ffffff;
+  --motrio-text: #272626;
+  --motrio-border: #d0d0d0;
+  --motrio-error-bg: #fff5f5;
+  --motrio-radius: 8px;
+  --motrio-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
 html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+body {
+  margin: 0;
+  font-family: 'Poppins', Arial, sans-serif;
+  background: var(--motrio-surface);
+  color: var(--motrio-text);
+}
+
+/* ===== Global Material overrides (Motrio look) ===== */
+
+/* Raised / filled buttons -> Motrio red */
+.mat-mdc-raised-button:not([disabled]),
+.mat-mdc-unelevated-button:not([disabled]) {
+  --mdc-protected-button-label-text-color: #ffffff;
+  --mdc-protected-button-container-color: var(--motrio-red);
+  --mdc-filled-button-label-text-color: #ffffff;
+  --mdc-filled-button-container-color: var(--motrio-red);
+  background-color: var(--motrio-red);
+  color: #ffffff;
+  font-family: 'Poppins', Arial, sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  border-radius: var(--motrio-radius);
+}
+
+.mat-mdc-raised-button:hover:not([disabled]),
+.mat-mdc-unelevated-button:hover:not([disabled]) {
+  --mdc-protected-button-container-color: var(--motrio-red-hover);
+  --mdc-filled-button-container-color: var(--motrio-red-hover);
+  background-color: var(--motrio-red-hover);
+}
+
+/* Secondary / outline button variant (red text + border) */
+.motrio-btn-secondary.mat-mdc-raised-button:not([disabled]),
+.motrio-btn-secondary.mat-mdc-button {
+  --mdc-protected-button-container-color: #ffffff;
+  --mdc-protected-button-label-text-color: var(--motrio-red);
+  background-color: #ffffff !important;
+  color: var(--motrio-red) !important;
+  border: 1px solid var(--motrio-red);
+  box-shadow: none;
+}
+.motrio-btn-secondary.mat-mdc-raised-button:hover:not([disabled]) {
+  background-color: var(--motrio-error-bg) !important;
+}
+
+/* Outlined form fields */
+.mat-mdc-text-field-wrapper {
+  --mdc-outlined-text-field-label-text-color: var(--motrio-text);
+  --mdc-outlined-text-field-outline-color: var(--motrio-border);
+  --mdc-outlined-text-field-focus-outline-color: var(--motrio-navy);
+  --mdc-outlined-text-field-focus-label-text-color: var(--motrio-navy);
+  --mdc-outlined-text-field-input-text-color: var(--motrio-text);
+  --mdc-outlined-text-field-caret-color: var(--motrio-red);
+}
+
+/* Links */
+a {
+  color: var(--motrio-red);
+}
+
+/* ===== Status chip ===== */
+.status-chip {
+  display: inline-block;
+  padding: 2px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 20px;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+.status-chip--new {
+  background-color: #fff8e6;
+  color: #8a6d00;
+  border-color: #d9b84a;
+}
+.status-chip--appointment {
+  background-color: #eef8f1;
+  color: #1e7e34;
+  border-color: #8ecb9f;
+}
+.status-chip--handled {
+  background-color: #f4f6f8;
+  color: #546e7a;
+  border-color: #aeb9c1;
+}
+.status-chip--unknown {
+  background-color: #f4f6f8;
+  color: #546e7a;
+  border-color: #aeb9c1;
+}

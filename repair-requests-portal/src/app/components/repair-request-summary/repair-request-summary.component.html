@@ -2,7 +2,10 @@
     <div class="left-column">
         <mat-card>
             <mat-card-header>
-                <mat-card-title>Zgłoszenie (status: {{mapStatus(repairRequest?.status)}})</mat-card-title>
+                <mat-card-title class="summary-title">
+                    Zgłoszenie
+                    <span class="status-chip" [ngClass]="chipClass(repairRequest?.status)">{{ mapStatus(repairRequest?.status) }}</span>
+                </mat-card-title>
             </mat-card-header>
             <mat-card-content>
                 <mat-list role="list">
@@ -104,16 +107,16 @@
             </mat-card-content>
         </mat-card>
 
-        <div class="card-content-element">
-            <mat-card *ngIf="repairRequest?.status !== 'APPOINTMENT_MADE'">
+        <div class="card-content-element" *ngIf="repairRequest?.status !== 'APPOINTMENT_MADE'">
+            <mat-card>
                 <mat-card-header>
                     <mat-card-title>Akcje:</mat-card-title>
                 </mat-card-header>
                 <mat-card-content style="padding-top: 1vh;">
                     <button mat-raised-button *ngIf="repairRequest?.status === 'NEW'"
-                        (click)="markRepairRequestAsHandled()" [ngStyle]="mapStatusToColor(repairRequest?.status)">Obsłużone</button>
+                        (click)="markRepairRequestAsHandled()">Obsłużone</button>
                     <button mat-raised-button *ngIf="repairRequest?.status === 'HANDLED'"
-                        (click)="markRepairRequestAsAppointmentMade()" [ngStyle]="mapStatusToColor(repairRequest?.status)">Wizyta odbyta</button>
+                        (click)="markRepairRequestAsAppointmentMade()">Wizyta odbyta</button>
                 </mat-card-content>
             </mat-card>
         </div>

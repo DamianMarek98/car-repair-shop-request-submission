@@ -62,9 +62,9 @@
         padding: 5px 15px 5px 30px; } }
 
 .offcanvas-toggle {
-  background: #f8f8f8; }
+  background: #282b3e; }
   .offcanvas-toggle .icon-bar {
-    background: #000; }
+    background: #ffffff; }
   .offcanvas-toggle.offcanvas-toggle-close {
     margin-right: 0px; }
     .offcanvas-toggle.offcanvas-toggle-close .icon-bar:nth-child(1) {

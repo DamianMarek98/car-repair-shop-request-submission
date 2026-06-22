@@ -50,6 +50,7 @@ export class RepairRequestSubmissionComponent implements OnInit {
   repairForm: FormGroup;
   submitted: boolean = false;
   isLoading: boolean = false;
+  submissionError: boolean = false;
   todayDate: Date = new Date();
   times: string[] = ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00"];
   dateFilter = (date: Date | null): boolean => { return true };
@@ -57,7 +58,7 @@ export class RepairRequestSubmissionComponent implements OnInit {
   constructor(private fb: FormBuilder, private repairRequestService: RepairRequestService, private unavailableDaysService: UnavailableDaysService, private cdr: ChangeDetectorRef) {
     this.repairForm = this.fb.group({
       vin: ['', [Validators.minLength(17), Validators.maxLength(17)]],
-      plateNumber: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(7)]],
+      plateNumber: ['', [Validators.required, Validators.minLength(6), Validators.maxLength(8)]],
       issueDescription: ['', [Validators.required, Validators.maxLength(500)]],
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
@@ -107,7 +108,7 @@ export class RepairRequestSubmissionComponent implements OnInit {
   addTimeSlot() {
     if (!this.isAsap() && this.timeSlots.length < 5) {
       const timeSlotGroup = this.fb.group({
-        date: [Validators.required],
+        date: [null, Validators.required],
         from: [null],
         to: [null]
       });
@@ -125,6 +126,7 @@ export class RepairRequestSubmissionComponent implements OnInit {
   onSubmit() {
     if (this.repairForm.valid) {
       this.isLoading = true;
+      this.submissionError = false;
       const repairRequest: RepairRequest = {
         vin: this.mapToNullOnEmpty(this.repairForm.get('vin')?.value),
         plateNumber: this.repairForm.get('plateNumber')?.value,
@@ -147,6 +149,7 @@ export class RepairRequestSubmissionComponent implements OnInit {
         },
         error: () => {
           this.isLoading = false;
+          this.submissionError = true;
           this.cdr.detectChanges();
         }
       });
