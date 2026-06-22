@@ -1,22 +1,59 @@
 .example-container {
     display: flex;
     justify-content: center;
-    align-items: center;
-    height: 85vh;
-    width: 80vw;
-    padding: 2%;
-    color: black;
+    align-items: flex-start;
+    padding: 8px;
+    color: var(--motrio-text);
 }
 
 .demo-inline-calendar-card {
-    width: 50vw;
-    height: 75vh;
+    width: 100%;
+    max-width: 520px;
+    border-radius: var(--motrio-radius);
+    box-shadow: var(--motrio-shadow);
+    background: var(--motrio-card);
+}
+
+.demo-inline-calendar-card mat-card-title {
+    font-weight: 600;
+    color: var(--motrio-navy);
+}
+
+.calendar-card-content {
     display: flex;
-    justify-content: center;
-    align-items: center;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding-top: 12px;
 }
 
 mat-calendar {
-    width: 50%;
+    width: 100%;
     height: auto;
+}
+
+.calendar-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.calendar-actions button {
+    flex: 1 1 auto;
+}
+
+/* Motrio red accent for the selected day */
+:host ::ng-deep .mat-calendar-body-selected {
+    background-color: var(--motrio-red);
+    color: #ffffff;
+}
+
+:host ::ng-deep .mat-calendar-body-today.mat-calendar-body-selected {
+    box-shadow: inset 0 0 0 1px #ffffff;
+}
+
+/* Navy "today" ring instead of the prebuilt theme's blue.
+   !important is needed to beat the prebuilt theme's equal-specificity rule. */
+:host ::ng-deep .mat-calendar-body-today:not(.mat-calendar-body-selected) {
+    border-color: var(--motrio-navy) !important;
 }

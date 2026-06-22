@@ -1,6 +1,9 @@
 .mat-elevation-z8 {
-    background: white;
-    border-radius: 4px;
+    position: relative;
+    background: var(--motrio-card);
+    border-radius: var(--motrio-radius);
+    box-shadow: var(--motrio-shadow);
+    overflow: hidden;
 }
 
 table {
@@ -12,16 +15,37 @@ table {
 .mat-mdc-table,
 .mat-mdc-row,
 .mat-mdc-header-row {
-    background-color: white;
-    color: black;
+    background-color: var(--motrio-card);
+    color: var(--motrio-text);
 }
 
 .mat-mdc-table {
     height: 80%;
 }
 
-.status-new {
-    background-color: rgb(78, 209, 18);
+/* Navy header row */
+.mat-mdc-header-row {
+    background-color: var(--motrio-navy);
+}
+
+.mat-mdc-header-cell {
+    color: #ffffff;
+    font-weight: 600;
+}
+
+/* Sort header arrow + text on navy */
+.mat-mdc-header-cell .mat-sort-header-arrow {
+    color: #ffffff;
+}
+
+/* Clickable rows with hover feedback (row tint set inline via [ngStyle]) */
+.mat-mdc-row {
+    cursor: pointer;
+    transition: filter 0.15s ease;
+}
+
+.mat-mdc-row:hover {
+    filter: brightness(0.96);
 }
 
 .spinner-overlay {
@@ -34,4 +58,6 @@ table {
   z-index: 2;
 }
 
-.mat-mdc-progress-spinner { --mdc-circular-progress-active-indicator-color: #ff0; }
+.spinner-overlay .mat-mdc-progress-spinner {
+  --mdc-circular-progress-active-indicator-color: var(--motrio-red);
+}

@@ -1,7 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterModule, RouterOutlet } from '@angular/router';
-import {MatSidenavModule} from '@angular/material/sidenav';
-import { MatListModule } from '@angular/material/list';
 import { AuthService } from './service/auth-service';
 import { CommonModule } from '@angular/common';
 import { Title } from '@angular/platform-browser';
@@ -9,12 +7,13 @@ import { Title } from '@angular/platform-browser';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, MatSidenavModule, MatListModule, RouterModule, CommonModule],
+  imports: [RouterOutlet, RouterModule, CommonModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
 export class AppComponent implements OnInit {
   title = 'repair-requests-portal';
+  menuOpen = false;
 
   constructor(private authService: AuthService, private titleService: Title) {
   }
@@ -29,5 +28,13 @@ export class AppComponent implements OnInit {
 
   public clearToken(): void {
     this.authService.logout();
+  }
+
+  public toggleMenu(): void {
+    this.menuOpen = !this.menuOpen;
+  }
+
+  public closeMenu(): void {
+    this.menuOpen = false;
   }
 }

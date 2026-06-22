@@ -70,9 +70,13 @@ export class RepairRequestTableComponent implements OnInit, AfterViewInit {
     return StatusMapper.mapStatus(status);
   }
 
+  chipClass(status: string): string {
+    return StatusMapper.mapStatusToChipClass(status);
+  }
+
   mapStatusToColor(status: string) {
     return {
-      'background-color': StatusMapper.mapStatusToColor(status)
+      'background-color': StatusMapper.mapStatusToRowColor(status)
     }
   }
 

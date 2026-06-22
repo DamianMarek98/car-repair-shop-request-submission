@@ -23,7 +23,9 @@
 
         <ng-container matColumnDef="status">
             <mat-header-cell *matHeaderCellDef mat-sort-header> Status </mat-header-cell>
-            <mat-cell *matCellDef="let element"> {{mapStatus(element.status)}} </mat-cell>
+            <mat-cell *matCellDef="let element">
+                <span class="status-chip" [ngClass]="chipClass(element.status)">{{ mapStatus(element.status) }}</span>
+            </mat-cell>
         </ng-container>
 
         <ng-container matColumnDef="submittedAt">

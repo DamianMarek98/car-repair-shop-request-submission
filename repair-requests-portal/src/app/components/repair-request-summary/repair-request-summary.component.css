@@ -1,13 +1,32 @@
 .container {
     display: flex;
-    justify-content: space-between;
-  }
-  
-  .left-column, .right-column {
-    flex: 1;
-    padding: 16px;
-  }
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: flex-start;
+}
 
-.card-content-element {
-    padding-top: 1vh;
+.left-column, .right-column {
+    flex: 1 1 360px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+mat-card {
+    border-radius: var(--motrio-radius);
+    box-shadow: var(--motrio-shadow);
+    background: var(--motrio-card);
+}
+
+mat-card-title {
+    font-weight: 600;
+    color: var(--motrio-navy);
+}
+
+.summary-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
 }

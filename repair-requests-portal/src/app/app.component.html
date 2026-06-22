@@ -1,32 +1,34 @@
-<div *ngIf="loggedIn; else login">
-  <mat-sidenav-container class="example-container">
-    <mat-sidenav #sidenav mode="side" opened class="example-sidenav" [fixedInViewport]="true" [fixedTopGap]="0"
-      [fixedBottomGap]="0">
-      RENOCAR
-      <mat-nav-list role="navigation">
-        <a mat-list-item [routerLink]="['table-component']">
-          <span mat-line>Zgłoszenia</span>
-        </a>
-        <a mat-list-item [routerLink]="['unavailable-days']">
-          <span mat-line>Dostępność</span>
-        </a>
-        <a mat-list-item (click)="clearToken()" [routerLink]="['login-component']">
-          <span mat-line>Wyloguj</span>
-        </a>
-      </mat-nav-list>
-    </mat-sidenav>
-    <mat-sidenav-content>
-      <main class="main" style="padding-left: 1vw; padding-right: 1vw;">
-        <div class="content">
-          <router-outlet />
-        </div>
-      </main>
-    </mat-sidenav-content>
-  </mat-sidenav-container>
+<div *ngIf="loggedIn; else login" class="layout" [class.menu-open]="menuOpen">
+  <nav class="sidebar" role="navigation">
+    <div class="sidebar__bar">
+      <a class="sidebar__logo" [routerLink]="['table-component']" (click)="closeMenu()" aria-label="RENO CAR - Portal">
+        <img src="/logo-motrio-new.png" alt="RENO CAR - Pogwarancyjny Serwis Renault | Motrio">
+      </a>
+      <button type="button" class="sidebar__toggle" (click)="toggleMenu()"
+        [attr.aria-expanded]="menuOpen" aria-label="Menu" aria-controls="sidebar-nav">
+        <span class="material-icons">{{ menuOpen ? 'close' : 'menu' }}</span>
+      </button>
+    </div>
+    <ul id="sidebar-nav" class="sidebar__nav">
+      <li>
+        <a [routerLink]="['table-component']" routerLinkActive="is-active" (click)="closeMenu()">Zgłoszenia</a>
+      </li>
+      <li>
+        <a [routerLink]="['unavailable-days']" routerLinkActive="is-active" (click)="closeMenu()">Dostępność</a>
+      </li>
+      <li>
+        <a (click)="clearToken(); closeMenu()" [routerLink]="['login-component']">Wyloguj</a>
+      </li>
+    </ul>
+  </nav>
+
+  <main class="content">
+    <router-outlet />
+  </main>
 </div>
 
 <ng-template #login>
-  <div class="content">
+  <div class="content content--login">
     <router-outlet />
   </div>
 </ng-template>
