@@ -6,9 +6,9 @@ export class StatusMapper {
         if (status === 'NEW') {
           return 'Nowe';
         } else if (status === 'APPOINTMENT_MADE') {
-          return 'Umówiono';
-        } else if (status === 'HANDLED') {
           return 'Zakończono';
+        } else if (status === 'HANDLED') {
+          return 'Umówiono';
         }
 
         return 'NIEZNANY';

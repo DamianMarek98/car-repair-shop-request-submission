@@ -6,12 +6,12 @@ describe('StatusMapper', () => {
       expect(StatusMapper.mapStatus('NEW')).toBe('Nowe');
     });
 
-    it('maps APPOINTMENT_MADE to "Umówiono"', () => {
-      expect(StatusMapper.mapStatus('APPOINTMENT_MADE')).toBe('Umówiono');
+    it('maps APPOINTMENT_MADE to "Zakończono"', () => {
+      expect(StatusMapper.mapStatus('APPOINTMENT_MADE')).toBe('Zakończono');
     });
 
-    it('maps HANDLED to "Zakończono"', () => {
-      expect(StatusMapper.mapStatus('HANDLED')).toBe('Zakończono');
+    it('maps HANDLED to "Umówiono"', () => {
+      expect(StatusMapper.mapStatus('HANDLED')).toBe('Umówiono');
     });
 
     it('returns "Brak" for undefined status', () => {
