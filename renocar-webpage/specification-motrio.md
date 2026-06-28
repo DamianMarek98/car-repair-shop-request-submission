@@ -306,9 +306,17 @@ red "Dowiedz się więcej"); stack vertically on mobile; the booking-embed entry
 
 ---
 
-## Phase 3 — Accents, header polish, enablers · ~10–14 h
+## Phase 3 — Accents, header polish, enablers · ~10–14 h · ✅ DONE
 
-### Step 3.1 — Diagonal accents + section rhythm (CSS) · Grade B
+**Status:** 3.1 Diagonal accents ✅ · 3.2 Header CTA pill ✅ · 3.3 Desktop nav-collapse ⏭️ skipped (optional, Grade C) · E PHP include ⏭️ not done (optional enabler)
+
+**QA review (senior QA — desktop; computed-style + screenshot checks; no console errors; no horizontal overflow):**
+- ✅ Header "Umów się" pill: red bg, white text (overrides `.logo a` tan), radius 999px, → renocar-zgloszenie.pl (new tab); present on all 7 pages under the partner badge.
+- ✅ Diagonal accent applied to the **hero bottom** (`.mt-hero` clip-path); `docOverflowX:false`.
+- ⚠️ **Adjustment made:** the spec originally put the diagonal on the **services band**, but that band's grey (`#f4f5f7`) is nearly identical to the page white, so the angled cut was invisible. Moved the clip-path to the **hero bottom** (dark photo → light section) where it actually reads. The `.mt-band*` / `.mt-diagonal-*` utility classes remain available for future use.
+- ℹ️ Kept to a single tasteful diagonal (per the spec's "1–2 bands, don't get noisy").
+
+### Step 3.1 — Diagonal accents + section rhythm (CSS) · Grade B · ✅
 
 ```css
 /* === MOTRIO diagonal accents & rhythm === */
@@ -324,7 +332,7 @@ a band for the slanted edge. Keep it to 1–2 bands so the page doesn't get nois
 **Accept:** at least one full-width section reads as a Motrio-style angled band; no horizontal
 scrollbar appears (the `100vw` full-bleed must not exceed viewport — verify at 1280px+).
 
-### Step 3.2 — Header CTA pill (per-page HTML + CSS) · Grade B
+### Step 3.2 — Header CTA pill (per-page HTML + CSS) · Grade B · ✅
 
 Add a red **"Umów się"** pill to the header right column on every page; keep the existing nav bar.
 ```html
