@@ -134,9 +134,28 @@ sentence heading looks heavy in uppercase, add `class="heading-normalcase"` to i
 
 ---
 
-## Phase 2 — Section rebuilds (homepage-led) · ~12–16 h
+## Phase 2 — Section rebuilds (homepage-led) · ~12–16 h · ✅ DONE
 
-### Step 2.1 — Full-bleed rotating hero (`index.htm` + CSS) · Grade A
+**Status:** 2.1 Hero ✅ · 2.2 Service tiles ✅ · 2.3 Why-us circles ✅ · 2.4 News cards ✅ · 2.5 Partner badge ✅
+
+**QA review (senior QA — homepage + promocje, desktop; computed-style + screenshot checks; no console errors; no horizontal overflow):**
+- ✅ Hero: full-bleed rotating photo, left-dark gradient, uppercase white title, red pill "Umów się online" (radius 999px); bxSlider captions + pager hidden; single `<h1>` (old one demoted to `<h2 class="heading-normalcase">`). Verified hero/viewport height 640px and `docOverflowX:false`.
+- ✅ Service tiles: 4 centered cards, circular red icons (72px, radius 50%), uppercase titles.
+- ✅ "Dlaczego my": white outline circles (60px, 2px #111 ring, red number).
+- ✅ News cards: white block cards (1px border, 12px radius) on homepage + all 12 promocje entries; booking-embed entry still functions.
+- ✅ Partner badge: header pill "Autoryzowany Partner Motrio" + footer pill "Część sieci Motrio" on all 7 pages, both → motrio.pl (new tab). Computed colours/border/radius verified.
+
+**Implementation deviations from the literal spec (equivalent result, lower risk — intentional):**
+1. **Tiles, why-circles and news cards done CSS-only** (no per-card markup surgery). Existing `.market-box`/`.testimonials`/`.news-wyd` markup is restyled via CSS, so the changes also propagate to every page using those sections. News uses a **block card by default** with an opt-in `.news-wyd--card` for a horizontal thumbnail layout.
+2. **Hero overlay/content injected into the existing `.slider`** (given `mt-hero mt-fullbleed`) instead of rebuilding the slider — keeps bxSlider intact. The slider's inner `.container` is widened via `.mt-hero > .container`.
+3. **bxSlider captions + pager hidden via CSS** (`.mt-hero .bx-caption, .mt-hero .bx-pager { display:none }`) instead of editing the JS init — zero JS risk.
+4. **Partner badge inserted by an idempotent script** (anchored on the unique `www.renocar.pl` link + copyright `</p>`) across all 7 pages; an IDE formatter then normalised the previously double-spaced markup (cosmetic only).
+
+**Minor cosmetic notes (non-blocking):**
+- Promocje entries keep their original inline image placement (not the `--card` thumbnail layout); some long entries show extra whitespace inside the card.
+- Header badge sits directly under the `www.renocar.pl` link — re-check spacing on very narrow header widths during the real-device pass.
+
+### Step 2.1 — Full-bleed rotating hero (`index.htm` + CSS) · Grade A · ✅
 
 **CSS** (append to `style-modern.css`):
 ```css
@@ -188,7 +207,7 @@ sentence heading looks heavy in uppercase, add `class="heading-normalcase"` to i
 the heading/subtitle/red-pill are legible over any slide, the CTA opens the booking site in a new
 tab, no console errors, and the page has a single `<h1>`.
 
-### Step 2.2 — Service tiles (`index.htm` + CSS) · Grade A
+### Step 2.2 — Service tiles (`index.htm` + CSS) · Grade A · ✅
 
 **CSS:**
 ```css
@@ -219,7 +238,7 @@ tab, no console errors, and the page has a single `<h1>`.
 **Accept:** four equal centered cards with circular red icons, hover-lift retained, responsive
 (4→2→1 columns).
 
-### Step 2.3 — "Dlaczego my" outline circles (`index.htm` minor + CSS) · Grade B
+### Step 2.3 — "Dlaczego my" outline circles (`index.htm` minor + CSS) · Grade B · ✅
 
 **CSS** (override the existing filled badge):
 ```css
@@ -234,7 +253,7 @@ reserves red for accent headings). Keep all five reasons.
 
 **Accept:** the 1–5 badges are white circles with a thin dark ring and a red number.
 
-### Step 2.4 — Blog-style news cards (`index.htm` + `promocje/index.htm` + CSS) · Grade B
+### Step 2.4 — Blog-style news cards (`index.htm` + `promocje/index.htm` + CSS) · Grade B · ✅
 
 **CSS:**
 ```css
@@ -262,7 +281,7 @@ reserves red for accent headings). Keep all five reasons.
 **Accept:** news/promo entries render as cards (thumbnail left, uppercase heading, grey excerpt,
 red "Dowiedz się więcej"); stack vertically on mobile; the booking-embed entry still works.
 
-### Step 2.5 — Partner Motrio badge (per-page HTML + CSS) · Grade B
+### Step 2.5 — Partner Motrio badge (per-page HTML + CSS) · Grade B · ✅
 
 **CSS:**
 ```css
