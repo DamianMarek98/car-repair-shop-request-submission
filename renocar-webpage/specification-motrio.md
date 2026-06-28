@@ -348,6 +348,26 @@ spec separately.
 
 ---
 
+## Post‑implementation QA & regression review · ✅ DONE
+
+Full branch‑vs‑`main` regression review (`main` = the exact pre‑change baseline 7652dc9; served on a
+second port via a throwaway git worktree). **No regressions** introduced by the restyle — the shared
+blocks (`.marketing` tiles on 7 pages, `.testimonials` circles on 4) restyle consistently and
+intentionally. Four issues were found and **fixed**, each verified in‑browser:
+
+| # | Issue | Fix | Verified |
+|---|-------|-----|----------|
+| 1 | Gallery lightbox broken — `lightbox.min.js` ran before jQuery (`jQuery is not defined`) on oferta/ofirmie *(pre‑existing)* | Added `defer` to the head `lightbox.min.js` so the body‑loaded jQuery executes first | Lightbox initialises + overlay opens on thumbnail click |
+| 2 | Contact "Wyślij" button was `btn-default` (white square) — inconsistent with the new pills | Changed to `btn btn-lg btn-primary` (red pill) | Computed radius 999px, red bg / white text |
+| 3 | Full‑bleed hero used `100vw` → possible ~15px horizontal scrollbar on Windows (classic scrollbars) | Removed the redundant `mt-fullbleed` class — the hero is already a full‑width `<body>`‑child | Hero width == document `clientWidth`, marginLeft 0, no overflow |
+| 6 | Some promocje announcements rendered **un‑carded** due to malformed HTML (missing `<div class="news-wyd">` openings, which prematurely closed the column) | Added the 2 missing opening tags ("Serwis klimatyzacji", "Płyn do spryskiwaczy do każdego Przeglądu") | 14/14 entries carded, all inside the column, no overflow |
+
+Left as‑is (pre‑existing, **not** regressions): Facebook page plugin empty on localhost (verify on the
+production domain); orphaned `mechanicy/` page not restyled (not linked in the nav, doesn't load
+`style-modern.css`).
+
+---
+
 ## 4. Per-page propagation checklist
 
 CSS steps need no per-page work. For the **HTML** steps, apply to each file:
