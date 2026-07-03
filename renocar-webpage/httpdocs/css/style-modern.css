@@ -582,11 +582,8 @@ body { padding-bottom: 56px; }
 .mt-band--gray { background: var(--gray-bg); }
 .mt-diagonal-bottom { clip-path: polygon(0 0, 100% 0, 100% calc(100% - 36px), 0 100%); }
 .mt-diagonal-top    { clip-path: polygon(0 36px, 100% 0, 100% 100%, 0 100%); }
-/* Angled hero bottom — clearly visible where the dark hero meets the light section below */
-.mt-hero { clip-path: polygon(0 0, 100% 0, 100% calc(100% - 44px), 0 100%); }
-@media (max-width: 767px) {
-    .mt-hero { clip-path: polygon(0 0, 100% 0, 100% calc(100% - 24px), 0 100%); }
-}
+/* (Hero diagonal removed per request — the hero bottom is now straight/horizontal.
+   The .mt-diagonal-* utilities above remain available if an angled section is wanted later.) */
 
 /* 3.2 Header "Umów się" CTA pill (override .logo a colour) */
 .logo .btn-primary.header-cta { color: #fff; margin-top: 10px; }
