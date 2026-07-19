@@ -40,7 +40,8 @@ Conflicts found between the three specs and their resolutions — these rulings 
    spec 03 §0.1 absorbed/superseded most PLAN.md items after verifying Phase 1 is already
    implemented. **Resolution: spec 03 is canonical for the marketing site.** PLAN.md
    remains authoritative only for the residual items 03 explicitly leaves to it
-   (preconnect, CWV Phase 4, FAQ schema, pricing table, design Phases 6–7).
+   (preconnect, CWV Phase 4, FAQ schema, pricing table — design Phases 6–7 were
+   superseded by the implemented Motrio restyle, see finding 8).
 4. **Slider backup dir** — E4 says delete `httpdocs/images/home-slider/backup/`, W-B2 says
    "keep local or delete". **Resolution: delete** (E4 wins; originals can be archived
    outside the repo before deletion).
@@ -60,6 +61,21 @@ Conflicts found between the three specs and their resolutions — these rulings 
    the live admin flow already matches the owner semantics — only the *documents* were
    wrong. All three agree on the corrected status model. No unresolved contradictions
    remain.
+8. **Motrio restyle shipped (added 2026-07-19).** Branch `motrio-2026-adjustments`
+   implemented the full Motrio-branding restyle of renocar.pl — Phases 1–3 of
+   **`renocar-webpage/specification-motrio.md`** (the canonical record of that work,
+   with `renocar-webpage/motrio-analysis.md` as the vision doc) plus QA/regression
+   fixes. Consequences folded into the specs: spec 03's `file:line` references were
+   re-verified against the branch (see spec 03 §0.4 for the full delta — new header/
+   footer Motrio badges + CTAs on every page, rebuilt homepage hero with a new single
+   `<h1>`, persistent CTA bar, `cookies/` finally loading `style-modern.css`, deferred
+   lightbox JS on oferta/ofirmie, repaired promocje markup). PLAN.md design Phases 6–7
+   are superseded (only the optional Bootstrap 5 idea remains, deliberately unplanned).
+   **All W-A/W-B/W-C site work must build on this branch** — it touched the same 7 page
+   files; branching from the pre-restyle `main` will conflict. The restyle deliberately
+   did **not** touch analytics, SEO meta, `.htaccess`, the kontakt handler or the wrong
+   `tel:` prefixes — Tier 0 item 3 (W-A1/W-A2) and the whole week-1 batch remain fully
+   open.
 
 ---
 
@@ -116,7 +132,7 @@ Effort: S = hours · M = days · L = week+. Every item links to its full spec.
 | 26 | **E14** — IaC (CDK Java) for the existing stack, `cdk import`, PITR | After E5/E7/E9/E11 define the target state; runbook-first per D1. | L | #9, #17 |
 | 27 | **E15** — Dependency modernization (dynamodb fork → SDK v2 enhanced → Boot; Angular LTS ×2, drop SSR) | The fork is the keystone blocker; sequence around F2. | L | #10, #16 |
 | 28 | **E17** — OpenAPI + generated TS clients | Ends the third phone-regex copy; ideally after F12. | M | #10, ideally #19 |
-| 29 | **W-D4 + PLAN.md residuals + quarter items from spec 03** | Motrio locator, GA4 cross-domain funnel events, og-image, CWV/preconnect/FAQ-schema/design phases. | S–M | various |
+| 29 | **W-D4 + PLAN.md residuals + quarter items from spec 03** | Motrio locator, GA4 cross-domain funnel events, og-image, CWV/preconnect/FAQ-schema residuals (design Phases 6–7 already delivered by the Motrio restyle — finding 8). | S–M | various |
 | 30 | **G9** — Estimates / payments / real-time booking | Deliberately deferred; revisit only on the evidence gates written in G9. | — | evidence |
 
 ---
