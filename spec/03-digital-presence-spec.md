@@ -601,6 +601,11 @@ NIP: 5833538950
   Naszej stronie internetowej oraz na facebooku. Zachęcamy do odwiedzania strony oraz
   profilu" → "…Nasze promocje ogłaszamy na Naszej stronie internetowej. Zachęcamy do
   odwiedzania strony".
+- **`oferta/index.htm` (~line 261)** *(second body-copy gap, found at implementation
+  time 2026-07-19)* — "…Zachęcamy do odwiedzania Naszej strony internetowej oraz
+  śledzenia profilu na facebooku aby żadna promocja Państwa nie ominęła." →
+  "…Zachęcamy do odwiedzania Naszej strony internetowej, aby żadna promocja Państwa
+  nie ominęła."
 - W-A5's JSON-LD `"sameAs"` carries **only** the Google Maps listing URL (after W-D1) — no Facebook entry.
 - If a Facebook page is ever revived, re-adding one footer/kontakt link is a one-line change.
 - **Verification:** `grep -rni 'facebook' httpdocs --include='*.htm' | grep -v vendor` → empty.
@@ -921,6 +926,10 @@ var klaroConfig = {
   5. Footer (all pages): add a re-open link
      `<a href="#" onclick="klaro.show();return false;">Ustawienia cookies</a>` next to
      the Polityka prywatności link.
+  6. **CSS (found at implementation time):** Klaro's default notice (fixed
+     `bottom: 20px`) is covered by the site's persistent bottom CTA bar — append to
+     `css/style-modern.css`: `.klaro .cookie-notice { bottom: 72px !important;
+     z-index: 10001 !important; }` (plus `.klaro .cookie-modal { z-index: 10002 }`).
 - **Verification:** fresh incognito visit → no `google-analytics.com` /
   `googletagmanager.com` requests before consent (network tab); "Akceptuję" → GA4
   requests appear and `_ga` cookies set; "Odrzucam" → still none; choice persists;

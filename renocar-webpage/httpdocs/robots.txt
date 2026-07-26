@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /kontakt/vendor/
+Disallow: /kontakt/captcha.php
+Disallow: /kontakt/handler.php
+
+Sitemap: https://renocar.pl/sitemap.xml

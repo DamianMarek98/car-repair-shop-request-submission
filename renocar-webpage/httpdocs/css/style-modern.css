@@ -495,8 +495,11 @@ h2 { font-size: 26px; }
 .heading-accent     { color: var(--motrio-red); }   /* apply to chosen section heads */
 .heading-normalcase { text-transform: none; }        /* opt-out for long sentence headings */
 
-/* 1.3 Charcoal footer (keep the red top border) */
-.footer .container { background: var(--charcoal); }
+/* 1.3 Charcoal footer (keep the red top border) — full-bleed: the panel
+   (background + border) lives on .footer, so it spans the whole viewport;
+   the content stays centered in the .container */
+.footer { background: var(--charcoal); border-top: 4px solid var(--motrio-red); }
+.footer .container { background: none; border-top: 0; }
 
 /* 1.4 Persistent dual CTA bar on desktop + mobile
    (replaces the old mobile-only rules removed above) */
@@ -588,3 +591,12 @@ body { padding-bottom: 56px; }
 /* 3.2 Header "Umów się" CTA pill (override .logo a colour) */
 .logo .btn-primary.header-cta { color: #fff; margin-top: 10px; }
 .logo .btn-primary.header-cta:hover, .logo .btn-primary.header-cta:focus { color: #fff; }
+
+/* ==========================================================================
+   KLARO consent banner (spec 03 W-C3) — must clear the fixed bottom CTA bar
+   ========================================================================== */
+.klaro .cookie-notice {
+    bottom: 72px !important;
+    z-index: 10001 !important;
+}
+.klaro .cookie-modal { z-index: 10002 !important; }
