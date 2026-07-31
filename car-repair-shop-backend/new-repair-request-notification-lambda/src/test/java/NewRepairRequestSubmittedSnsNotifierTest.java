@@ -101,4 +101,61 @@ class NewRepairRequestSubmittedSnsNotifierTest {
         // Then
         verifyNoInteractions(snsClient);
     }
+
+    @Test
+    void givenInsertWithTestFirstNameShouldNotPublishNotification() {
+        // Given
+        final DynamodbEvent event = new DynamodbEvent();
+        final DynamodbEvent.DynamodbStreamRecord dynamodbStreamRecord = new DynamodbEvent.DynamodbStreamRecord();
+        dynamodbStreamRecord.setEventName("INSERT");
+        dynamodbStreamRecord.setDynamodb(new StreamRecord().withNewImage(
+                Map.of(
+                        "submitter_first_name", new AttributeValue("test"),
+                        "submitter_last_name", new AttributeValue("Testowy")
+                )
+        ));
+        event.setRecords(List.of(dynamodbStreamRecord));
+
+        // When
+        notifier.handleRequest(event, mockContext);
+
+        // Then
+        verifyNoInteractions(snsClient);
+    }
+
+    @Test
+    void givenInsertWithTestFirstNameDifferentCaseAndWhitespaceShouldNotPublishNotification() {
+        // Given
+        final DynamodbEvent event = new DynamodbEvent();
+        final DynamodbEvent.DynamodbStreamRecord dynamodbStreamRecord = new DynamodbEvent.DynamodbStreamRecord();
+        dynamodbStreamRecord.setEventName("INSERT");
+        dynamodbStreamRecord.setDynamodb(new StreamRecord().withNewImage(
+                Map.of("submitter_first_name", new AttributeValue(" TEST "))
+        ));
+        event.setRecords(List.of(dynamodbStreamRecord));
+
+        // When
+        notifier.handleRequest(event, mockContext);
+
+        // Then
+        verifyNoInteractions(snsClient);
+    }
+
+    @Test
+    void givenInsertWithFirstNameContainingTestShouldStillPublishNotification() {
+        // Given — only an exact "test" first name is filtered, not e.g. "Testosteron" or "Tester"
+        final DynamodbEvent event = new DynamodbEvent();
+        final DynamodbEvent.DynamodbStreamRecord dynamodbStreamRecord = new DynamodbEvent.DynamodbStreamRecord();
+        dynamodbStreamRecord.setEventName("INSERT");
+        dynamodbStreamRecord.setDynamodb(new StreamRecord().withNewImage(
+                Map.of("submitter_first_name", new AttributeValue("Tester"))
+        ));
+        event.setRecords(List.of(dynamodbStreamRecord));
+
+        // When
+        notifier.handleRequest(event, mockContext);
+
+        // Then
+        verify(snsClient).publish(any(PublishRequest.class));
+    }
 }
