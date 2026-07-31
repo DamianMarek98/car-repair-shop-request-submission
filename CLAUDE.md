@@ -18,7 +18,8 @@ serverless for cost.
 |------|------|---------|
 | `car-repair-shop-backend/shop/` | Java, Spring Boot, Maven | **Core monolith.** DDD modules: `auth` (JWT login), `repair/request` (request management — controller/events/query), `availability` (appointment-day blocking), `commons`, `config`. Persists to DynamoDB. Runs as Lambda via a RequestStreamHandler bridge. |
 | `car-repair-shop-backend/repair-request-submitted-consumer/` | Java, Maven | Lambda for **submitting** a repair request (validation → DynamoDB write). Split out from the monolith to cut cold-start time. |
-| `car-repair-shop-backend/new-repair-request-notification-lambda/` | Java, Gradle (Kotlin DSL) | Lambda triggered by DynamoDB stream events; sends **SNS email notifications** to the shop on a new submission. |
+| `car-repair-shop-backend/new-repair-request-notification-lambda/` | Java, Gradle (Kotlin DSL) | Lambda triggered by DynamoDB stream events; sends **SNS email notifications** to the shop on a new submission. Skips its alert for test submissions (`submitter_first_name == "test"`). |
+| `car-repair-shop-backend/new-repair-request-confirmation-email-lambda/` | Java, Gradle (Kotlin DSL) | Lambda triggered by the same DynamoDB stream (independent event-source mapping, `INSERT` only); sends the **customer** a confirmation email via Amazon SES. Full design + AWS setup runbook in its `SPEC.md`. |
 | `car-repair-shop-backend/infrastructure/` | Java, Maven | AWS infrastructure-as-code scaffold — currently an **empty placeholder** (no pom/sources); real AWS resources are managed manually. |
 | `submission-portal/` | Angular | **Public client form** to submit a repair request (the renocar-zgloszenie.pl frontend). |
 | `repair-requests-portal/` | Angular | **Admin/receptionist portal** (auth-guarded) to view and handle submissions. |
@@ -41,7 +42,7 @@ npm run build:scraper               # build scraper
 
 Per-module:
 - **Backend (shop / consumer):** Maven — `mvn test`, `mvn package` (shaded jar for Lambda). No wrapper (`mvnw`) exists — use system `mvn` with JDK 21. `shop` integration tests need Docker (LocalStack).
-- **Notification lambda:** Gradle — `./gradlew build`.
+- **Notification / confirmation-email lambdas:** Gradle — `./gradlew build`.
 - **Scraper:** `npm run dev` (Express dev server), per-vendor `parse-*` scripts.
 - **AI chat:** `pip install -r requirements.txt`, `pytest`, `streamlit run car-repair-shop-ai-chat/ui/streamlit_app.py`.
 - **Angular portals:** `ng serve` (dev), `ng test`.
