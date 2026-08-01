@@ -103,6 +103,18 @@
                             <span matListItemLine>{{ toBrowserTimeZone(repairRequest?.handledAt) }}</span>
                         </mat-list-item>
                     </div>
+                    <mat-divider></mat-divider>
+                    <mat-list-item role="listitem">
+                        <span matListItemTitle>Zgoda na e-mail z prośbą o opinię:</span>
+                        <span matListItemLine>{{ canSendReviewEmail() ? 'Tak' : 'Nie' }}</span>
+                    </mat-list-item>
+                    <div *ngIf="repairRequest?.reviewEmailSentAt">
+                        <mat-divider></mat-divider>
+                        <mat-list-item role="listitem">
+                            <span matListItemTitle>E-mail z prośbą o opinię:</span>
+                            <span matListItemLine>wysłano {{ toBrowserTimeZone(repairRequest?.reviewEmailSentAt ?? undefined) }}</span>
+                        </mat-list-item>
+                    </div>
                 </mat-list>
             </mat-card-content>
         </mat-card>
@@ -115,10 +127,29 @@
                 <mat-card-content style="padding-top: 1vh;">
                     <button mat-raised-button *ngIf="repairRequest?.status === 'NEW'"
                         (click)="markRepairRequestAsHandled()">Obsłużone</button>
-                    <button mat-raised-button *ngIf="repairRequest?.status === 'HANDLED'"
-                        (click)="markRepairRequestAsAppointmentMade()">Wizyta odbyta</button>
+                    <div *ngIf="repairRequest?.status === 'HANDLED'">
+                        <div *ngIf="canSendReviewEmail(); else noReviewEmailConsent" style="padding-bottom: 1vh;">
+                            <mat-checkbox [checked]="sendReviewEmail" (change)="sendReviewEmail = $event.checked">
+                                Wyślij e-mail z podziękowaniem i prośbą o opinię
+                            </mat-checkbox>
+                            <div class="review-email-hint">
+                                Odznacz tylko, jeśli wizyta nie doszła do skutku (np. nie udało się naprawić auta,
+                                brak kontaktu z klientem).
+                            </div>
+                        </div>
+                        <ng-template #noReviewEmailConsent>
+                            <div class="review-email-hint" style="padding-bottom: 1vh;">
+                                Klient nie wyraził zgody na e-mail z prośbą o opinię.
+                            </div>
+                        </ng-template>
+                        <button mat-raised-button (click)="markRepairRequestAsAppointmentMade()">Wizyta odbyta</button>
+                    </div>
                 </mat-card-content>
             </mat-card>
+        </div>
+
+        <div class="card-content-element review-email-warning" *ngIf="reviewEmailFailed">
+            Zgłoszenie zamknięto, ale nie udało się wysłać e-maila z prośbą o opinię.
         </div>
     </div>
 </div>
