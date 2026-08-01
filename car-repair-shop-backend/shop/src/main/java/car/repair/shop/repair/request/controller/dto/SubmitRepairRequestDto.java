@@ -20,7 +20,8 @@ public record SubmitRepairRequestDto(@Size(min = 17, max = 17, message = "The le
                                      @NotNull @Pattern(regexp = PHONE_NUMBER_PATTERN, message = "Phone number should be valid") String phoneNumber,
                                      List<TimeSlotDto> timeSlots,
                                      boolean asap,
-                                     boolean rodo) {
+                                     boolean rodo,
+                                     boolean reviewEmailConsent) {
 
     public record TimeSlotDto(@NotNull LocalDate date, LocalTime from, LocalTime to) {
 
