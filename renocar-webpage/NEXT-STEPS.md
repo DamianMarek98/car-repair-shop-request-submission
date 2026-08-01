@@ -17,7 +17,16 @@ target. This file assumes that's done.
 
 ---
 
-## 1. Create the GA4 property (spec W-C4)
+## 1. Create the GA4 property (spec W-C4) — ✅ DONE (2026-08-01)
+
+Property created; measurement ID **`G-QV0734FJPC`** is now live in the snippet on all 8
+pages (placeholder gone, scripts uncommented but still `type="text/plain"` so Klaro
+gates them). Consent gating was re-verified in a real browser: zero requests to
+`googletagmanager.com` / `google-analytics.com` before consent and after "Odrzucam";
+after "Akceptuję wszystkie" a `page_view` hit fires with `anonymize_ip=true`.
+
+The **Verification** block below still applies — re-run it against the live site once
+step 2 has deployed these files, since GA4 Realtime can't show anything until then.
 
 **Why:** the site currently collects zero analytics (the old tag was dead since 2023).
 The new consent banner (Klaro) is live and working, but its Google Analytics 4 snippet
@@ -75,6 +84,8 @@ manager) and the credentials you already hold for `renocar.pl`.
    - `robots.txt`
    - `sitemap.xml`
    - `ofirmie/img/new_building_with_logo.jpg` (the recompressed building photo)
+   - `googlee17674568c338bcc.html` (Search Console verification for the **new** owner
+     account — needed by step 3; must sit at the document root, not in a subfolder)
 3. **Upload these changed files** (overwrite the versions already on the server):
    - `.htaccess`
    - `css/style-modern.css`
@@ -91,8 +102,11 @@ manager) and the credentials you already hold for `renocar.pl`.
    - `img/new_building_with_logo.png` (the old unreferenced root copy — **not** the one
      in `ofirmie/img/`, which you're replacing with a `.jpg` in step 2 above)
    - `ofirmie/img/new_building_with_logo.png` (replaced by the `.jpg`)
-5. **Do NOT upload** `images/home-slider/backup/` — it's local-only, never meant for the
-   server (untracked originals kept as a safety copy).
+5. **Do NOT upload** any `.DS_Store` files — macOS creates them automatically (there are
+   currently ones in `httpdocs/` and `httpdocs/lightbox/js/`). They're junk on a web
+   server and leak your folder layout. Most FTP clients can be set to skip them.
+   (`images/home-slider/backup/` is no longer relevant — it was deleted in `2eed6c1`;
+   the pre-compression originals live in git history at `main` if ever needed.)
 
 **Verification (run after upload, from any terminal — ask Claude Code to run these for
 you if you'd rather not open a terminal yourself):**
@@ -121,9 +135,14 @@ Then open `https://renocar.pl/` in a real browser:
 **Depends on:** step 2 (the sitemap must be live on the server first).
 
 **Steps:**
-1. Go to [search.google.com/search-console](https://search.google.com/search-console),
-   confirm you can see the `renocar.pl` property (should already exist — verification
-   file `google76f5cd7632d7faa5.html` is on the site; **never delete that file**).
+1. Go to [search.google.com/search-console](https://search.google.com/search-console)
+   and open the **URL-prefix property `https://renocar.pl/`** added under your own
+   account. Click **Verify** — this only works once step 2 has put
+   `googlee17674568c338bcc.html` on the server. Verification is additive: the older
+   `google76f5cd7632d7faa5.html` (a different owner's token) stays valid alongside
+   yours. **Never delete either file** — removing a token unverifies its owner.
+   Once verified you get the property's full ~16 months of history, not just data
+   from today onward.
 2. Left sidebar → **Sitemaps**.
 3. Enter `sitemap.xml` in the "Add a new sitemap" box → Submit.
 4. Left sidebar → **URL Inspection** → paste `https://renocar.pl/` → if it says "URL is
