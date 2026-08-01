@@ -13,6 +13,7 @@ public class RepairRequestBuilder {
     private List<PreferredVisitWindow> preferredVisitWindows;
     private boolean asap;
     private boolean rodo;
+    private boolean reviewEmailConsent;
     private RepairRequestStatus status;
 
     RepairRequestBuilder withVin(String vin) {
@@ -70,6 +71,11 @@ public class RepairRequestBuilder {
         return this;
     }
 
+    RepairRequestBuilder withReviewEmailConsent() {
+        this.reviewEmailConsent = true;
+        return this;
+    }
+
     RepairRequestBuilder withStatus(RepairRequestStatus status) {
         this.status = status;
         return this;
@@ -85,6 +91,8 @@ public class RepairRequestBuilder {
         repairRequest.setPhoneNumber(phoneNumber);
         repairRequest.setPreferredVisitWindows(preferredVisitWindows);
         repairRequest.setAsap(asap);
+        repairRequest.setRodo(rodo);
+        repairRequest.setReviewEmailConsent(reviewEmailConsent);
         repairRequest.setStatus(status == null ? RepairRequestStatus.NEW : status);
         return repairRequest;
     }
