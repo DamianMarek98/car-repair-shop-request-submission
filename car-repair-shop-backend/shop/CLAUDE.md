@@ -41,6 +41,10 @@ facades/events, never internals** (e.g. `availability.UnavailableDayFacade`):
   `HandledRepairRequest` / `AppointmentMadeRepairRequest`, built by `RepairRequestStateFactory`),
   Spring events in `events/`. REST: public `POST /api/repair-request/submit`,
   admin `/api/internal/repair-request/**` (search, get, mark-as-handled, mark-as-appointment-made).
+- `notification/` — customer-facing e-mails sent from the monolith. `NotificationFacade` is
+  the **only** public type; `ReviewRequestEmailSender` (SESv2, Polish copy) and `SesConfig`
+  (`SesV2Client` bean, `eu-north-1`, `url-connection-client`) are package-private. The facade
+  never throws — a SES outage must not fail the action that triggered the e-mail.
 - `commons/` — shared `DomainEvent`, `PhoneNumberPattern`, DynamoDB type converters
   (`commons/dynamodb/converter/`). Module-specific converters live next to their module
   (e.g. `repair/request/PreferredVisitWindowConverter`).
@@ -63,6 +67,12 @@ validation, the DTO shape, or attribute names must be applied to both modules.**
 **Deliberate asymmetry:** `review_email_consent` is written by both submit paths, but
 `review_email_sent_at` is written **only here**, when the post-visit review e-mail is sent at
 close time. See `spec/04-post-visit-review-email-spec.md`.
+
+`new-repair-request-confirmation-email-lambda/` duplicates the **SES sending configuration**:
+`SES_FROM`, `SES_REPLY_TO` and `SHOP_PHONE_NUMBER` are hardcoded constants both there and in
+`notification/ReviewRequestEmailSender` here, and the AWS SDK v2 version (`aws-sdk-v2.version`
+in `pom.xml` ⟷ `awsSdkVersion` in that module's `build.gradle.kts`). Change the shop's phone
+number or sender address in **both**, or the two customer e-mails will disagree.
 
 ## Conventions & pitfalls
 

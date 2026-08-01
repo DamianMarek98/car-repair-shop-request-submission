@@ -65,7 +65,7 @@ class SubmitRepairRequestIntegrationTest extends RepairRequestIntegrationTest {
         assertThat(result.isRodo()).isTrue();
         assertThat(result.isReviewEmailConsent()).isFalse();
         assertNull(result.getReviewEmailSentAt());
-        PreferredVisitWindow preferredVisitWindow = result.getPreferredVisitWindows().get(0);
+        PreferredVisitWindow preferredVisitWindow = result.getPreferredVisitWindows().getFirst();
         assertThat(preferredVisitWindow.date()).isEqualTo(timeSlot.date());
         assertThat(preferredVisitWindow.from()).isEqualTo(timeSlot.from());
         assertThat(preferredVisitWindow.to()).isEqualTo(timeSlot.to());

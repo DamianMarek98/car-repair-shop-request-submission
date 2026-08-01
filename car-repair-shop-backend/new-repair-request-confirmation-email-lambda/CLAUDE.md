@@ -70,3 +70,8 @@ handler (`RequestHandler<DynamodbEvent, String>`):
   subscriber. See `SPEC.md` §1.3.
 - AWS setup (SES domain identity, DNS, IAM, Lambda function, event-source mapping) is manual
   — see `SPEC.md` §5 for the full runbook and its checked-off progress.
+- **Kept-in-sync duplication:** `SES_FROM`, `SES_REPLY_TO`, `SHOP_PHONE_NUMBER` and
+  `awsSdkVersion` are duplicated in `shop/`'s `notification` module
+  (`ReviewRequestEmailSender` + the `aws-sdk-v2.version` property in `shop/pom.xml`), which
+  sends the post-visit review e-mail. Change them in both, or the two customer e-mails will
+  disagree about the shop's phone number. See `spec/04-post-visit-review-email-spec.md` §C7.
