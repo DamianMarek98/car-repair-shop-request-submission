@@ -34,6 +34,9 @@ public class RepairRequestItemConverter {
         item.put("phone_number", stringAttribute(submitRepairRequestDto.phoneNumber()));
         item.put("asap", numberAttribute(submitRepairRequestDto.asap()));
         item.put("rodo", numberAttribute(submitRepairRequestDto.rodo()));
+        // review_email_sent_at is deliberately not written here - only the shop monolith sets it,
+        // when the post-visit review e-mail is actually sent at close time.
+        item.put("review_email_consent", numberAttribute(submitRepairRequestDto.reviewEmailConsent()));
         item.put("submittedAt", stringAttribute(ZonedDateTime.now(ZoneId.of("UTC")).toLocalDateTime().toString()));
         item.put("status_value", stringAttribute("NEW"));
         item.put("preferred_visit_windows", stringAttribute(objectMapper.writeValueAsString(timeSlots)));

@@ -4,6 +4,7 @@ import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.validation.*;
@@ -27,15 +28,19 @@ public class RepairRequestSubmittedHandler implements RequestHandler<Map<String,
     private final ObjectMapper objectMapper;
 
     public RepairRequestSubmittedHandler() {
-        dynamoDb = DynamoDbClient.create();
-        objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
+        this(DynamoDbClient.create());
     }
 
     public RepairRequestSubmittedHandler(DynamoDbClient dbClient) {
         dynamoDb = dbClient;
-        objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper = createObjectMapper();
+    }
+
+    private static ObjectMapper createObjectMapper() {
+        var mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        return mapper;
     }
 
     @Override

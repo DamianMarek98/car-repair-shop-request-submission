@@ -24,6 +24,8 @@ import static car.repair.shop.PhoneNumberPattern.PHONE_NUMBER_PATTERN;
  * @param timeSlots
  * @param asap
  * @param rodo
+ * @param reviewEmailConsent optional consent for the post-visit review e-mail; primitive on
+ *                           purpose so an absent field deserializes to false
  */
 public record SubmitRepairRequestDto(@Size(min = 17, max = 17, message = "The length of vin must be exactly 17 characters") String vin,
                                      @NotNull @Size(min = 6, max = 8, message = "The length of plate number must be 6 to 8 characters") String plateNumber,
@@ -34,7 +36,8 @@ public record SubmitRepairRequestDto(@Size(min = 17, max = 17, message = "The le
                                      @NotNull @Pattern(regexp = PHONE_NUMBER_PATTERN, message = "Phone number should be valid") String phoneNumber,
                                      List<TimeSlotDto> timeSlots,
                                      boolean asap,
-                                     boolean rodo) {
+                                     boolean rodo,
+                                     boolean reviewEmailConsent) {
 
     public record TimeSlotDto(@NotNull LocalDate date, LocalTime from, LocalTime to) {
 
