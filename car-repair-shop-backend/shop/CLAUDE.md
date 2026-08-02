@@ -91,5 +91,61 @@ number or sender address in **both**, or the two customer e-mails will disagree.
 - Don't fold the sibling Lambdas' logic back into this monolith (cold-start isolation is
   deliberate) and don't add module-internal imports across module boundaries.
 - `target/` and `dependency-reduced-pom.xml` are build artifacts — never edit.
-- TODO(owner): document the actual Lambda deployment procedure (how `lambda-shaded.jar` is
-  uploaded / which function name) — not derivable from this repo.
+
+## AWS deployment target (owner-confirmed 2026-08-02)
+
+| Thing | Value |
+|---|---|
+| Lambda (entry point `StreamLambdaHandler`) | `arn:aws:lambda:eu-north-1:009160054371:function:CarRepairShopBeTest` |
+| Execution role | `arn:aws:iam::009160054371:role/service-role/CarRepairShopBe` |
+| Region | `eu-north-1` |
+| Artifact | `target/lambda-shaded.jar` (from `mvn package`) |
+
+The execution role carries an inline policy **`SesSendReviewEmail`** (added 2026-08-02)
+granting `ses:SendEmail` on `arn:aws:ses:eu-north-1:009160054371:identity/renocar-zgloszenie.pl`.
+Without it the post-visit review e-mail fails **silently** — `NotificationFacade` swallows the
+`AccessDeniedException` and the close still succeeds, but `APPOINTMENT_MADE` is terminal so that
+request can never be re-closed to retry. See `spec/04-post-visit-review-email-spec.md` §8 / C4.
+
+⚠️ The function name ends in `Test` but is the live target. Don't "correct" it, and don't assume
+a separate production function exists without checking.
+
+Deployment mechanism: **console upload** — Lambda → function → Code → *Upload from → .zip or
+.jar file* → `target/lambda-shaded.jar`.
+
+## ⚠️ Production config is NOT in this repo — read before building for deploy
+
+`src/main/resources/application.properties` **does not exist here and must not be committed**
+(it is in `.gitignore`). The production copy lives **only in the owner's private Obsidian note**.
+
+This means **`mvn package` on a clean checkout produces a jar that cannot start in Lambda.** It
+fails at context refresh with:
+
+```
+IllegalArgumentException: Could not resolve placeholder 'car.repair.shop.aws.username'
+```
+
+…which surfaces as `Runtime.BadFunctionCode` and a **502 on every request, including login** —
+there is no partial degradation. This happened on the 2026-08-02 deploy; see
+`spec/04-post-visit-review-email-spec.md` §8.2.
+
+**To build a deployable jar:** paste the prod `application.properties` from the Obsidian note
+into `src/main/resources/` first, build, then delete it again.
+
+Keys it must define (all consumed at startup):
+
+| Property | Used by | Notes |
+|---|---|---|
+| `car.repair.shop.aws.region` | `DynamoDBConfig` | **must be `eu-north-1`** — tables live there; a wrong region starts fine then fails every query |
+| `car.repair.shop.aws.username` / `.password` | `SecurityConfig:32,35` | admin portal login |
+| `car.repair.shop.aws.jwt-secret-key` | `JwtHelper:25` | changing it logs all sessions out once |
+| `car.repair.shop.aws.access-key` / `.secret-access-key` | `AwsConfigurationProperties` | `@NotBlank` only — the prod `amazonDynamoDB` bean (`@Profile("!local && !test")`) ignores them and uses the execution role. Any non-blank placeholder works |
+| `car.repair.shop.aws.endpoint` | `DynamoDBConfig` | **leave unset in prod** — blank means real AWS; a value is LocalStack-only |
+
+`application-local.properties` (committed) is the **`local` profile** file and holds fake
+values — `us-west-2`, `localhost:8081`, `renocar`/`12345`. **Never ship it as
+`application.properties`:** the region alone breaks every DynamoDB call, and it would publish
+working admin credentials plus the JWT signing key.
+
+Verify before uploading: `unzip -p target/lambda-shaded.jar application.properties` — if that
+prints nothing, the deploy will 502.
