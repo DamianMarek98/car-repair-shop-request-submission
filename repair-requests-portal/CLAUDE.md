@@ -48,7 +48,9 @@ Gateway execute-api URL). `proxy.conf.json` is not wired into `angular.json` —
   that is a UX affordance only; the backend re-checks the stored consent and ignores the flag
   without it. The helper text under the checkbox ("odznacz tylko, jeśli wizyta nie doszła do
   skutku…") is a **Google review-gating compliance requirement**, not decoration — don't drop
-  it. See `spec/04-post-visit-review-email-spec.md` §7.2 / §C2.
+  it. Its exact wording is **owner-set** (spec D5, 2026-08-02): the spec's original sentence
+  ended "— nie w zależności od spodziewanej oceny", which the owner removed on purpose. Don't
+  "restore" it. See `spec/04-post-visit-review-email-spec.md` §7.2 / §C2 / D5.
 - SSR files exist (`server.ts`, `main.server.ts`); guard browser-only APIs. Note
   `auth-interceptor` uses `localStorage` unguarded — mind SSR if you touch it.
 - Standalone components only; no NgModules.
