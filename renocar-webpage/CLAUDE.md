@@ -29,6 +29,10 @@ rules; see `NEXT-STEPS.md` step 4 for the check and the nginx fallback.
   break this integration point.
 - Assets: `css/`, `js/` (bootstrap, offcanvas, jquery, **klaro.js + klaro-config.js**),
   `jquery.bxslider/`, `font-awesome/`, `images/`, `img/`, `lightbox/`.
+- Photo of the workshop building appears twice, at two sizes for two roles:
+  `img/ofirmie2.jpeg` (homepage teaser thumbnail) and `ofirmie/img/firma2.jpeg`
+  (`/ofirmie` thumbnail **and** its own lightbox target). Same picture, different files —
+  that duplication is intentional, see the image-size rules below.
 - SEO/meta files at the root: `robots.txt`, `sitemap.xml`, `favicon.ico`,
   `images/icon-192.png`, `images/apple-touch-icon.png`.
 - **Two** Google Search Console verification files — `google76f5cd7632d7faa5.html` (original
@@ -69,6 +73,23 @@ rules; see `NEXT-STEPS.md` step 4 for the check and the nginx fallback.
 - Business-critical details (phone numbers, opening hours, address, NIP) appear in multiple
   places and are currently inconsistent (see PLAN.md item 10) — if you change one occurrence,
   grep for the others.
+- **Image sizing is manual and load-bearing.** There is no build step, no `srcset`, and no
+  CSS that constrains image height — `.img-big` is only `max-width: 100%`, so every image
+  renders at its own natural size and aspect ratio. Two consequences:
+  - **Homepage teaser row** (`index.htm`, "O Firmie / Oferta / Ceny") — the three images
+    carry `class="img-big img-teaser"`. `.img-teaser` (in `style-modern.css`) pins the
+    rendered box to `width:100%; max-width:354px`, so the columns line up at every viewport
+    and a file may be authored at 1× (354×183) **or** 2× (708×366) for retina. The
+    **aspect ratio must stay 1.934** (354:183) — a different ratio makes that column taller
+    than the other two. Without the 354px cap a 2× file also grows past its 1× siblings once
+    the columns stack below ~992px.
+  - **Other images have no such cap** — `.img-big` is only `max-width:100%`, so they render
+    at natural size. Match the neighbours: `/ofirmie` column images are **1365×768**. Check
+    with `sips -g pixelWidth -g pixelHeight <file>` before dropping a file in.
+  - **Downscale camera originals first.** Straight-from-the-phone photos (5712×3213, ~3 MB)
+    are ~100× heavier than needed and undo the compression work from spec 03 W-B1. Resize
+    with `sips -z <h> <w> -s format jpeg -s formatOptions 82 in.jpeg --out out.jpeg`
+    (add `sips -c <h> <w>` first to centre-crop to the target ratio).
 - Don't introduce a build step, framework, or npm here; the value of this module is that the
   shop's cheap PHP hosting can serve it as-is.
 - Don't edit `kontakt/vendor/` (vendored composer libs).

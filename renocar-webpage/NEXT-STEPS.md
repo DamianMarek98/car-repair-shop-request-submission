@@ -86,6 +86,9 @@ manager) and the credentials you already hold for `renocar.pl`.
    - `ofirmie/img/new_building_with_logo.jpg` (the recompressed building photo)
    - `googlee17674568c338bcc.html` (Search Console verification for the **new** owner
      account — needed by step 3; must sit at the document root, not in a subfolder)
+   - `img/ofirmie2.jpeg` (new homepage "O Firmie" teaser photo, 708×366 — authored at 2× so
+     it stays sharp on retina; CSS renders it in a 354px box)
+   - `ofirmie/img/firma2.jpeg` (new `/ofirmie` photo + lightbox target, 1365×768)
 3. **Upload these changed files** (overwrite the versions already on the server):
    - `.htaccess`
    - `css/style-modern.css`
