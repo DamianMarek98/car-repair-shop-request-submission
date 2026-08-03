@@ -13,30 +13,52 @@ There is nothing to install or compile. Preview locally:
 cd httpdocs && python3 -m http.server 8000   # static pages; /kontakt form handler needs PHP hosting
 ```
 
-`.htaccess` handles the HTTPS/non-www 301 redirect and legacy path redirects
-(`/ogloszenia` → `/promocje`, `/mapa_strony` → `/kontakt`) — Apache only, invisible in a
-plain static preview.
+`.htaccess` handles the HTTPS/non-www 301 redirect, legacy path redirects
+(`/ogloszenia` → `/promocje`, `/mapa_strony` → `/kontakt`, `/mechanicy` → `/ofirmie`), plus
+gzip compression, browser-cache expiry and HSTS — Apache only, invisible in a plain static
+preview. On some Plesk setups nginx serves static files directly and silently bypasses these
+rules; see `NEXT-STEPS.md` step 4 for the check and the nginx fallback.
 
 ## Layout
 
-- Pages: `httpdocs/index.htm` (homepage, ~780 lines, bxSlider hero), plus directory-per-page
-  `oferta/`, `ofirmie/`, `kontakt/`, `promocje/`, `mechanicy/`, `umow-sie/`, `cookies/`
-  (each with its own `index.htm`).
+- Pages (8): `httpdocs/index.htm` (homepage, bxSlider hero), plus directory-per-page
+  `oferta/`, `ofirmie/`, `kontakt/`, `promocje/`, `umow-sie/`, `cookies/`,
+  `polityka-prywatnosci/` (each with its own `index.htm`).
 - `httpdocs/index.htm` and `httpdocs/umow-sie/index.htm` embed the booking form via
   `<iframe src="https://renocar-zgloszenie.pl/">` — that's the `submission-portal` app; do not
   break this integration point.
-- Assets: `css/`, `js/` (bootstrap, offcanvas, cookies-info), `jquery.bxslider/`,
-  `font-awesome/`, `images/` (+ untracked `images/home-slider/backup/`), `lightbox/`.
-- `google76f5cd7632d7faa5.html` — Google Search Console verification; never delete.
+- Assets: `css/`, `js/` (bootstrap, offcanvas, jquery, **klaro.js + klaro-config.js**),
+  `jquery.bxslider/`, `font-awesome/`, `images/`, `img/`, `lightbox/`.
+- SEO/meta files at the root: `robots.txt`, `sitemap.xml`, `favicon.ico`,
+  `images/icon-192.png`, `images/apple-touch-icon.png`.
+- **Two** Google Search Console verification files — `google76f5cd7632d7faa5.html` (original
+  owner) and `googlee17674568c338bcc.html` (current owner). **Never delete either**: removing
+  a token unverifies that owner. Verification is additive, so both coexist by design.
 
-## Read before editing: ANALYSIS.md and PLAN.md
+## Cookie consent & analytics (added 2026-07/08)
 
-This module has a full audit (`ANALYSIS.md`) and a prioritized fix plan (`PLAN.md`) at the
-module root. PLAN.md documents verified bugs — e.g. three `<h1>` tags on the homepage, slider
-images missing `alt`, `type="phone"` instead of `type="tel"` in the contact form, jQuery
-double-loaded on `/kontakt/`, bxSlider CSS `<link>` inside `<body>`, orphaned `</a>` tags in
-the slider, `http://` logo links. If you are asked to improve the site, work from PLAN.md's
-ordering instead of re-auditing.
+- Consent is handled by **Klaro** (`js/klaro.js` + `js/klaro-config.js`, service name
+  `google-analytics`, cookie `renocar-consent`). The old `js/cookies-info.js` was removed.
+- The GA4 snippet (measurement ID `G-QV0734FJPC`) sits near the end of `<body>` on all 8
+  pages and is deliberately **inert** — `type="text/plain"` with `data-src` instead of `src`,
+  so Klaro only activates it after consent. Verified: no request to `googletagmanager.com` or
+  `google-analytics.com` fires before consent or after "Odrzucam".
+- **Do not "fix" that snippet into a normal `<script src=…>`** — it would fire before consent
+  and break RODO compliance. For the same reason GA-based Search Console verification cannot
+  work here; use the HTML-file method.
+- Known gap: the Google Maps embed still loads pre-consent (Klaro only manages GA). Pending
+  the GBP work in `NEXT-STEPS.md` step 5.
+
+## Read before editing: NEXT-STEPS.md, ANALYSIS.md, PLAN.md
+
+- **`NEXT-STEPS.md` is the live checklist** — the owner-blocked wrap-up for the Motrio work
+  (GA4, FTP deploy, Search Console, server headers, Google Business Profile). Start here;
+  it records what is already done and what is still pending.
+- `ANALYSIS.md` (audit) and `PLAN.md` (prioritized fixes) predate the Motrio restyle. Many
+  PLAN.md items are now **fixed** on this branch — verify against the current files before
+  acting on them rather than assuming they're still open.
+- The repo-wide plan lives in `spec/` at the repository root (`00-master-plan.md` +
+  `03-digital-presence-spec.md` for this module).
 
 ## Conventions & pitfalls
 
@@ -50,6 +72,14 @@ ordering instead of re-auditing.
 - Don't introduce a build step, framework, or npm here; the value of this module is that the
   shop's cheap PHP hosting can serve it as-is.
 - Don't edit `kontakt/vendor/` (vendored composer libs).
-- TODO(owner): document the deployment procedure (assumed FTP/Plesk file upload for
-  `httpdocs/`; not verifiable from the repo) and whether `www.renocar.pl` hosting supports
-  which PHP version.
+- **Authorship metadata** — the site's base version was built by SDK, then redesigned in-house.
+  Every page carries `<meta name="author" content="Damian Marek Software">` (current designer,
+  `mailto:` credit in the footer) and `<meta name="copyright" content="Renocar Zbigniew Marek">`
+  (the business owns the content). The footer keeps a small `nofollow` "projekt bazowy" credit
+  to SDK. Keep these consistent across all 8 pages if you touch the footer or `<head>`.
+- Deployment is **manual FTP/SFTP upload of `httpdocs/`** to the Plesk document root — there is
+  no CI. `NEXT-STEPS.md` step 2 holds the authoritative upload/overwrite/delete lists. Never
+  upload `.DS_Store` files. Because deploys are manual, avoid anything that goes stale on its
+  own (e.g. a hardcoded copyright year).
+- TODO(owner): confirm which PHP version `www.renocar.pl` hosting runs (the `/kontakt` form
+  handler is the only PHP on the site).
