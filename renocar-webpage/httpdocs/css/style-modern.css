@@ -207,6 +207,22 @@ a {
     box-shadow: var(--shadow-md);
 }
 
+/* Off-canvas menu: a closed panel must never be a tap target.
+   It stays in the DOM at left:-250px, but Bootstrap's 15px column padding makes it 280px
+   wide, pushing ~30px back into the viewport. At opacity 0 that strip is invisible while
+   still hit-testable, so it silently swallowed taps down the left edge of every page on
+   phones. Scoped to the same breakpoint the off-canvas CSS itself uses (max-width: 767px)
+   so the desktop navbar is untouched. */
+@media (max-width: 767px) {
+    .navbar-offcanvas {
+        pointer-events: none;
+    }
+
+    .navbar-offcanvas.in {
+        pointer-events: auto;
+    }
+}
+
 /* Homepage teaser thumbnails (O Firmie / Oferta / Ceny).
    The box is 354x183 at every viewport, so the three columns always line up regardless of
    whether the source file is authored at 1x (354px) or 2x (708px, for retina). Without the

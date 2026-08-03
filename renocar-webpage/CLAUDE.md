@@ -73,6 +73,21 @@ rules; see `NEXT-STEPS.md` step 4 for the check and the nginx fallback.
 - Business-critical details (phone numbers, opening hours, address, NIP) appear in multiple
   places and are currently inconsistent (see PLAN.md item 10) — if you change one occurrence,
   grep for the others.
+- **Bump the `?v=` on CSS/JS after every change.** `.htaccess` caches CSS/JS for **30 days**
+  and HTML for 1 hour, so a returning visitor otherwise gets new HTML with month-old CSS —
+  a half-restyled page (incognito looks fine, which makes it easy to misdiagnose). Every page
+  links `css/style.css?v=YYYYMMDD`, `css/style-modern.css?v=YYYYMMDD` and
+  `js/klaro-config.js?v=YYYYMMDD`; change the date in **all 8 pages** whenever you touch
+  those files. Vendor assets (bootstrap, jquery, klaro.js) are unversioned — they don't change.
+- **Bootstrap 3 grid: never use a `col-lg-*` without a `col-xs-*`.** Below the `lg`
+  breakpoint a bare `col-lg-*` gets no width and no `float`, but Bootstrap still gives it
+  `position: relative` — so it overlays its floated siblings and silently eats taps on
+  everything underneath. This exact bug made the homepage "więcej" buttons unclickable on
+  phones (a `<div class="col-lg-12">` spacer covering all three teaser columns).
+- **The off-canvas menu is `pointer-events: none` when closed** (`style-modern.css`, scoped to
+  `max-width: 767px`, restored to `auto` on `.in`). The closed panel sits at `left:-250px` but
+  measures 280px wide, so ~30px stays in the viewport at `opacity: 0` — invisible and
+  tap-swallowing down the left edge. Don't remove that rule.
 - **Image sizing is manual and load-bearing.** There is no build step, no `srcset`, and no
   CSS that constrains image height — `.img-big` is only `max-width: 100%`, so every image
   renders at its own natural size and aspect ratio. Two consequences:

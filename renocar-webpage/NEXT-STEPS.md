@@ -133,6 +133,33 @@ Then open `https://renocar.pl/` in a real browser:
 
 ---
 
+## 2b. Follow-up re-deploy (2026-08-03) — two post-launch fixes
+
+The first deploy surfaced two bugs, both now fixed in the repo. **Re-upload these files:**
+
+- `css/style-modern.css`
+- all 8 `index.htm` files (root + `oferta/`, `ofirmie/`, `kontakt/`, `promocje/`,
+  `umow-sie/`, `cookies/`, `polityka-prywatnosci/`)
+
+**What was wrong:**
+
+1. **Stale view for returning visitors.** `.htaccess` caches CSS for 30 days and HTML for
+   1 hour, so a repeat visitor got new HTML with month-old CSS. Incognito looked fine —
+   which is exactly why it was confusing. Fixed by versioning the asset URLs
+   (`style.css?v=20260803` etc.). **Bump that date in all 8 pages on every future CSS/JS
+   change**, otherwise this recurs.
+2. **"więcej" buttons unclickable on phones.** Two overlapping invisible elements: a
+   `<div class="col-lg-12">` spacer with no `col-xs-12` (so unfloated below `lg`, covering
+   all three teaser columns), and the closed off-canvas menu leaving a 30px tap-swallowing
+   strip down the left edge. Verified after the fix: all 5 buttons fully clickable at
+   390px, menu still opens/closes, desktop unaffected.
+
+**Verification after re-upload** — on a phone (or DevTools device mode), tap every
+"więcej »" button on the homepage; each must navigate. Then hard-refresh
+(`Cmd/Ctrl+Shift+R`) once and confirm the layout matches incognito.
+
+---
+
 ## 3. Submit the sitemap in Google Search Console (spec W-D5)
 
 **Depends on:** step 2 (the sitemap must be live on the server first).
@@ -163,7 +190,22 @@ Then open `https://renocar.pl/` in a real browser:
 
 ---
 
-## 4. Verify server headers (spec W-B1 — compression, caching, HSTS)
+## 4. Verify server headers (spec W-B1) — ✅ DONE (2026-08-03), no Plesk change needed
+
+Checked against the live site after the deploy; all three pass, so Apache is honouring
+`.htaccess` and the nginx-passthrough fallback below is **not** required:
+
+```
+content-encoding: gzip                                    (HTML compressed)
+cache-control: max-age=15552000  (180 days, images)       (mod_expires active)
+strict-transport-security: max-age=31536000; includeSubDomains
+```
+
+The 30-day CSS cache this enables is also what caused the stale-view bug — see step 2b for
+the `?v=` versioning that works around it. The original instructions are kept below in case
+the hosting config ever changes.
+
+### Original instructions (no longer needed)
 
 **Depends on:** step 2. **Why:** the `.htaccess` block that was added enables gzip
 compression, browser caching, and HSTS — but on some Plesk configurations, "Serve
