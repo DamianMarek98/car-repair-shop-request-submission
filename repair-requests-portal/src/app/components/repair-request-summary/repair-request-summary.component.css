@@ -45,3 +45,22 @@ mat-card-title {
     padding: 12px 16px;
     font-size: 14px;
 }
+
+.action-error {
+    border-radius: var(--motrio-radius);
+    background: #fdecea;
+    color: #8c1d18;
+    padding: 12px 16px;
+    font-size: 14px;
+}
+
+.action-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Disabled buttons lose the Motrio red fill, so keep the spinner red for contrast. */
+.action-button .mat-mdc-progress-spinner {
+    --mdc-circular-progress-active-indicator-color: var(--motrio-red);
+}
