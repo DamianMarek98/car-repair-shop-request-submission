@@ -10,6 +10,8 @@ export interface RepairRequest {
     email: string;
     phoneNumber: string;
     asap: boolean;
+    reviewEmailConsent: boolean;
+    reviewEmailSentAt: string | null;
     preferredVisitWindows: PreferredVisitWindowDto[];
     submittedAt: string;
     handledAt: string;

@@ -19,5 +19,6 @@
     }
   ],
   "asap": false,
-  "rodo": true
+  "rodo": true,
+  "reviewEmailConsent": false
 }

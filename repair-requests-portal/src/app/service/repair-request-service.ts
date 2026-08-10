@@ -1,6 +1,7 @@
 import { HttpClient, HttpParams } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
+import { CloseRepairRequestResult } from "../models/close-repair-request-result";
 import { PaginatedRespone } from "../models/page-response";
 import { RepairRequest } from "../models/repair-request";
 import { RepairRequestListItem } from "../models/repair-request-list-item";
@@ -30,7 +31,7 @@ export class RepairRequestService {
         return this.http.post<void>(this.apiUrl + '/' + id + '/mark-as-handled', {});
     }
 
-    markRepairRequestAsAppointmentMade(id: string): Observable<void> {
-        return this.http.post<void>(this.apiUrl + '/' + id + '/mark-as-appointment-made', {});
+    markRepairRequestAsAppointmentMade(id: string, sendReviewEmail: boolean): Observable<CloseRepairRequestResult> {
+        return this.http.post<CloseRepairRequestResult>(this.apiUrl + '/' + id + '/mark-as-appointment-made', { sendReviewEmail });
     }
 }

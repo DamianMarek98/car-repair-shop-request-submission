@@ -63,13 +63,41 @@ class SubmitRepairRequestIntegrationTest extends RepairRequestIntegrationTest {
         assertThat(result.getPreferredVisitWindows()).isNotEmpty();
         assertThat(result.isAsap()).isTrue();
         assertThat(result.isRodo()).isTrue();
-        PreferredVisitWindow preferredVisitWindow = result.getPreferredVisitWindows().get(0);
+        assertThat(result.isReviewEmailConsent()).isFalse();
+        assertNull(result.getReviewEmailSentAt());
+        PreferredVisitWindow preferredVisitWindow = result.getPreferredVisitWindows().getFirst();
         assertThat(preferredVisitWindow.date()).isEqualTo(timeSlot.date());
         assertThat(preferredVisitWindow.from()).isEqualTo(timeSlot.from());
         assertThat(preferredVisitWindow.to()).isEqualTo(timeSlot.to());
         assertNotNull(result.getSubmittedAt());
         assertNull(result.getHandledAt());
         assertThat(result.getStatus()).isEqualTo(RepairRequestStatus.NEW);
+        repairRequestRepository.delete(result);
+    }
+
+    @Test
+    void givenRequestWithReviewEmailConsent_shouldPersistConsent() throws Exception {
+        repairRequestRepository.deleteAll();
+        var request = new SubmitRepairRequestDtoBuilder()
+                .withVin("4Y1SL65848Z411439")
+                .withIssueDescription("test")
+                .withEmail("test@test.com")
+                .withFirstName("Damian")
+                .withLastName("Marek")
+                .withEmptyTimeSlots()
+                .withPhoneNumber("111222333")
+                .asap()
+                .withRodoApproval()
+                .withReviewEmailConsent()
+                .build();
+        mvc.perform(post("/api/repair-request/submit")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated());
+
+        var result = repairRequestRepository.findAll().iterator().next();
+        assertThat(result.isReviewEmailConsent()).isTrue();
+        assertNull(result.getReviewEmailSentAt());
         repairRequestRepository.delete(result);
     }
 
@@ -121,6 +149,7 @@ class SubmitRepairRequestIntegrationTest extends RepairRequestIntegrationTest {
         private List<SubmitRepairRequestDto.TimeSlotDto> timeSlots;
         private boolean asap;
         private boolean rodo;
+        private boolean reviewEmailConsent;
 
         SubmitRepairRequestDtoBuilder withVin(String vin) {
             this.vin = vin;
@@ -177,8 +206,13 @@ class SubmitRepairRequestIntegrationTest extends RepairRequestIntegrationTest {
             return this;
         }
 
+        SubmitRepairRequestDtoBuilder withReviewEmailConsent() {
+            this.reviewEmailConsent = true;
+            return this;
+        }
+
         SubmitRepairRequestDto build() {
-            return new SubmitRepairRequestDto(vin, plateNumber, issueDescription, firstName, lastName, email, phoneNumber, timeSlots, asap, rodo);
+            return new SubmitRepairRequestDto(vin, plateNumber, issueDescription, firstName, lastName, email, phoneNumber, timeSlots, asap, rodo, reviewEmailConsent);
         }
     }
 }

@@ -4,6 +4,8 @@ import car.repair.shop.repair.request.MarkAsAppointmentMadeCommandHandler;
 import car.repair.shop.repair.request.MarkAsHandledCommandHandler;
 import car.repair.shop.repair.request.RepairRequestGetQueryHandler;
 import car.repair.shop.repair.request.SearchRepairRequestHandler;
+import car.repair.shop.repair.request.controller.dto.CloseRepairRequestCommand;
+import car.repair.shop.repair.request.controller.dto.CloseRepairRequestResult;
 import car.repair.shop.repair.request.controller.dto.RepairRequestDto;
 import car.repair.shop.repair.request.controller.dto.RepairRequestListItem;
 import car.repair.shop.repair.request.query.SearchRepairRequestQuery;
@@ -46,7 +48,8 @@ public class RepairRequestInternalController {
 
     @PostMapping("/{id}/mark-as-appointment-made")
     @ResponseStatus(code = HttpStatus.OK)
-    public void markRepairRequestAsAppointmentMade(@PathVariable String id) {
-        markAsAppointmentMadeCommandHandler.handle(id);
+    public CloseRepairRequestResult markRepairRequestAsAppointmentMade(@PathVariable String id,
+                                                                      @RequestBody(required = false) CloseRepairRequestCommand command) {
+        return markAsAppointmentMadeCommandHandler.handle(id, command);
     }
 }

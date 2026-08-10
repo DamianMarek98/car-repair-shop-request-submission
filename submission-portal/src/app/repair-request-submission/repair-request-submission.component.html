@@ -129,12 +129,18 @@
         </div>
       </div>
 
-      <div style="flex: 0 0 20%; padding-right: 2%; padding-bottom: 2%; text-align: left;">
+      <div style="flex: 0 0 20%; padding-right: 2%; padding-bottom: 0.5%; text-align: left;">
         <mat-checkbox formControlName="rodo" >Wyrażam zgodę na przetwarzanie moich danych osobowych
           przez RENO CAR w celu rejestracji, naprawy pojazdu oraz komunikacji ze zgłaszającym.</mat-checkbox>
         <mat-error *ngIf="repairForm.get('rodo')?.hasError && repairForm.get('rodo')?.invalid">
           <span>Zgoda na przetwarzanie danych jest wymagana!</span>
         </mat-error>
+      </div>
+
+      <div style="flex: 0 0 20%; padding-right: 2%; padding-bottom: 2%; text-align: left;">
+        <mat-checkbox formControlName="reviewEmailConsent">Chcę otrzymać e-mail z prośbą o opinię
+          po zakończonej wizycie. Zgoda jest dobrowolna i mogę ją wycofać w każdej chwili,
+          kontaktując się z warsztatem.</mat-checkbox>
       </div>
 
       <div *ngIf="submissionError" class="submission-error">
@@ -164,7 +170,8 @@
       <div><img src="/logo-motrio-new.png" alt="RENO CAR - Pogwarancyjny Serwis Renault | Motrio"></div>
     </a>
     <h5>Przyjęliśmy Twoje zgłoszenie, przyjrzymy się mu i skontaktujemy się w celu ustalenia
-      szczegółów wizyty. <a href="https://renocar.pl/kontakt/"
+      szczegółów wizyty. Potwierdzenie zgłoszenia wyślemy na podany adres e-mail — jeśli go nie
+      widzisz, sprawdź folder ze spamem. <a href="https://renocar.pl/kontakt/"
       rel="noopener noreferrer">W razie wątpliwości odezwij się</a>.</h5>
   </div>
 </ng-template>

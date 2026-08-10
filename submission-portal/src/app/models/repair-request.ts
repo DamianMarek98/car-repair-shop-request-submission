@@ -8,7 +8,8 @@ export interface RepairRequest {
     phoneNumber: String,
     timeSlots: TimeSlot[],
     asap: boolean,
-    rodo: boolean
+    rodo: boolean,
+    reviewEmailConsent: boolean
 }
 
 export interface TimeSlot {

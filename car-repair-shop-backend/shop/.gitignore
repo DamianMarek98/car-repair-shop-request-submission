@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Production runtime config (secrets — never commit) ###
+src/main/resources/application.properties

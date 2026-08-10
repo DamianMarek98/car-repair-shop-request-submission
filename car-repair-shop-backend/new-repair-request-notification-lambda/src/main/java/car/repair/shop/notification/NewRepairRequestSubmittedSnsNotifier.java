@@ -13,6 +13,7 @@ public class NewRepairRequestSubmittedSnsNotifier implements RequestHandler<Dyna
 
     private final SnsClient snsClient;
     private static final String TOPIC_ARN = "arn:aws:sns:eu-north-1:009160054371:NewRepairRequestSubmittedTopic";
+    private static final String TEST_SUBMISSION_FIRST_NAME = "test";
 
 
     public NewRepairRequestSubmittedSnsNotifier() {
@@ -30,7 +31,12 @@ public class NewRepairRequestSubmittedSnsNotifier implements RequestHandler<Dyna
             context.getLogger().log("Event name: " + dynamodbRecord.getEventName());
             if ("INSERT".equals(dynamodbRecord.getEventName())) {
                 try {
-                    String message = prepareNotificationMessage(dynamodbRecord);
+                    Map<String, AttributeValue> newItem = dynamodbRecord.getDynamodb().getNewImage();
+                    if (isTestSubmission(newItem)) {
+                        context.getLogger().log("Skipping SNS notification for test submission");
+                        continue;
+                    }
+                    String message = prepareNotificationMessage(newItem);
                     context.getLogger().log(message);
                     snsClient.publish(PublishRequest.builder()
                             .topicArn(TOPIC_ARN)
@@ -44,9 +50,13 @@ public class NewRepairRequestSubmittedSnsNotifier implements RequestHandler<Dyna
         return "Notifications sent.";
     }
 
-    private static String prepareNotificationMessage(DynamodbEvent.DynamodbStreamRecord dynamodbRecord) {
-        Map<String, AttributeValue> newItem = dynamodbRecord.getDynamodb().getNewImage();
+    private static boolean isTestSubmission(Map<String, AttributeValue> newItem) {
+        AttributeValue firstNameItem = newItem.get("submitter_first_name");
+        String firstName = firstNameItem == null ? "" : firstNameItem.getS();
+        return firstName != null && TEST_SUBMISSION_FIRST_NAME.equalsIgnoreCase(firstName.trim());
+    }
 
+    private static String prepareNotificationMessage(Map<String, AttributeValue> newItem) {
         AttributeValue submitterFirstNameItem = newItem.get("submitter_first_name");
         String firstName = submitterFirstNameItem == null ? "" : submitterFirstNameItem.getS();
         AttributeValue submitterLastNameItem = newItem.get("submitter_last_name");

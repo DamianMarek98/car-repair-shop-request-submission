@@ -7,9 +7,11 @@
 **Authoritative owner answers:** `docs/consultancy-summary.md` §"Owner answers received (2026-07-04)"
 **Site source:** `renocar-webpage/httpdocs/` (static HTML + Bootstrap 3 + jQuery + bxSlider, one PHP contact form under `kontakt/`; Plesk-style hosting, document root = `httpdocs`; all content Polish; **no build system — none introduced by this spec**)
 
-Every file/line reference below was verified against the working tree on 2026-07-11.
-Where reality differed from the audit, the spec follows reality and flags the difference
-(see §0.2). Spec language is English; all site copy, legal text and typo corrections are
+Every file/line reference below was verified against the working tree on 2026-07-11 and
+**re-verified 2026-07-19 against branch `motrio-2026-adjustments`** (the implemented
+Motrio restyle — see the new §0.4 for what that branch changed and how it interacts with
+the items below). Where reality differed from the audit, the spec follows reality and
+flags the difference (see §0.2). Spec language is English; all site copy, legal text and typo corrections are
 in Polish, ready to paste.
 
 > **Encoding warning (module CLAUDE.md):** all pages are UTF-8 with Polish diacritics.
@@ -27,18 +29,18 @@ implemented** in the working tree — do not redo it. Verified applied:
 
 | PLAN.md item | Status in `httpdocs/` today |
 |---|---|
-| 1.1 H1 fix | Done — `index.htm:355` has the single `<h1>`, columns are `<h2 class="section-nav-title">` |
+| 1.1 H1 fix | Done — the single `<h1>` is now the Motrio hero title (`index.htm:207`); the pre-restyle body `<h1>` was demoted to `<h2 class="heading-normalcase">` (`index.htm:367`); columns are `<h2 class="section-nav-title">` |
 | 1.2 tel: wrapping | Done, **but with the wrong prefix** — see W-A1 (audit issue #7 supersedes) |
-| 1.3 slider `alt` + orphaned `</a>` | Done — `index.htm:205–215` all slides have `alt`, no orphans |
-| 1.4 `type="tel"` on contact form | Done — `kontakt/index.htm:210` |
+| 1.3 slider `alt` + orphaned `</a>` | Done — `index.htm:217–227` all slides have `alt`, no orphans |
+| 1.4 `type="tel"` on contact form | Done — `kontakt/index.htm:208` |
 | 1.5 logo `http://`→`https://` | Done on the 7 main pages (they now link `https://www.renocar.pl` — see W-A6 for the residual www hop); `mechanicy/index.htm` still `http://` (moot after W-A12) |
 | 1.6 bxSlider CSS into `<head>` | Done — `index.htm` head |
-| 1.7 duplicate jQuery on kontakt | Done — only `kontakt/index.htm:297–298` remain |
+| 1.7 duplicate jQuery on kontakt | Done — only `kontakt/index.htm:300–301` remain |
 | 1.8 contradictory header hours | Done on main pages (single "Pon - Pt: 8.00 - 16.00"); `mechanicy/index.htm:137–139` still has the old double hours (moot after W-A12) |
 | 1.9 `.htaccess` RewriteEngine order | Done — `RewriteEngine On` is line 1 |
 | 1.10 `meta robots` `index, follow` | Done on all 8 pages |
 | R1, R2 review fixes | Done |
-| R3: cookies-page mechanicy nav uncommented | **Fixed since** — now commented out (`cookies/index.htm:93–95`) |
+| R3: cookies-page mechanicy nav uncommented | **Fixed since** — now commented out (`cookies/index.htm:96–98`) |
 | R3: `ofirmie` body "8.00 do 17.00" | **Still open** — absorbed into W-A8 |
 | R3: `ofirmie` dead `../cennik` footer link | **Still open** — absorbed into W-A10 |
 
@@ -58,17 +60,21 @@ truth for them): 2.1 GA4 (→ W-C4), 2.2 JSON-LD (→ W-A5), 2.3 robots.txt / 2.
 
 **PLAN.md items NOT covered by the audit and still open** (remain owned by PLAN.md;
 execute after this spec's items): 2.7 preconnect hints, Phase 4 CWV work (image
-dimensions, `fetchpriority`, `defer`, WebP `<picture>`, iframe `title`, hamburger
-`aria-label`), 3.4 reviews section, 5.1 FAQ schema, 5.2 pricing table, Phases 6–7
-(design modernization, Bootstrap 5). W-B2 (image compression) partially overlaps
-PLAN 4.4 and takes precedence for the slider files.
+dimensions, `fetchpriority`, `defer` — *partially done: the Motrio restyle already
+`defer`s `lightbox.min.js` on `oferta/`+`ofirmie/`, fixing a pre-existing "jQuery is not
+defined" breakage* — WebP `<picture>`, iframe `title`, hamburger `aria-label`),
+3.4 reviews section, 5.1 FAQ schema, 5.2 pricing table. **PLAN Phases 6–7 (design
+modernization) are superseded — the Motrio restyle (§0.4) delivered the design
+modernization on Bootstrap 3**; only the optional Bootstrap 5 migration idea remains,
+deliberately unplanned. W-B2 (image compression) partially overlaps PLAN 4.4 and takes
+precedence for the slider files.
 
 ### 0.2 Discrepancies: audit vs. actual files (spec follows reality)
 
-1. **Bad tel: links also on `cookies/index.htm`** (`cookies/index.htm:65`) — audit
+1. **Bad tel: links also on `cookies/index.htm`** (`cookies/index.htm:68`) — audit
    listed only index/kontakt/promocje/oferta/umow-sie/ofirmie. 8 files affected, not 6.
-2. **`ofirmie` has three prefix-less/wrong links, not one**: `tel:+585201914` (line 146),
-   `tel:585201914` (line 504), **and `tel:690182354` (line 506)** — the last one wasn't
+2. **`ofirmie` has three prefix-less/wrong links, not one**: `tel:+585201914` (line 148),
+   `tel:585201914` (line 506), **and `tel:690182354` (line 508)** — the last one wasn't
    in the audit.
 3. **`mechanicy/index.htm` has no tel: links at all** — old header template with
    plain-text phone and the contradictory "10.00 - 16.00" hours (pre-PLAN-Phase-1
@@ -76,15 +82,17 @@ PLAN 4.4 and takes precedence for the slider files.
 4. **`img/new_building_with_logo.png` (2.4 MB) is not entirely unreferenced**: the copy
    at `httpdocs/img/new_building_with_logo.png` is unreferenced (delete), but an
    identical 2,437,273-byte copy at `httpdocs/ofirmie/img/new_building_with_logo.png`
-   **is live** on `ofirmie/index.htm:380,382` — it must be compressed, not deleted
+   **is live** on `ofirmie/index.htm:382,384` — it must be compressed, not deleted
    (W-B2).
 5. **`/mechanicy/` has no team content** — body is a placeholder: "Dział w trakcie
    aktualizacji, zapraszamy za klika dni." (`mechanicy/index.htm:344`, typo included).
    This decides restore-vs-301 in favour of **301** (W-A12).
 6. **Every nav/footer "Mechanicy" link is already commented out on all 8 pages**
-   (verified `index.htm:170–172`, `oferta:87–89`, `ofirmie:192–194`, `promocje:167–169`,
-   `kontakt:83`, `umow-sie:83`, `cookies:93–95` + footer equivalents) — the PLAN-era
-   note about the cookies page being uncommented is outdated.
+   (re-verified 2026-07-19: `index.htm:172–174`, `oferta:89–91`, `ofirmie:194–196`,
+   `promocje:169–171`, `kontakt:85`, `umow-sie:85`, `cookies:96–98` + footer
+   equivalents, e.g. `index.htm:723–726`; the comment markers sit on their own lines, so
+   a plain grep shows the links as seemingly active — check the surrounding lines) — the
+   PLAN-era note about the cookies page being uncommented is outdated.
 7. **`.htaccess` is already in the corrected order** (RewriteEngine first) — PLAN 1.9
    applied; audit text describing its content otherwise matches (272 bytes: SSL/www
    rewrite + two legacy redirects; no compression/caching/HSTS).
@@ -92,7 +100,7 @@ PLAN 4.4 and takes precedence for the slider files.
    attributes and "Profesjonalna" is spelled correctly in slide titles. The remaining
    typos are exactly the ones listed in W-A8 (all re-verified with line numbers).
 9. **Header hours are already unified** on the 7 main pages; only `ofirmie` body text
-   (line 368, "8.00 do 17.00") still contradicts real hours.
+   (line 370, "8.00 do 17.00") still contradicts real hours.
 10. Homepage `meta robots` is already `index, follow` (ANALYSIS.md's "non-standard
     `all`" note is stale).
 
@@ -119,6 +127,42 @@ sitewide change must be applied to each file**):
 `promocje/index.htm`, `umow-sie/index.htm`, `cookies/index.htm`, `mechanicy/index.htm`
 (the last one is removed by W-A12). W-C1 adds `polityka-prywatnosci/index.htm`.
 
+### 0.4 Motrio restyle delta (branch `motrio-2026-adjustments`, implemented 2026-07)
+
+After this spec was written, the site was restyled to Motrio branding. Canonical record
+of that work: **`renocar-webpage/specification-motrio.md`** (Phases 1–3 + QA fixes +
+branch-vs-main regression review, all marked DONE) and `renocar-webpage/motrio-analysis.md`
+(vision). All line references in this spec were **re-verified 2026-07-19 against that
+branch**. **Execute every W-A/W-B/W-C item on top of the restyle branch** — it touched
+the same 7 page files plus `css/style-modern.css`; branching from the pre-restyle `main`
+will conflict on merge. (`mechanicy/index.htm` was deliberately not restyled — moot
+after W-A12.)
+
+What the restyle changed that this spec's items touch:
+
+1. **Every page (now including `cookies/`) gained** a header "Autoryzowany Partner
+   Motrio" badge + a red "Umów się" header CTA (both new-tab; CTA →
+   renocar-zgloszenie.pl), a footer "Część sieci Motrio" badge (`.footer-partner` div),
+   and the **persistent dual CTA bar on desktop + mobile** (was mobile-only, and absent
+   from `cookies/`; carries a *correct* `tel:+48690182354`). Body line numbers shifted
+   accordingly; `<head>` line numbers are unchanged except on `cookies/`.
+2. **`cookies/index.htm` now loads `css/style-modern.css`** (line 17 — a pre-existing
+   omission fixed by the restyle QA), shifting its lines after 16 by +1.
+3. **Homepage hero rebuilt** (`index.htm` ~200–212): full-bleed rotating `.mt-hero`
+   with a new single `<h1 class="mt-hero__title">` (line 207) and its own booking CTA;
+   the former body `<h1>` is now `<h2 class="heading-normalcase">` (line 367).
+4. **`h1`/`h2` render bold + UPPERCASE site-wide** (Phase-1 tokens; visual transform
+   only — source text unchanged). Any new page (W-C1) inherits this.
+5. **kontakt submit button** is now `btn btn-lg btn-primary` (red pill),
+   `kontakt/index.htm:215`.
+6. **`lightbox.min.js` is now `defer`red** on `oferta/` + `ofirmie/` (regression-review
+   fix for a pre-existing "jQuery is not defined" breakage).
+7. **`promocje/`**: two announcements with malformed markup ("Serwis klimatyzacji",
+   "Płyn do spryskiwaczy…") got their missing `.news-wyd` opening divs — all entries
+   are now well-formed cards, which makes W-A11's whole-block deletions cleaner.
+8. **`.btn-primary` is now a pill** (border-radius 999px) — W-A13's replacement CTA
+   renders as a Motrio-style red pill with no extra work.
+
 ---
 
 ## W-A — Code changes in `httpdocs/` (repo-editable; deploy = upload)
@@ -130,22 +174,26 @@ sitewide change must be applied to each file**):
 
 | File | Line | Current | Change to |
 |---|---|---|---|
-| `index.htm` | 124 | `tel:+585201914` | `tel:+48585201914` |
-| `index.htm` | 618 | `tel:+585201914` | `tel:+48585201914` |
-| `oferta/index.htm` | 63 | `tel:+585201914` | `tel:+48585201914` |
-| `ofirmie/index.htm` | 146 | `tel:+585201914` | `tel:+48585201914` |
-| `ofirmie/index.htm` | 504 | `tel:585201914` | `tel:+48585201914` |
-| `ofirmie/index.htm` | 506 | `tel:690182354` | `tel:+48690182354` |
-| `kontakt/index.htm` | 59 | `tel:+585201914` | `tel:+48585201914` |
-| `kontakt/index.htm` | 177 | `tel:+585201914` | `tel:+48585201914` |
-| `promocje/index.htm` | 121 | `tel:+585201914` | `tel:+48585201914` |
-| `umow-sie/index.htm` | 59 | `tel:+585201914` | `tel:+48585201914` |
-| `cookies/index.htm` | 65 | `tel:+585201914` | `tel:+48585201914` |
+| `index.htm` | 126 | `tel:+585201914` | `tel:+48585201914` |
+| `index.htm` | 630 | `tel:+585201914` | `tel:+48585201914` |
+| `oferta/index.htm` | 65 | `tel:+585201914` | `tel:+48585201914` |
+| `ofirmie/index.htm` | 148 | `tel:+585201914` | `tel:+48585201914` |
+| `ofirmie/index.htm` | 506 | `tel:585201914` | `tel:+48585201914` |
+| `ofirmie/index.htm` | 508 | `tel:690182354` | `tel:+48690182354` |
+| `kontakt/index.htm` | 61 | `tel:+585201914` | `tel:+48585201914` |
+| `kontakt/index.htm` | 179 | `tel:+585201914` | `tel:+48585201914` |
+| `promocje/index.htm` | 123 | `tel:+585201914` | `tel:+48585201914` |
+| `umow-sie/index.htm` | 61 | `tel:+585201914` | `tel:+48585201914` |
+| `cookies/index.htm` | 68 | `tel:+585201914` | `tel:+48585201914` |
 
-  (`tel:+48690182354` occurrences elsewhere are already correct — leave them.)
-- **Verification:** `grep -rn 'tel:' httpdocs --include='*.htm' | grep -v vendor | grep -v 'tel:+48'`
-  must return nothing. On a phone, tap the landline link on `/kontakt/` — dialer must
-  show +48 58 520 19 14, not +58….
+  (`tel:+48690182354` occurrences elsewhere are already correct — leave them, including
+  the ones the Motrio restyle added in the CTA bar on every page. **Trap:**
+  `kontakt/index.htm:179` holds a wrong landline link *and* a correct mobile link on the
+  same line — fix only the landline half.)
+- **Verification:** `grep -rno 'tel:[^"]*' httpdocs --include='*.htm' | grep -v vendor | grep -v 'tel:+48'`
+  must return nothing (the `-o` matters: a line-level grep would silently pass a wrong
+  link sharing a line with a correct `tel:+48…` one, as on `kontakt:179`). On a phone,
+  tap the landline link on `/kontakt/` — dialer must show +48 58 520 19 14, not +58….
 
 ### W-A2 — Remove the dead `_gaq`/ga.js analytics snippet
 
@@ -153,7 +201,7 @@ sitewide change must be applied to each file**):
 - **Files & snippet location** (identical 10-line block `<script type="text/javascript"> var _gaq = _gaq || []; … ga.js … </script>` in each `<head>`):
   - `index.htm:52–72`, `oferta/index.htm:27–37`, `ofirmie/index.htm:56–76`,
     `kontakt/index.htm:23–33`, `promocje/index.htm:49–69`, `umow-sie/index.htm:23–33`,
-    `cookies/index.htm:29–39`, `mechanicy/index.htm:~67–83`
+    `cookies/index.htm:30–40`, `mechanicy/index.htm:~67–83`
 - **Change:** delete the whole block, including the `UA-29684621-1` account line. Do
   **not** add GA4 here — GA4 goes in only behind consent (W-C3/W-C4).
 - **Verification:** `grep -rn '_gaq\|google-analytics\|UA-29684621' httpdocs --include='*.htm'` → empty.
@@ -315,7 +363,7 @@ Sitemap: https://renocar.pl/sitemap.xml
     `https://www.renocar.pl` (both anchors in the `container logo` block of every
     page, e.g. `index.htm` header) — change to `https://renocar.pl` (kills the
     needless www→non-www 301 hop).
-  - `cookies/index.htm:309–316` footer uses absolute `http://www.renocar.pl/...` links —
+  - `cookies/index.htm:313–320` footer uses absolute `http://www.renocar.pl/...` links —
     change to relative (`/`, `/promocje`, `/oferta`, `/ofirmie`, `/kontakt`, `/cookies`)
     to match the other pages.
 - **Verification:** W3C validator passes each page;
@@ -353,30 +401,30 @@ Sitemap: https://renocar.pl/sitemap.xml
 | File:line | Błędnie | Poprawnie |
 |---|---|---|
 | `oferta/index.htm:11` (title — covered by W-A6) | Profesionalny | Profesjonalny |
-| `oferta/index.htm:209` | Profesionalny serwis | Profesjonalny serwis |
+| `oferta/index.htm:211` | Profesionalny serwis | Profesjonalny serwis |
 | `ofirmie/index.htm:21` (title — covered by W-A6) | klika słów | kilka słów |
-| `ofirmie/index.htm:412` | Profesionalny serwis | Profesjonalny serwis |
-| `ofirmie/index.htm:500` | zapozniania się | zapoznania się |
-| `ofirmie/index.htm:568` | Profesionalna … samochochodów | Profesjonalna … samochodów |
-| `ofirmie/index.htm:376` (alt) | Pogwaranycjny | Pogwarancyjny |
-| `ofirmie/index.htm:382` (alt) | Pogwaranycjny | Pogwarancyjny |
+| `ofirmie/index.htm:414` | Profesionalny serwis | Profesjonalny serwis |
+| `ofirmie/index.htm:502` | zapozniania się | zapoznania się |
+| `ofirmie/index.htm:570` | Profesionalna … samochochodów | Profesjonalna … samochodów |
+| `ofirmie/index.htm:378` (alt) | Pogwaranycjny | Pogwarancyjny |
+| `ofirmie/index.htm:384` (alt) | Pogwaranycjny | Pogwarancyjny |
 | `cookies/index.htm:11` (title — covered by W-A6) | cisteczkach | ciasteczkach |
-| `cookies/index.htm:245` | Profesionalna … samochochodów | Profesjonalna … samochodów |
-| `cookies/index.htm:263` | zapozniania się | zapoznania się |
-| `index.htm:365` (alt) | Pogwaranycjny | Pogwarancyjny |
-| `index.htm:387` (alt) | oferę … Pogwaranycjnego | ofertę … Pogwarancyjnego |
-| `index.htm:409` (alt) | Pogwaranycjny | Pogwarancyjny |
-| `index.htm:462` | istneiej możliwość | istnieje możliwość |
-| `index.htm:578` | Profesionalna … samochochodów | Profesjonalna … samochodów |
-| `index.htm:614` | zapozniania się | zapoznania się |
-| `promocje/index.htm:342` | istneiej możliwość | istnieje możliwość |
-| `promocje/index.htm:775` | Pogwaranycjny | Pogwarancyjny (block is deleted by W-A11 anyway) |
-| `promocje/index.htm:833` | Profesionalna … samochochodów | Profesjonalna … samochodów |
-| `promocje/index.htm:869` | zapozniania się | zapoznania się |
-| `kontakt/index.htm:184` | Pogwaranycjny | Pogwarancyjny (line is also rebuilt by W-A15) |
+| `cookies/index.htm:248` | Profesionalna … samochochodów | Profesjonalna … samochodów |
+| `cookies/index.htm:266` | zapozniania się | zapoznania się |
+| `index.htm:377` (alt) | Pogwaranycjny | Pogwarancyjny |
+| `index.htm:399` (alt) | oferę … Pogwaranycjnego | ofertę … Pogwarancyjnego |
+| `index.htm:421` (alt) | Pogwaranycjny | Pogwarancyjny |
+| `index.htm:474` | istneiej możliwość | istnieje możliwość |
+| `index.htm:590` | Profesionalna … samochochodów | Profesjonalna … samochodów |
+| `index.htm:626` | zapozniania się | zapoznania się |
+| `promocje/index.htm:344` | istneiej możliwość | istnieje możliwość |
+| `promocje/index.htm:779` | Pogwaranycjny | Pogwarancyjny (block is deleted by W-A11 anyway) |
+| `promocje/index.htm:837` | Profesionalna … samochochodów | Profesjonalna … samochodów |
+| `promocje/index.htm:873` | zapozniania się | zapoznania się |
+| `kontakt/index.htm:186` | Pogwaranycjny | Pogwarancyjny (line is also rebuilt by W-A15) |
 
   (`mechanicy/index.htm:344` "za klika dni" becomes moot after W-A12.)
-- **Content correction (not a typo):** `ofirmie/index.htm:368` — "…od Poniedziałku do
+- **Content correction (not a typo):** `ofirmie/index.htm:370` — "…od Poniedziałku do
   Piątku w godzinach **8.00 do 17.00**" → "…w godzinach **8.00 do 16.00**" (hours
   changed January 2022; PLAN.md R3 leftover).
 - **Verification:** `grep -rn 'Profesionaln\|klika\|cisteczk\|istneiej\|Pogwaranycjny\|samochochod\|zapozniania\|oferę' httpdocs --include='*.htm' | grep -v vendor` → empty.
@@ -385,7 +433,7 @@ Sitemap: https://renocar.pl/sitemap.xml
 ### W-A9 — Correct legal-entity block (kontakt + cookies pages)
 
 - **Audit issues:** #1 | **Severity:** Critical | **Effort:** S | **Dependencies:** none — NIP 5833538950 confirmed by owner 2026-07-12
-- **`kontakt/index.htm:166–171`** — before → after:
+- **`kontakt/index.htm:168–173`** — before → after:
 
 ```html
 <!-- BEFORE -->
@@ -401,7 +449,7 @@ ul. Andrzeja Struga 8/10A <br/>
 NIP: 5833538950
 ```
 
-- **`cookies/index.htm:183`** — before → after:
+- **`cookies/index.htm:186`** — before → after:
 
 ```html
 <!-- BEFORE -->
@@ -417,9 +465,11 @@ NIP: 5833538950
 ### W-A10 — Footer: company identification + hours + dead-link fix
 
 - **Audit issues:** #1 (footer part), PLAN 3.2 | **Severity:** Medium | **Effort:** S–M | **Dependencies:** NIP for the entity line (deployable without NIP if that line is omitted until known)
-- **Files:** footer's first column in all 7 pages (`index.htm:686–696` and the
-  equivalent block per page — currently only "Copyright © SDK | design by SDK").
-- **Change** — replace the copyright-only `<p>` with:
+- **Files:** footer's first column in all 7 pages (`index.htm:698–712` and the
+  equivalent block per page — currently the "Copyright © SDK | design by SDK" `<p>`
+  followed by the Motrio-restyle `.footer-partner` badge div).
+- **Change** — replace the copyright-only `<p>` with the block below; **keep the
+  `.footer-partner` div** (Motrio restyle, §0.4) after it:
 
 ```html
 <p>
@@ -446,26 +496,29 @@ NIP: 5833538950
 
 - **Audit issues:** #14 | **Severity:** Medium | **Effort:** S–M | **Dependencies:** none
 - **File:** `promocje/index.htm`. Current items (verified `<h3>` list):
-  - Umów się online / Styczeń 2026 (line 330) — **KEEP** (top item)
-  - Zmiany godzin pracy warsztatu / Styczeń 2022 (line 359) — **KEEP** (still the
+  - Umów się online / Styczeń 2026 (line 332) — **KEEP** (top item)
+  - Zmiany godzin pracy warsztatu / Styczeń 2022 (line 361) — **KEEP** (still the
     authoritative "we open 8–16" notice)
-  - Serwis klimatyzacji / 12 czerwca 2019 (line 397) — **DELETE**
-  - Płyn do spryskiwaczy do każdego Przeglądu / 4 marca 2016 (line 437) — **DELETE**
-  - Kosmetyki samochodowe ELF / 7 września 2015 (line 473) — **DELETE**
-  - Płyn do spryskiwaczy GRATIS / 29 czerwca 2015 (line 525) — **DELETE**
-  - Części zamienne MOTRIO / 5 marca 2015 (line 559) — **DELETE**
-  - Wesołych Świąt / 10 grudnia 2014 (line 589) — **DELETE**
-  - Akumulatory Renault / 24 października 2014 (line 619) — **DELETE**
-  - 25% rabatu na układy hamulcowe / 15 października 2014 (line 649) — **DELETE**
-  - WYMIANA ROZRZĄDU / 07 października 2014 (line 679) — **DELETE**
-  - Wymiana Oleju / 2 marca 2012 (line 709) — **DELETE**
-  - RENO CAR – zobacz Nasz profil na facebooku / 1 marca 2012 (line 743) — **DELETE**
-    (references the old FB page; superseded by W-A15)
-  - RENO CAR … nowa strona internetowa / 1 marca 2012 (line 775) — **DELETE**
-- Deletion = remove each item's whole `news-wyd` block. No archive page — expired
-  promotions without validity dates are a consumer-law liability, and an archive adds
-  crawl noise for zero value (deliberate deviation from PLAN 3.5's archive idea).
-- **Homepage:** `index.htm` "Najnowsze ogłoszenie" (line 445+) already shows only the
+  - Serwis klimatyzacji / 12 czerwca 2019 (line 400) — **DELETE**
+  - Płyn do spryskiwaczy do każdego Przeglądu / 4 marca 2016 (line 441) — **DELETE**
+  - Kosmetyki samochodowe ELF / 7 września 2015 (line 477) — **DELETE**
+  - Płyn do spryskiwaczy GRATIS / 29 czerwca 2015 (line 529) — **DELETE**
+  - Części zamienne MOTRIO / 5 marca 2015 (line 563) — **DELETE**
+  - Wesołych Świąt / 10 grudnia 2014 (line 593) — **DELETE**
+  - Akumulatory Renault / 24 października 2014 (line 623) — **DELETE**
+  - 25% rabatu na układy hamulcowe / 15 października 2014 (line 653) — **DELETE**
+  - WYMIANA ROZRZĄDU / 07 października 2014 (line 683) — **DELETE**
+  - Wymiana Oleju / 2 marca 2012 (line 713) — **DELETE**
+  - RENO CAR – zobacz Nasz profil na facebooku / 1 marca 2012 (line 747) — **DELETE**
+    (references the old FB page, incl. the profile link at line 757; superseded by W-A15)
+  - RENO CAR … nowa strona internetowa / 1 marca 2012 (line 779) — **DELETE**
+- Deletion = remove each item's whole `news-wyd` block. The Motrio restyle (§0.4)
+  repaired the two malformed blocks ("Serwis klimatyzacji", "Płyn do spryskiwaczy…"),
+  so every item is now a well-formed `<div class="news-wyd">…</div>` — delete opening
+  div through closing div. No archive page — expired promotions without validity dates
+  are a consumer-law liability, and an archive adds crawl noise for zero value
+  (deliberate deviation from PLAN 3.5's archive idea).
+- **Homepage:** `index.htm` "Najnowsze ogłoszenie" (line 457+) already shows only the
   2026 booking item — keep as is (its iframe is handled by W-A13).
 - **Verification:** `/promocje/` shows exactly 2 items (2026, 2022); page renders
   correctly; no dangling markup (W3C check).
@@ -486,14 +539,14 @@ NIP: 5833538950
      `Redirect 301 /mechanicy /ofirmie`
   2. Delete the `httpdocs/mechanicy/` directory from the repo and from the server.
   3. Optional tidy-up: remove the commented-out "Mechanicy" nav/footer remnants from
-     the other 7 pages (e.g. `index.htm:170–172, 711–713`) — cosmetic only.
+     the other 7 pages (e.g. `index.htm:172–174, 723–726`) — cosmetic only.
 - **Verification:** `curl -sI https://renocar.pl/mechanicy/` → `301` with
   `Location: https://renocar.pl/ofirmie`; GSC coverage report eventually drops the URL.
 
 ### W-A13 — Homepage: replace the embedded booking-SPA iframe with a CTA
 
 - **Audit issues:** #17 | **Severity:** Medium | **Effort:** S | **Dependencies:** none
-- **File:** `index.htm:466–472` (inside the "Najnowsze ogłoszenie" section):
+- **File:** `index.htm:478–484` (inside the "Najnowsze ogłoszenie" section):
 
 ```html
 <!-- BEFORE -->
@@ -513,13 +566,15 @@ NIP: 5833538950
 
   Keep the surrounding news text (with the W-A8 "istnieje" fix). The CTA links to the
   internal `/umow-sie/` page — the full-height iframe stays **only** there
-  (`umow-sie/index.htm:108–113`, already `min-height: 800px`, correct). Do not touch
+  (`umow-sie/index.htm:110–114`, already `min-height: 800px`, correct). Do not touch
   the `umow-sie` embed — that is the `submission-portal` integration point flagged in
   the module CLAUDE.md.
 - **Verification:** homepage no longer loads the Angular SPA (no
-  `renocar-zgloszenie.pl` iframe in the homepage source; slider CTA, nav item and
-  mobile bar still link to booking); homepage transfer size drops by the SPA's weight;
-  the button renders in Motrio red per `.btn-primary`.
+  `renocar-zgloszenie.pl` **iframe** in the homepage source — the Motrio hero CTA at
+  `index.htm:209`, the header CTA, the slider link and the bottom CTA bar are plain
+  links to booking and stay); homepage transfer size drops by the SPA's weight; the
+  button renders as a red Motrio pill per `.btn-primary` (pill radius since the
+  restyle, §0.4).
 
 ### W-A14 — `js/cookies-info.js`: fix hardcoded `http://www` link
 
@@ -534,15 +589,30 @@ NIP: 5833538950
 ### W-A15 — Facebook: remove all Facebook references from the site *(owner decision 2026-07-12: drop Facebook entirely)*
 
 - **Audit issues:** #18 | **Severity:** Medium | **Effort:** S | **Dependencies:** none — owner chose "neither page": no Facebook link anywhere on the site
-- **`kontakt/index.htm:184`** — delete the whole plain-text line `facebook: RENOCAR - Pogwaranycjny Serwis Renault` (typo included; do not replace with a link).
-- **`ofirmie/index.htm`** — remove the Facebook SDK v2.5 loader (lines ~96–104,
+- **`kontakt/index.htm:186`** — delete the whole plain-text line `facebook: RENOCAR - Pogwaranycjny Serwis Renault` (typo included; do not replace with a link).
+- **`ofirmie/index.htm`** — remove the Facebook SDK v2.5 loader (`<div id="fb-root">`
+  line 90 + loader script lines 92–104,
   `connect.facebook.net/pl_PL/sdk.js#xfbml=1&version=v2.5`) **and the entire
-  "dołącz do nas na facebooku:" section** (heading line 528 + the `fb-page` widget
-  line 532, hardcoded to old page ID `291554670910421`). Nothing replaces it.
+  "dołącz do nas na facebooku:" section** (heading line 530 + the `fb-page` widget
+  line 534, hardcoded to old page ID `291554670910421`). Nothing replaces it.
+- **`ofirmie/index.htm:464`** *(gap found during the 2026-07-19 re-verification — the
+  original list missed this body-copy mention, which would have made the verification
+  grep unpassable)* — trim the promotions paragraph: "…Nasze promocje ogłaszamy na
+  Naszej stronie internetowej oraz na facebooku. Zachęcamy do odwiedzania strony oraz
+  profilu" → "…Nasze promocje ogłaszamy na Naszej stronie internetowej. Zachęcamy do
+  odwiedzania strony".
+- **`oferta/index.htm` (~line 261)** *(second body-copy gap, found at implementation
+  time 2026-07-19)* — "…Zachęcamy do odwiedzania Naszej strony internetowej oraz
+  śledzenia profilu na facebooku aby żadna promocja Państwa nie ominęła." →
+  "…Zachęcamy do odwiedzania Naszej strony internetowej, aby żadna promocja Państwa
+  nie ominęła."
 - W-A5's JSON-LD `"sameAs"` carries **only** the Google Maps listing URL (after W-D1) — no Facebook entry.
 - If a Facebook page is ever revived, re-adding one footer/kontakt link is a one-line change.
-- **Verification:** `grep -rni 'facebook' httpdocs --include='*.htm' | grep -v vendor` → empty;
-  no `connect.facebook.net` request on `/ofirmie/` (network tab).
+- **Verification:** `grep -rni 'facebook' httpdocs --include='*.htm' | grep -v vendor` → empty.
+  **Run this only after W-A6 and W-A11** — until then two expected hits remain outside
+  this item's scope: `kontakt/index.htm:12` (`meta keywords`, removed by W-A6) and the
+  promocje Facebook announcement (block deleted by W-A11, profile link at line 757).
+  Also: no `connect.facebook.net` request on `/ofirmie/` (network tab).
 
 ---
 
@@ -622,10 +692,10 @@ NIP: 5833538950
 | `slide06.JPG` | 108,434 B | keep (or ≤100 KB) |
 
 - **Compress the live ofirmie photo** (audit called it unreferenced — the **root** copy
-  is, but this one is referenced at `ofirmie/index.htm:380,382`):
+  is, but this one is referenced at `ofirmie/index.htm:382,384`):
   `httpdocs/ofirmie/img/new_building_with_logo.png` 2,437,273 B → re-encode as JPEG
-  ≤250 KB (`new_building_with_logo.jpg`) and update both the lightbox `href` (line 380)
-  and `<img src>` (line 382).
+  ≤250 KB (`new_building_with_logo.jpg`) and update both the lightbox `href` (line 382)
+  and `<img src>` (line 384).
 - **Delete unreferenced files** (verified: no page/CSS references them; ~24.7 MB):
 
 | File | Size |
@@ -655,8 +725,11 @@ NIP: 5833538950
 - **Audit issues:** #2 (policy part) | **Severity:** Critical | **Effort:** M | **Dependencies:** **NIP from owner** (placeholder marked); W-A10 adds the footer link; W-A4 adds it to the sitemap
 - **New file:** `httpdocs/polityka-prywatnosci/index.htm` — clone the page shell from
   `cookies/index.htm` (same header/nav/footer, minus the GA block per W-A2, plus the
-  W-A3/5/6/7 head tags), with `<h1>Polityka prywatności</h1>` and the following body
-  copy (complete skeleton, placeholders marked `[...]`):
+  W-A3/5/6/7 head tags; **keep the Motrio restyle elements the shell now carries** —
+  the `style-modern.css` link, header partner badge + "Umów się" CTA, footer
+  `.footer-partner` badge, and the bottom CTA bar, per §0.4), with
+  `<h1>Polityka prywatności</h1>` and the following body copy (complete skeleton,
+  placeholders marked `[...]`):
 
 ```
 POLITYKA PRYWATNOŚCI SERWISU WWW.RENOCAR.PL
@@ -746,8 +819,8 @@ profilowania.
 
 - **Audit issues:** #2 (form part) | **Severity:** Critical | **Effort:** S | **Dependencies:** W-C1 (link target), NIP
 - **File:** `kontakt/index.htm` — insert **inside the `<form>` (id `reused_form`),
-  between the message-textarea group (ends ~line 214) and the submit-button `<p>`
-  (line 216)**:
+  between the message-textarea group (ends ~line 213) and the submit-button `<p>`
+  (line 215; the button is `btn btn-lg btn-primary` since the Motrio restyle)**:
 
 ```html
 <div class="form-group col-lg-12 col-md-12 col-sm-12 col-xs-12">
@@ -828,8 +901,8 @@ var klaroConfig = {
 ```
 
   3. In every page, **remove** `<script src="js/cookies-info.js"></script>`
-     (`index.htm:735`, `oferta:336`, `kontakt:296`, `promocje:990`, `umow-sie:186`,
-     plus the ofirmie/cookies equivalents; delete `js/cookies-info.js` afterwards) and
+     (`index.htm:748`, `oferta:339`, `ofirmie:668`, `kontakt:299`, `promocje:995`,
+     `umow-sie:189`, `cookies:327`; delete `js/cookies-info.js` afterwards) and
      add at the end of `<body>` (root-relative, so identical on subpages):
 
 ```html
@@ -853,6 +926,10 @@ var klaroConfig = {
   5. Footer (all pages): add a re-open link
      `<a href="#" onclick="klaro.show();return false;">Ustawienia cookies</a>` next to
      the Polityka prywatności link.
+  6. **CSS (found at implementation time):** Klaro's default notice (fixed
+     `bottom: 20px`) is covered by the site's persistent bottom CTA bar — append to
+     `css/style-modern.css`: `.klaro .cookie-notice { bottom: 72px !important;
+     z-index: 10001 !important; }` (plus `.klaro .cookie-modal { z-index: 10002 }`).
 - **Verification:** fresh incognito visit → no `google-analytics.com` /
   `googletagmanager.com` requests before consent (network tab); "Akceptuję" → GA4
   requests appear and `_ga` cookies set; "Odrzucam" → still none; choice persists;
@@ -932,8 +1009,8 @@ NIP: 5833538950
 - **Post-GBP site task (repo):** regenerate the Maps embed (Share → Embed a map) from
   the fixed listing and replace the 2015 zero-place-ID iframe src
   (`…!1s0x0000000000000000%3A0x00cd1aee085bdc0f!2sRENO+CAR…4v1449917311874`) at:
-  `index.htm:658`, `promocje/index.htm:913`, `umow-sie/index.htm:129`,
-  `kontakt/index.htm:239`, `cookies/index.htm:285`. Keep `loading="lazy"` and add
+  `index.htm:670`, `promocje/index.htm:917`, `umow-sie/index.htm:131`,
+  `kontakt/index.htm:241`, `cookies/index.htm:288`. Keep `loading="lazy"` and add
   `title="Mapa dojazdu do RENO CAR, ul. Andrzeja Struga 8/10A, Gdańsk"`.
 - **Verification:** Maps search "Reno Car Struga Gdańsk" shows corrected hours/links;
   the embedded map on `/kontakt/` pins the correct listing.
@@ -1021,7 +1098,8 @@ W-D4 (Motrio locator) · review-request loop using the GBP short link (hook exis
 the admin portal per the consultancy summary) · GA4 cross-domain + booking-funnel
 events on renocar-zgloszenie.pl (+ its own robots.txt on S3 — audit #21, outside this
 module) · og-preview.jpg 1200×630 + `summary_large_image` · remaining PLAN.md items
-(preconnect, CWV Phase 4, FAQ schema, pricing table, design Phases 6–7).
+(preconnect, CWV Phase 4, FAQ schema, pricing table — design Phases 6–7 done via the
+Motrio restyle, §0.4).
 
 ---
 

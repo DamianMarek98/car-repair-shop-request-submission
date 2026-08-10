@@ -69,6 +69,7 @@ export class RepairRequestSubmissionComponent implements OnInit {
       timeSlots: this.fb.array([]),
       asap: new FormControl(false),
       rodo: new FormControl(false, Validators.requiredTrue),
+      reviewEmailConsent: new FormControl(false),
     }, { validators: atLeastOneFieldNotNull(['vin', 'plateNumber']) });
     this.addTimeSlot();
   }
@@ -138,6 +139,7 @@ export class RepairRequestSubmissionComponent implements OnInit {
         timeSlots: this.mapTimeSlots(this.repairForm.get('timeSlots')?.value),
         asap: this.repairForm.get('asap')?.value,
         rodo: this.repairForm.get('rodo')?.value,
+        reviewEmailConsent: this.repairForm.get('reviewEmailConsent')?.value,
       }
       this.repairRequestService.submitRepairRequest(repairRequest).subscribe({
         next: () => {

@@ -93,6 +93,7 @@ class RepairRequestSubmittedHandlerTest {
         assertThat(item.get("email").s()).isEqualTo(request.email());
         assertThat(item.get("asap").n()).isEqualTo("1");
         assertThat(item.get("rodo").n()).isEqualTo("1");
+        assertThat(item.get("review_email_consent").n()).isEqualTo("0");
         assertThat(item.get("status_value").s()).isEqualTo("NEW");
         assertNotNull(item.get("submittedAt"));
         assertThat(item.get("submittedAt").s()).isNotEmpty();
@@ -210,6 +211,91 @@ class RepairRequestSubmittedHandlerTest {
     }
 
     @Test
+    void givenRequestWithReviewEmailConsent_shouldStoreConsentAsOne() throws JsonProcessingException {
+        // Given
+        var request = new SubmitRepairRequestDtoBuilder()
+                .withVin("4Y1SL65848Z411439")
+                .withIssueDescription("test")
+                .withEmail("test@test.com")
+                .withFirstName("Damian")
+                .withLastName("Marek")
+                .withTimeSlots(List.of())
+                .withPhoneNumber("111222333")
+                .asap()
+                .withRodoApproval()
+                .withReviewEmailConsent()
+                .build();
+
+        Map<String, Object> input = Map.of("body", objectMapper.writeValueAsString(request));
+
+        // When
+        APIGatewayProxyResponseEvent response = handler.handleRequest(input, mockContext);
+
+        // Then
+        assertEquals(200, response.getStatusCode());
+
+        ArgumentCaptor<PutItemRequest> putItemCaptor = ArgumentCaptor.forClass(PutItemRequest.class);
+        verify(mockDynamoDbClient).putItem(putItemCaptor.capture());
+
+        assertThat(putItemCaptor.getValue().item().get("review_email_consent").n()).isEqualTo("1");
+    }
+
+    @Test
+    void givenPayloadWithoutReviewEmailConsentField_shouldStoreConsentAsZero() {
+        // Given - a payload produced by a submission portal that predates this field
+        String legacyBody = """
+                {
+                  "vin": "4Y1SL65848Z411439",
+                  "issueDescription": "test",
+                  "firstName": "Damian",
+                  "lastName": "Marek",
+                  "email": "test@test.com",
+                  "phoneNumber": "111222333",
+                  "timeSlots": [],
+                  "asap": true,
+                  "rodo": true
+                }""";
+        Map<String, Object> input = Map.of("body", legacyBody);
+
+        // When
+        APIGatewayProxyResponseEvent response = handler.handleRequest(input, mockContext);
+
+        // Then
+        assertEquals(200, response.getStatusCode());
+
+        ArgumentCaptor<PutItemRequest> putItemCaptor = ArgumentCaptor.forClass(PutItemRequest.class);
+        verify(mockDynamoDbClient).putItem(putItemCaptor.capture());
+
+        assertThat(putItemCaptor.getValue().item().get("review_email_consent").n()).isEqualTo("0");
+    }
+
+    @Test
+    void givenPayloadWithUnknownField_shouldIgnoreItAndStoreRequest() {
+        // Given - a submission portal deployed ahead of this Lambda must not break submissions
+        String bodyWithUnknownField = """
+                {
+                  "vin": "4Y1SL65848Z411439",
+                  "issueDescription": "test",
+                  "firstName": "Damian",
+                  "lastName": "Marek",
+                  "email": "test@test.com",
+                  "phoneNumber": "111222333",
+                  "timeSlots": [],
+                  "asap": true,
+                  "rodo": true,
+                  "someFieldThisLambdaDoesNotKnowYet": "value"
+                }""";
+        Map<String, Object> input = Map.of("body", bodyWithUnknownField);
+
+        // When
+        APIGatewayProxyResponseEvent response = handler.handleRequest(input, mockContext);
+
+        // Then
+        assertEquals(200, response.getStatusCode());
+        verify(mockDynamoDbClient).putItem(any(PutItemRequest.class));
+    }
+
+    @Test
     void givenInvalidJsonInBody_shouldReturn500AndLogError() {
         // Given
         String invalidJson = "{ invalid json }";
@@ -287,6 +373,7 @@ class RepairRequestSubmittedHandlerTest {
         private List<SubmitRepairRequestDto.TimeSlotDto> timeSlots;
         private boolean asap;
         private boolean rodo;
+        private boolean reviewEmailConsent;
 
         SubmitRepairRequestDtoBuilder withVin(String vin) {
             this.vin = vin;
@@ -343,8 +430,13 @@ class RepairRequestSubmittedHandlerTest {
             return this;
         }
 
+        SubmitRepairRequestDtoBuilder withReviewEmailConsent() {
+            this.reviewEmailConsent = true;
+            return this;
+        }
+
         SubmitRepairRequestDto build() {
-            return new SubmitRepairRequestDto(vin, plateNumber, issueDescription, firstName, lastName, email, phoneNumber, timeSlots, asap, rodo);
+            return new SubmitRepairRequestDto(vin, plateNumber, issueDescription, firstName, lastName, email, phoneNumber, timeSlots, asap, rodo, reviewEmailConsent);
         }
     }
 }

@@ -69,6 +69,13 @@ public class RepairRequest {
     @DynamoDBAttribute(attributeName = "rodo")
     private boolean rodo;
 
+    @DynamoDBAttribute(attributeName = "review_email_consent")
+    private boolean reviewEmailConsent;
+
+    @DynamoDBAttribute(attributeName = "review_email_sent_at")
+    @DynamoDBTypeConverted(converter = LocalDateTimeConverter.class)
+    private LocalDateTime reviewEmailSentAt;
+
     static RepairRequest from(SubmitRepairRequestDto submitRepairRequestDto) {
         if (!submitRepairRequestDto.rodo()) {
             throw new RepairRequestRodoException();
@@ -87,6 +94,7 @@ public class RepairRequest {
         repairRequest.submittedAt = ZonedDateTime.now(ZoneId.of("UTC")).toLocalDateTime();
         repairRequest.asap = submitRepairRequestDto.asap();
         repairRequest.rodo = submitRepairRequestDto.rodo();
+        repairRequest.reviewEmailConsent = submitRepairRequestDto.reviewEmailConsent();
         repairRequest.preferredVisitWindows = submitRepairRequestDto.timeSlots() == null ? List.of() :
                 submitRepairRequestDto.timeSlots()
                         .stream()
@@ -103,5 +111,9 @@ public class RepairRequest {
 
     protected void maskAsAppointmentMade() {
         status = RepairRequestStatus.APPOINTMENT_MADE;
+    }
+
+    void markReviewEmailSent() {
+        reviewEmailSentAt = ZonedDateTime.now(ZoneId.of("UTC")).toLocalDateTime();
     }
 }

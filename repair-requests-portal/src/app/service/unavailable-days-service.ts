@@ -28,8 +28,4 @@ export class UnavailableDaysService {
     addUnavailableDate(date: string): Observable<UnavailableDay> {
         return this.http.post<UnavailableDay>(this.apiUrl, { "date": date });
     }
-
-    markRepairRequestAsAppointmentMade(id: string): Observable<void> {
-        return this.http.post<void>(this.apiUrl + '/' + id + '/mark-as-appointment-made', {});
-    }
 }
