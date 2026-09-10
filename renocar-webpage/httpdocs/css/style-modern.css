@@ -3,6 +3,43 @@
    Loaded AFTER style.css to modernize the visual appearance
    ========================================================================== */
 
+/* Motrio brand typeface — PP Object Sans
+   ==========================================================================
+   PP Object Sans (Pangram Pangram) is Motrio's commercial brand font. It is not
+   on Google Fonts or any free CDN, so the files are NOT in this repo. Only the
+   .motrio-partner badge uses it; until the files are uploaded the badge falls
+   back to Poppins (or to a locally installed PP Object Sans, if the visitor
+   happens to have one).
+
+   To switch it on:
+   1. upload the licensed files to httpdocs/fonts/pp-object-sans/ named exactly:
+        PPObjectSans-Regular.woff2 / .woff
+        PPObjectSans-Bold.woff2    / .woff
+   2. uncomment both @font-face blocks below,
+   3. bump ?v= on css/style-modern.css across all 8 pages.
+   Check the cut ships Polish glyphs (ę, ś in the footer's "Część sieci Motrio").
+   The blocks stay commented out while the files are missing — otherwise every
+   page view would fire a 404 for each font file.
+
+@font-face {
+    font-family: 'PP Object Sans';
+    src: url('../fonts/pp-object-sans/PPObjectSans-Regular.woff2') format('woff2'),
+         url('../fonts/pp-object-sans/PPObjectSans-Regular.woff') format('woff');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'PP Object Sans';
+    src: url('../fonts/pp-object-sans/PPObjectSans-Bold.woff2') format('woff2'),
+         url('../fonts/pp-object-sans/PPObjectSans-Bold.woff') format('woff');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+*/
+
 /* CSS Custom Properties
    ========================================================================== */
 :root {
@@ -588,18 +625,37 @@ body { padding-bottom: 56px; }
     .news-wyd--card > img, .news-wyd--card .news-wyd__thumb { width: 100%; }
 }
 
-/* 2.5 Partner Motrio badge */
+/* 2.5 Partner Motrio badge
+   Brand colours: var(--motrio-red) = #e00008 = rgb(224, 0, 8), plus white #fff.
+   Typeface: 'PP Object Sans' (see @font-face at the top of this file), Poppins fallback. */
 .motrio-partner { display: inline-block; padding: 6px 16px; border-radius: 999px;
     border: 1px solid var(--motrio-red); color: #fff; font-size: 12px; font-weight: 600;
+    font-family: 'PP Object Sans', 'Poppins', Arial, Helvetica, sans-serif;
     text-transform: uppercase; letter-spacing: .3px; text-decoration: none; white-space: nowrap;
     line-height: 1.5; transition: background var(--transition-fast), color var(--transition-fast); }
-.motrio-partner strong { color: var(--motrio-red); }
+/* The "Motrio" word is slanted to echo the italic MOTRIO wordmark in the logo
+   (images/logo-motrio-new.png), where "RENO CAR" stays upright — but at half
+   the slant of a full italic, i.e. 7deg against the synthetic oblique's 14deg.
+   It has to be skewX, not font-style: neither PP Object Sans nor the loaded
+   Poppins ships an italic cut, and for a font with no slant axis Chrome ignores
+   a custom `font-style: oblique 7deg` outright (it renders bolt upright) — it
+   only synthesises the fixed ~14deg of `italic`. skewX needs a transformable
+   box, hence display: inline-block; the badge is already white-space: nowrap,
+   so that changes no line breaking. The 1px right padding keeps the leaning
+   final "O" off the pill border. */
+.motrio-partner strong { color: var(--motrio-red);
+    font-family: 'PP Object Sans', 'Poppins', Arial, Helvetica, sans-serif; font-weight: 700;
+    display: inline-block; transform: skewX(-7deg); padding-right: 1px; }
 .motrio-partner:hover, .motrio-partner:focus { background: var(--motrio-red); color: #fff; text-decoration: none; }
 .motrio-partner:hover strong, .motrio-partner:focus strong { color: #fff; }
-.logo .motrio-partner { color: #fff; margin-top: 8px; }
+/* .logo a{font-family:'Poppins'} in style.css is more specific than
+   .motrio-partner, so the stack has to be repeated here — otherwise the header
+   badge would silently stay in Poppins. */
+.logo .motrio-partner { color: #fff; margin-top: 8px;
+    font-family: 'PP Object Sans', 'Poppins', Arial, Helvetica, sans-serif; }
 .logo .motrio-partner:hover, .logo .motrio-partner:focus { color: #fff; }
 .footer-partner { margin-top: 10px; }
-.footer .motrio-partner { color: #fff; border-color: #6b6b6b; }
+.footer .motrio-partner { color: #fff; border-color: var(--motrio-red); }
 .footer .motrio-partner:hover { background: var(--motrio-red); border-color: var(--motrio-red); color: #fff; }
 
 /* ==========================================================================
