@@ -23,8 +23,8 @@ npm run watch          # dev rebuild on change
 
 - Dev serve/build file-replaces `src/environments/environment.ts` with
   `environment.development.ts` → `http://localhost:8080/api`. So local dev needs the `shop`
-  Spring backend running on :8080 (see `car-repair-shop-backend/shop/CLAUDE.md` for how, incl.
-  DynamoDB Local on :8081).
+  Spring backend running on :8080 — full local stack: `npm run local:up`, `npm run local:shop`,
+  then `npm run local:submission-portal` / `local:admin-portal` (see `local-env/README.md`).
 - `environment.ts` (prod) points at the AWS API Gateway execute-api URL.
 - `proxy.conf.json` files exist in both apps but are NOT wired into `angular.json`; the apps
   call `environment.apiUrl` directly. Don't assume the proxy is active.
@@ -48,8 +48,14 @@ npm run watch          # dev rebuild on change
   owner-confirmed and intentional: `HANDLED`="Umówiono" (appointment booked),
   `APPOINTMENT_MADE`="Zakończono" (visit done) — the enum name misleads; never swap the labels.
 - Admin API contract: `/api/internal/login`, `/api/internal/repair-request/{search,{id},
-  {id}/mark-as-handled,{id}/mark-as-appointment-made}`, `/api/internal/unavailable-day` —
+  {id}/appointment,{id}/mark-as-appointment-made}`, `/api/internal/unavailable-day` —
   defined in `shop/`'s controllers; models under `src/app/models/` mirror shop's DTOs.
+  `{id}/appointment` (body `{ appointmentAt }`, required) replaced `mark-as-handled`: the
+  workshop always provides the visit time (NEW → HANDLED, or change on HANDLED).
+- **Timestamps are UTC** `LocalDateTime` without offset. Admin portal helpers live in
+  `src/app/commons/utc-date-time.ts` (`parseUtc` for display, `toUtcDateTime` for sending).
+  Appointment picker (`components/appointment-form/`) mirrors shop's `AppointmentTimePolicy`:
+  working day, not an unavailable day, any minute 08:00–16:00, in the future.
 
 ## Pitfalls
 

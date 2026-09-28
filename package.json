@@ -6,6 +6,16 @@
     "install:admin-portal": "npm --prefix repair-requests-portal run install:prod",
     "install:scraper": "npm --prefix car-parts-scraper install",
     "scrape": "npm --prefix car-parts-scraper run scrape",
-    "build:scraper": "npm --prefix car-parts-scraper run build"
+    "build:scraper": "npm --prefix car-parts-scraper run build",
+    "local:up": "./local-env/up.sh",
+    "local:down": "docker compose -f local-env/docker-compose.yml down",
+    "local:lambdas": "./local-env/deploy-lambdas.sh",
+    "local:shop": "./local-env/run-shop.sh",
+    "local:submission-portal": "npm --prefix submission-portal start",
+    "local:admin-portal": "npm --prefix repair-requests-portal start",
+    "local:submit-via-lambda": "./local-env/submit-via-lambda.sh",
+    "local:scan": "./local-env/aws-local.sh dynamodb scan --table-name repair_request --output json",
+    "local:emails": "curl -s http://localhost:8025/emails",
+    "local:notifications": "./local-env/aws-local.sh sqs receive-message --queue-url http://localhost:4566/009160054371/local-notifications --max-number-of-messages 10 --query Messages[].Body --output text"
   }
 }

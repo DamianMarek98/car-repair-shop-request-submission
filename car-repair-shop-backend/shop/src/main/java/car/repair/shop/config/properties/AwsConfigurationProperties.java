@@ -24,4 +24,10 @@ public class AwsConfigurationProperties {
 
     private String endpoint;
 
+    /**
+     * Local only: SES v2 endpoint when it differs from {@link #endpoint} (LocalStack community has
+     * no SES v2, so local e-mails go to the local-env mail sink). Falls back to {@link #endpoint}.
+     */
+    private String sesEndpoint;
+
 }

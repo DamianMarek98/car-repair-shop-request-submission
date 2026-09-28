@@ -1,0 +1,39 @@
+# Local end-to-end environment: AWS emulated by LocalStack, SES v2 e-mails captured by mail-sink.
+# Nothing here talks to real AWS. See local-env/README.md.
+name: renocar-local
+
+services:
+  localstack:
+    # Pinned; this setup is verified on 3.8 (the shop integration tests pin 3.2 separately).
+    image: localstack/localstack:3.8
+    container_name: renocar-localstack
+    ports:
+      - "4566:4566"
+    environment:
+      SERVICES: dynamodb,dynamodbstreams,lambda,sns,sqs,logs,iam,sts
+      # Lambda containers join this network so they can reach LocalStack.
+      LAMBDA_DOCKER_NETWORK: renocar-local
+      # Java cold starts inside LocalStack are slow; don't let the runtime give up early.
+      LAMBDA_RUNTIME_ENVIRONMENT_TIMEOUT: "60"
+    volumes:
+      - ./init/ready.d:/etc/localstack/init/ready.d:ro
+      # LocalStack starts each Lambda as a sibling container.
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - renocar-local
+
+  # Captures SES v2 e-mails (LocalStack community only emulates SES v1). UI: http://localhost:8025
+  mail-sink:
+    image: python:3.12-alpine
+    container_name: renocar-mail-sink
+    command: ["python", "-u", "/app/mail_sink.py"]
+    ports:
+      - "8025:8025"
+    volumes:
+      - ./mail-sink:/app:ro
+    networks:
+      - renocar-local
+
+networks:
+  renocar-local:
+    name: renocar-local
