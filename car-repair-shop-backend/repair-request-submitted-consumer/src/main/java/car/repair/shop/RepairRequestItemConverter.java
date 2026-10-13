@@ -4,13 +4,17 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
+import java.security.SecureRandom;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 public class RepairRequestItemConverter {
+    private static final SecureRandom RANDOM = new SecureRandom();
+    private static final int TRACKING_TOKEN_BYTES = 32;
 
     private RepairRequestItemConverter() {
     }
@@ -39,8 +43,16 @@ public class RepairRequestItemConverter {
         item.put("review_email_consent", numberAttribute(submitRepairRequestDto.reviewEmailConsent()));
         item.put("submittedAt", stringAttribute(ZonedDateTime.now(ZoneId.of("UTC")).toLocalDateTime().toString()));
         item.put("status_value", stringAttribute("NEW"));
+        // secret for the customer's status link - mirrors shop's TrackingToken.generate()
+        item.put("tracking_token", stringAttribute(generateTrackingToken()));
         item.put("preferred_visit_windows", stringAttribute(objectMapper.writeValueAsString(timeSlots)));
         return item;
+    }
+
+    static String generateTrackingToken() {
+        byte[] bytes = new byte[TRACKING_TOKEN_BYTES];
+        RANDOM.nextBytes(bytes);
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
     }
 
     private static AttributeValue stringAttribute(String value) {

@@ -38,6 +38,19 @@ npm run watch          # dev rebuild on change
   description ≤ 500, phone pattern, `atLeastOneFieldNotNull(['vin','plateNumber'])`, rodo
   required) — backend sources of truth: `SubmitRepairRequestDto` in both
   `car-repair-shop-backend/repair-request-submitted-consumer/` and `shop/`.
+- **submission-portal status page** (`/status/:token`, read-only, opened from e-mail links):
+  `src/app/status/` — `status-view.ts` is the pure view-model (one map entry per backend
+  status: chip, headline, subline, timeline), `status.component` holds the loading /
+  not-found / error / ready states, plus small header / footer / summary / details components
+  (split to stay under the 4 kB per-component CSS budget). API:
+  `GET {apiUrl}/public/repair-request/status/{token}` via `services/status-service.ts`; model
+  `models/repair-request-status.ts` mirrors shop's `PublicRepairRequestStatusDto` (VIN, phone,
+  e-mail arrive **already masked** — render as-is). Styling follows the Claude Design mockups
+  (see `submission-portal/STATUS-PAGE-PLAN.md` §2) using the `--motrio-*` / `--st-*` tokens in
+  `src/styles.css`. Dates: backend timestamps are UTC (`commons/utc-date-time.ts`), visit
+  windows are local days; Polish formatting is done with `Intl` inside the page — the app's
+  global locale is deliberately untouched. The page sets its own title and a `noindex` robots
+  tag; the token is a secret, never log it.
 - **repair-requests-portal** (admin): auth in `src/app/auth-guard.ts` +
   `auth-interceptor.interceptor.ts` (JWT from `localStorage['access_token']`, cleared on 401);
   services in `src/app/service/` (note: singular `service/` here vs `services/` in the other

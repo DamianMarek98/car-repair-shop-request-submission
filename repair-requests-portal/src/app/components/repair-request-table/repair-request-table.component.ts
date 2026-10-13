@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { RepairRequestListItem } from '../../models/repair-request-list-item';
 import { RepairRequestService } from '../../service/repair-request-service';
 import { StatusMapper } from '../../commons/status-mapper';
+import { parseUtc } from '../../commons/utc-date-time';
 import {MatProgressSpinner} from "@angular/material/progress-spinner";
 
 
@@ -19,7 +20,7 @@ import {MatProgressSpinner} from "@angular/material/progress-spinner";
   styleUrl: './repair-request-table.component.css'
 })
 export class RepairRequestTableComponent implements OnInit, AfterViewInit {
-  displayedColumns: string[] = ['firstName', 'lastName', 'vin', 'plateNumber', 'status', 'submittedAt'];
+  displayedColumns: string[] = ['firstName', 'lastName', 'vin', 'plateNumber', 'status', 'appointmentAt', 'submittedAt'];
   dataSource = new MatTableDataSource<RepairRequestListItem>([]);
   pageSize: number = 10;
   numberOfElements: number = 0;
@@ -88,8 +89,6 @@ export class RepairRequestTableComponent implements OnInit, AfterViewInit {
     if (!datetime) {
       return '';
     }
-    const adjustedDateString = datetime.replace(/\.\d+/, '');
-    const utcDate = new Date(adjustedDateString + 'Z');
-    return this.datePipe.transform(utcDate, 'medium', Intl.DateTimeFormat().resolvedOptions().timeZone);
+    return this.datePipe.transform(parseUtc(datetime), 'medium', Intl.DateTimeFormat().resolvedOptions().timeZone);
   }
 }

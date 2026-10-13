@@ -21,6 +21,8 @@ public record RepairRequestDto(String id,
                                List<PreferredVisitWindowDto> preferredVisitWindows,
                                LocalDateTime submittedAt,
                                LocalDateTime handledAt,
+                               LocalDateTime appointmentAt,
+                               LocalDateTime completedAt,
                                RepairRequestStatus status) {
 
     public static RepairRequestDto from(RepairRequest repairRequest, List<PreferredVisitWindowDto> preferredVisitWindows) {
@@ -39,6 +41,8 @@ public record RepairRequestDto(String id,
                 preferredVisitWindows,
                 repairRequest.getSubmittedAt(),
                 repairRequest.getHandledAt(),
+                repairRequest.getAppointmentAt(),
+                repairRequest.getCompletedAt(),
                 repairRequest.getStatus());
     }
 }

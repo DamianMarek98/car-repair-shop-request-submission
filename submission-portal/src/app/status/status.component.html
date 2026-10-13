@@ -1,0 +1,54 @@
+<div class="page">
+  <app-status-header [title]="state === 'ready' ? 'Twoje zgłoszenie' : 'Status zgłoszenia'"
+    [submittedOn]="state === 'ready' ? view!.submittedOn : null"></app-status-header>
+
+  <div class="main" [ngSwitch]="state">
+    <section class="state-card" *ngSwitchCase="'loading'" role="status">
+      <span class="spinner" aria-hidden="true"></span>
+      <p class="state-text">Wczytujemy zgłoszenie…</p>
+    </section>
+
+    <section class="state-card" *ngSwitchCase="'not-found'">
+      <span class="material-icons state-icon" aria-hidden="true">link_off</span>
+      <h1 class="state-title">Link wygasł lub jest nieprawidłowy</h1>
+      <p class="state-text">Link do śledzenia zgłoszenia jest ważny 90 dni od wizyty. Sprawdź, czy skopiowałeś cały
+        adres z wiadomości e-mail.</p>
+      <div class="state-actions">
+        <a class="btn btn-primary" href="tel:585201914">Zadzwoń: (58) 520-19-14</a>
+        <a class="btn btn-secondary" routerLink="/">
+          <span class="narrow-only">Wypełnij nowe zgłoszenie</span><span class="wide-only">Nowe zgłoszenie</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="state-card" *ngSwitchCase="'error'" role="alert">
+      <span class="material-icons state-icon" aria-hidden="true">error_outline</span>
+      <h1 class="state-title">Nie udało się wczytać zgłoszenia</h1>
+      <p class="state-text">Spróbuj ponownie za chwilę lub zadzwoń do warsztatu.</p>
+      <div class="state-actions">
+        <button type="button" class="btn btn-primary" (click)="load()">Spróbuj ponownie</button>
+        <a class="btn btn-secondary" href="tel:585201914">Zadzwoń: (58) 520-19-14</a>
+      </div>
+    </section>
+
+    <div class="layout" *ngSwitchCase="'ready'">
+      <div class="main-col">
+        <app-status-summary [view]="view!"></app-status-summary>
+        <app-status-details [request]="request!" [view]="view!"></app-status-details>
+      </div>
+
+      <aside class="side-col">
+        <section class="contact">
+          <h2 class="contact-title">Kontakt z warsztatem</h2>
+          <p class="contact-text">{{ view!.completed ? 'Masz pytanie? Zadzwoń do nas.' : 'Masz pytanie lub chcesz zmienić termin? Zadzwoń do nas.' }}</p>
+          <a class="btn btn-primary btn-block" href="tel:585201914">
+            <span class="material-icons" aria-hidden="true">call</span>Zadzwoń: (58) 520-19-14
+          </a>
+          <p class="contact-hours">pon.–pt. 8:00–16:00</p>
+        </section>
+      </aside>
+    </div>
+  </div>
+
+  <app-status-footer></app-status-footer>
+</div>

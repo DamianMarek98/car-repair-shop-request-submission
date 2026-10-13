@@ -32,9 +32,18 @@ npm run watch         # ng build --watch --configuration development
 - `src/app/repair-request-submission/` — the whole form (single feature component):
   reactive form, custom cross-field validator `atLeastOneFieldNotNull(['vin','plateNumber'])`,
   time-slot picking, RODO consent.
+- `src/app/status/` — the customer's **status page** (`/status/:token`, read-only, opened from
+  the link in confirmation / "Termin wizyty" e-mails). `status-view.ts` = pure view-model
+  (chip, headline, subline, timeline per backend status — extend its map for new statuses),
+  `status.component` = loading / not-found / error / ready, plus header / footer / summary /
+  details sub-components (kept separate for the 4 kB component-CSS budget). Follows the Claude
+  Design mockups; plan, decisions and what is deliberately left out: `STATUS-PAGE-PLAN.md`.
 - `src/app/services/` — `repair-request-service` (POST submit), `unavailable-days-service`
-  (fetch blocked days for the date picker).
-- `src/app/models/` — `repair-request.ts`, `unavailable-day.ts`.
+  (fetch blocked days for the date picker), `status-service` (GET public status by token).
+- `src/app/models/` — `repair-request.ts`, `unavailable-day.ts`, `repair-request-status.ts`
+  (mirrors shop's `PublicRepairRequestStatusDto`).
+- `src/app/commons/utc-date-time.ts` — backend timestamps are UTC without offset; visit-window
+  dates are local calendar days (never shift them).
 - `src/app/app.routes.ts`, `app.config.ts` / `app.config.server.ts` — standalone bootstrap.
 
 ## Conventions & pitfalls
@@ -48,6 +57,11 @@ npm run watch         # ng build --watch --configuration development
   like `rodo`: it is a freely-given RODO consent, and a required "optional" consent is invalid
   consent. It still has to exist in both backend `SubmitRepairRequestDto`s.
 - UI copy is **Polish** — keep new user-facing text Polish.
+- **Status page rules:** personal data arrives masked from the API — never try to "unmask" or
+  add fields client-side; the token in the URL is a secret (no logging, no analytics on it);
+  keep the `noindex` robots tag; only a 404 means "link invalid" — other errors show the retry
+  view. Don't set a global `LOCALE_ID` for it (the form's date handling depends on the
+  default); the page formats Polish dates with `Intl`.
 - SSR is configured (`main.server.ts`, `server.ts`); avoid direct `window`/`document` access
   outside browser-guarded code.
 - Standalone components only — there are no NgModules; imports go on the component.

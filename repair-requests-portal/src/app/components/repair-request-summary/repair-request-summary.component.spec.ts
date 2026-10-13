@@ -31,6 +31,8 @@ describe('RepairRequestSummaryComponent', () => {
       preferredVisitWindows: [],
       submittedAt: '2026-07-01T10:00:00',
       handledAt: '2026-07-02T10:00:00',
+      appointmentAt: '2026-07-03T07:00:00',
+      completedAt: null,
       status: 'HANDLED',
       ...overrides
     };
@@ -143,11 +145,11 @@ describe('RepairRequestSummaryComponent', () => {
     }
 
     it('should disable the button and show a spinner until the request finishes', () => {
-      renderWith(repairRequest({ status: 'NEW' }));
+      renderWith(repairRequest({ status: 'NEW', appointmentAt: null }));
       const pending = new Subject<void>();
-      spyOn(repairRequestService, 'markRepairRequestAsHandled').and.returnValue(pending.asObservable());
+      spyOn(repairRequestService, 'setAppointment').and.returnValue(pending.asObservable());
 
-      actionButton().click();
+      component.setAppointment('2026-09-23T07:00:00');
       fixture.detectChanges();
 
       expect(component.actionInProgress).toBeTrue();
@@ -188,11 +190,11 @@ describe('RepairRequestSummaryComponent', () => {
     });
 
     it('should re-enable the button and warn when the action fails', () => {
-      renderWith(repairRequest({ status: 'NEW' }));
-      spyOn(repairRequestService, 'markRepairRequestAsHandled')
+      renderWith(repairRequest({ status: 'NEW', appointmentAt: null }));
+      spyOn(repairRequestService, 'setAppointment')
         .and.returnValue(throwError(() => new Error('network down')));
 
-      component.markRepairRequestAsHandled();
+      component.setAppointment('2026-09-23T07:00:00');
       fixture.detectChanges();
 
       expect(component.actionInProgress).toBeFalse();
@@ -215,14 +217,69 @@ describe('RepairRequestSummaryComponent', () => {
     });
 
     it('should clear a previous failure when the action is retried', () => {
-      renderWith(repairRequest({ status: 'NEW' }));
+      renderWith(repairRequest({ status: 'NEW', appointmentAt: null }));
       component.actionFailed = true;
-      spyOn(repairRequestService, 'markRepairRequestAsHandled')
+      spyOn(repairRequestService, 'setAppointment')
         .and.returnValue(new Subject<void>().asObservable());
 
-      component.markRepairRequestAsHandled();
+      component.setAppointment('2026-09-23T07:00:00');
 
       expect(component.actionFailed).toBeFalse();
+    });
+  });
+
+  describe('appointment', () => {
+    it('should offer the appointment form instead of a plain button for a new request', () => {
+      renderWith(repairRequest({ status: 'NEW', appointmentAt: null }));
+
+      expect(fixture.nativeElement.querySelector('app-appointment-form')).toBeTruthy();
+      expect(fixture.nativeElement.textContent).toContain('Umów wizytę');
+      expect(fixture.nativeElement.textContent).not.toContain('Obsłużone');
+    });
+
+    it('should send the chosen time and reload the request', () => {
+      renderWith(repairRequest({ status: 'NEW', appointmentAt: null }));
+      const spy = spyOn(repairRequestService, 'setAppointment').and.returnValue(of(undefined));
+
+      component.setAppointment('2026-09-23T07:00:00');
+
+      expect(spy).toHaveBeenCalledWith('request-id', '2026-09-23T07:00:00');
+      expect(repairRequestService.getRepairRequest).toHaveBeenCalledTimes(2);
+      expect(component.actionInProgress).toBeFalse();
+    });
+
+    it('should show the booked time and let the receptionist change it', () => {
+      renderWith(repairRequest({ status: 'HANDLED' }));
+
+      expect(fixture.nativeElement.textContent).toContain('Termin wizyty:');
+      expect(fixture.nativeElement.querySelector('app-appointment-form')).toBeNull();
+
+      (fixture.nativeElement.querySelector('button.change-appointment-button') as HTMLButtonElement).click();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('app-appointment-form')).toBeTruthy();
+      expect(fixture.nativeElement.textContent).toContain('Zapisz nowy termin');
+    });
+
+    it('should close the change form after a successful change', () => {
+      renderWith(repairRequest({ status: 'HANDLED' }));
+      spyOn(repairRequestService, 'setAppointment').and.returnValue(of(undefined));
+      component.changingAppointment = true;
+
+      component.setAppointment('2026-09-24T12:00:00');
+
+      expect(component.changingAppointment).toBeFalse();
+    });
+
+    it('should keep the change form open when the change fails', () => {
+      renderWith(repairRequest({ status: 'HANDLED' }));
+      spyOn(repairRequestService, 'setAppointment').and.returnValue(throwError(() => new Error('400')));
+      component.changingAppointment = true;
+
+      component.setAppointment('2026-09-24T12:00:00');
+
+      expect(component.changingAppointment).toBeTrue();
+      expect(component.actionFailed).toBeTrue();
     });
   });
 });

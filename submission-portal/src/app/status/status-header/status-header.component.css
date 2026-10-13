@@ -1,0 +1,27 @@
+:host { display: block; }
+
+.header { padding: 14px 16px 16px; background: var(--motrio-navy); text-align: center; }
+.logo img { width: 100%; max-width: 220px; vertical-align: middle; }
+.header-title { padding-top: 10px; color: #fff; font: 600 15px/22px var(--motrio-font); }
+.header-meta { color: rgba(255, 255, 255, .62); font: 400 12px/18px var(--motrio-font); }
+a { color: inherit; }
+a:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.wide-only { display: none; }
+
+@media (min-width: 900px) {
+  .wide-only { display: inline; }
+  .header { padding: 0 28px; text-align: left; }
+  .header-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 16px 0;
+  }
+  .logo img { width: auto; max-width: none; height: 46px; }
+  .header-text { text-align: right; }
+  .header-title { padding-top: 0; }
+}

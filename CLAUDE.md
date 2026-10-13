@@ -38,6 +38,13 @@ npm run build:admin-portal          # prod build admin portal
 npm run install:scraper             # install scraper deps
 npm run build:scraper               # build scraper
 # npm run scrape is BROKEN — targets a nonexistent src/scraper.ts; run vendor scrapers directly
+
+# Local end-to-end environment (LocalStack + e-mail capture; never real AWS) — see local-env/README.md
+npm run local:up                    # LocalStack, tables/stream/SNS, builds + deploys all 3 Lambdas
+npm run local:shop                  # shop backend :8080 (profile local)
+npm run local:submission-portal     # :4200   |  npm run local:admin-portal  # :4201 (renocar / 12345)
+# captured e-mails: http://localhost:8025   |  npm run local:down
+npm run local:status-links          # prints every request's local status-page link (/status/{token})
 ```
 
 Per-module:

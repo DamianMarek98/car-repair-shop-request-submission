@@ -1,16 +1,37 @@
-# Compiled class file
+# Only source code belongs in this repo. Build output, dependencies, IDE files, local tool
+# state and anything holding credentials is ignored here; modules may add their own rules.
+
+# --- Secrets -------------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+# production Spring config - lives only in the owner's notes (see shop/CLAUDE.md)
+car-repair-shop-backend/shop/src/main/resources/application.properties
+
+# --- OS / editors --------------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+# Eclipse / Java language-server project files
+.classpath
+.project
+.settings/
+.factorypath
+.apt_generated
+
+# --- Java (Maven / Gradle) -----------------------------------------------------------------
 *.class
+target/
+dependency-reduced-pom.xml
+.gradle/
+/car-repair-shop-backend/**/build/
+!/car-repair-shop-backend/**/src/**/build/
 
-# Log file
-*.log
-
-# BlueJ files
-*.ctxt
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
+# Package files
 *.jar
 *.war
 *.nar
@@ -18,7 +39,40 @@
 *.zip
 *.tar.gz
 *.rar
+# ...except the Gradle wrapper, which a fresh clone needs to run ./gradlew
+!**/gradle/wrapper/gradle-wrapper.jar
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+# Logs and JVM crash dumps
+*.log
+*.ctxt
+.mtj.tmp/
 hs_err_pid*
 replay_pid*
+
+# --- Node / Angular ------------------------------------------------------------------------
+node_modules/
+.angular/
+# the root package.json only orchestrates scripts and has no dependencies
+/package-lock.json
+
+# --- Python (car-repair-shop-ai-chat) ------------------------------------------------------
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# --- car-parts-scraper ---------------------------------------------------------------------
+# persistent logged-in browser profiles (vendor session cookies), one per vendor
+.browser-data*/
+
+# --- renocar-win-package -------------------------------------------------------------------
+# Generated Windows bundle (built dist/, node.exe, node_modules/, copied package.json) - see
+# .claude/skills/refresh-win-package. Its dist/ has held real vendor credentials. Only the
+# hand-written launcher is source.
+/renocar-win-package/*
+!/renocar-win-package/start.bat
+
+# --- Local tool state ----------------------------------------------------------------------
+.playwright-mcp/
+.claude/settings.local.json

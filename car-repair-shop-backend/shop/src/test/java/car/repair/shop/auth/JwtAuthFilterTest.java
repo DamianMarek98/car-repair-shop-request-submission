@@ -196,6 +196,11 @@ class JwtAuthFilterTest {
     }
 
     @Test
+    void shouldNotFilter_shouldReturnTrue_givenPublicApiPath() {
+        assertWhitelistedPath("/api/public/repair-request/status/some-token");
+    }
+
+    @Test
     void shouldNotFilter_shouldReturnFalse_givenNonWhitelistedPath() {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.setRequestURI("/api/other");

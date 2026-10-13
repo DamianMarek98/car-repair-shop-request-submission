@@ -100,6 +100,7 @@ class MarkAsAppointmentMadeIntegrationTest extends RepairRequestIntegrationTest 
         Optional<RepairRequest> repairRequestAfterOperation = repairRequestRepository.findById(repairRequest.getId());
         assertThat(repairRequestAfterOperation).isPresent();
         assertThat(repairRequestAfterOperation.get().getStatus()).isEqualTo(APPOINTMENT_MADE);
+        assertThat(repairRequestAfterOperation.get().getCompletedAt()).isNotNull();
     }
 
     @Test

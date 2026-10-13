@@ -57,8 +57,12 @@ handler (`RequestHandler<DynamodbEvent, String>`):
   enable `-ea`.
 - Email body is Polish, UTF-8 explicit on both subject and body — verify diacritics if you
   touch the copy.
-- No status-link placeholder in the email body — Feature 12 (tokenised status page) doesn't
-  exist yet; don't add a link that 404s.
+- **Status link** (Feature 12, 2026-10): the body links to
+  `{base}/status/{tracking_token}` when the stream NEW_IMAGE carries `tracking_token`
+  (written by the consumer Lambda and by shop's `RepairRequest.from`). No token → no link,
+  never a broken one. The base URL defaults to `https://renocar-zgloszenie.pl`; the optional
+  `STATUS_PAGE_BASE_URL` env var exists **only** for `local-env` (→ `http://localhost:4200`) —
+  don't set it in AWS. The token is a secret: it must never be logged (there is a test for it).
 - **Sends to test submissions too, deliberately.** The sibling SNS notifier suppresses its
   shop-facing alert when `submitter_first_name` is exactly `"test"` (2026-07-31), so staff
   can poke the live form without spamming the shop inbox. This lambda has **no such filter**

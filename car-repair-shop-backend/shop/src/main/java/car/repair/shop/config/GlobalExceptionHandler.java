@@ -9,6 +9,7 @@ import car.repair.shop.repair.request.exception.RepairRequestValidationException
 import jakarta.validation.ValidationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -33,6 +34,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<String> handleConstraintViolationException(ValidationException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<String> handleHttpMessageNotReadableException() {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Malformed request body");
     }
 
     @ExceptionHandler(RepairRequestStateException.class)

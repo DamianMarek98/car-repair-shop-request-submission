@@ -9,13 +9,15 @@ import { MatListModule } from '@angular/material/list';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { ActivatedRoute } from '@angular/router';
 import { StatusMapper } from '../../commons/status-mapper';
+import { parseUtc } from '../../commons/utc-date-time';
 import { RepairRequest } from '../../models/repair-request';
 import { RepairRequestService } from '../../service/repair-request-service';
+import { AppointmentFormComponent } from '../appointment-form/appointment-form.component';
 
 @Component({
   selector: 'app-repair-request-summary',
   standalone: true,
-  imports: [MatCardModule, CommonModule, MatFormFieldModule, MatDividerModule, MatListModule, MatButtonModule, MatCheckboxModule, MatProgressSpinner],
+  imports: [MatCardModule, CommonModule, MatFormFieldModule, MatDividerModule, MatListModule, MatButtonModule, MatCheckboxModule, MatProgressSpinner, AppointmentFormComponent],
   providers: [DatePipe],
   templateUrl: './repair-request-summary.component.html',
   styleUrl: './repair-request-summary.component.css'
@@ -27,6 +29,7 @@ export class RepairRequestSummaryComponent implements OnInit {
   reviewEmailFailed: boolean = false;
   actionInProgress: boolean = false;
   actionFailed: boolean = false;
+  changingAppointment: boolean = false;
 
   @Input()
   set id(id: string) {
@@ -59,13 +62,17 @@ export class RepairRequestSummaryComponent implements OnInit {
     return StatusMapper.mapStatusToChipClass(status);
   }
 
-  markRepairRequestAsHandled() {
+  /** Books the visit (NEW) or changes its time (HANDLED); `appointmentAt` is UTC. */
+  setAppointment(appointmentAt: string) {
     if (this.actionInProgress) {
       return;
     }
     this.startAction();
-    this.repairRequestService.markRepairRequestAsHandled(this.repairRequestId).subscribe({
-      next: () => this.finishAction(),
+    this.repairRequestService.setAppointment(this.repairRequestId, appointmentAt).subscribe({
+      next: () => {
+        this.changingAppointment = false;
+        this.finishAction();
+      },
       error: () => this.failAction()
     });
   }
@@ -115,8 +122,6 @@ export class RepairRequestSummaryComponent implements OnInit {
     if (!datetime) {
       return '';
     }
-    const adjustedDateString = datetime.replace(/\.\d+/, '');
-    const utcDate = new Date(adjustedDateString + 'Z');
-    return this.datePipe.transform(utcDate, 'medium', Intl.DateTimeFormat().resolvedOptions().timeZone);
+    return this.datePipe.transform(parseUtc(datetime), 'medium', Intl.DateTimeFormat().resolvedOptions().timeZone);
   }
 }

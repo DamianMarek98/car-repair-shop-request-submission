@@ -25,8 +25,14 @@ Gateway execute-api URL). `proxy.conf.json` is not wired into `angular.json` —
 - `src/app/auth-guard.ts` — route guard; `src/app/auth-interceptor.interceptor.ts` — adds
   `Authorization: Bearer <token>` from `localStorage['access_token']`, clears it on 401.
 - `src/app/service/` — `auth-service` (login → token), `repair-request-service`
-  (`/internal/repair-request`: `/search` paginated list, get by id, `/mark-as-handled`,
+  (`/internal/repair-request`: `/search` paginated list, get by id, `/appointment`
+  (`{ appointmentAt }` UTC, required — replaced `/mark-as-handled`),
   `/mark-as-appointment-made`), `unavailable-days-service`.
+- `src/app/components/appointment-form/` — date + time picker used for "Umów wizytę" (NEW)
+  and "Zmień termin" (HANDLED). Mirrors shop's `AppointmentTimePolicy`: working day, not an
+  unavailable day, any minute 08:00–16:00, in the future.
+- `src/app/commons/utc-date-time.ts` — backend timestamps are UTC `LocalDateTime` without
+  offset: `parseUtc` for display (browser time zone), `toUtcDateTime` for sending.
 - `src/app/components/` — `login`, `repair-request-table` (paginated list),
   `repair-request-summary` (detail + status actions), `unavailable-days`.
 - `src/app/commons/status-mapper.ts` — maps backend `RepairRequestStatus` enum values
@@ -41,8 +47,9 @@ Gateway execute-api URL). `proxy.conf.json` is not wired into `angular.json` —
 - Note the service dir is `service/` here but `services/` in submission-portal — follow the
   local convention of the app you're in.
 - UI copy is Polish; keep it Polish.
-- Status flow mirrors the backend state machine: NEW → HANDLED → APPOINTMENT_MADE (marking
-  appointment-made also marks handled server-side). Don't invent client-side states.
+- Status flow mirrors the backend state machine: NEW → HANDLED (via `/appointment`, visit
+  time required) → APPOINTMENT_MADE (marking appointment-made also marks handled server-side).
+  Don't invent client-side states.
 - `mark-as-appointment-made` takes a body (`{ sendReviewEmail }`) and returns
   `CloseRepairRequestResult`. The checkbox is **hidden** when `reviewEmailConsent` is false —
   that is a UX affordance only; the backend re-checks the stored consent and ignores the flag

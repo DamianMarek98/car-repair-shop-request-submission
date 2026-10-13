@@ -1,0 +1,31 @@
+<form class="appointment-form" [formGroup]="form" (ngSubmit)="submit()">
+    <div class="appointment-fields">
+        <mat-form-field appearance="outline" class="date-field">
+            <mat-label>Data wizyty</mat-label>
+            <input matInput [matDatepicker]="picker" [matDatepickerFilter]="dateFilter" [min]="today"
+                formControlName="date" [readonly]="busy">
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+            <mat-error *ngIf="form.controls.date.hasError('required')">Wybierz datę</mat-error>
+            <mat-error *ngIf="form.controls.date.hasError('matDatepickerFilter')">Warsztat nieczynny w tym dniu</mat-error>
+            <mat-error *ngIf="form.controls.date.hasError('matDatepickerMin')">Data nie może być w przeszłości</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="time-field">
+            <mat-label>Godzina</mat-label>
+            <input matInput type="time" [min]="opensAt" [max]="closesAt" formControlName="time" [readonly]="busy">
+            <mat-error *ngIf="form.controls.time.hasError('required')">Podaj godzinę</mat-error>
+            <mat-error *ngIf="form.controls.time.hasError('openingHours')">Od {{ opensAt }} do {{ closesAt }}</mat-error>
+        </mat-form-field>
+    </div>
+
+    <div class="appointment-error" *ngIf="inPast">Termin wizyty musi być w przyszłości.</div>
+
+    <div class="appointment-actions">
+        <button mat-raised-button type="submit" class="action-button" [disabled]="busy" [attr.aria-busy]="busy">
+            <mat-spinner *ngIf="busy" diameter="18"></mat-spinner>
+            <span>{{ submitLabel }}</span>
+        </button>
+        <button mat-button type="button" class="cancel-button" *ngIf="cancellable" [disabled]="busy" (click)="cancelled.emit()">Anuluj</button>
+    </div>
+</form>

@@ -3,3 +3,34 @@
 
 html, body { height: 100%; }
 body { margin: 0; font-family: 'Poppins', Arial, sans-serif; }
+
+/* Motrio design tokens for the status page (STATUS-PAGE-PLAN.md §2.6).
+   Naming mirrors repair-requests-portal/src/styles.css - copied, the apps share no code. */
+:root {
+  --motrio-navy: #282b3e;
+  --motrio-navy-dark: #1f2230;
+  --motrio-red: #e00008;
+  --motrio-red-hover: #b80006;
+  --motrio-surface: #f4f5f7;
+  --motrio-card: #ffffff;
+  --motrio-text: #272626;
+  --motrio-text-muted: #5c6270;
+  --motrio-border: #d0d0d0;
+  --motrio-divider: #edeef1;
+  --motrio-radius: 8px;
+  --motrio-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08);
+  --motrio-font: 'Poppins', Arial, sans-serif;
+  /* state palettes: chip background / text / border */
+  --st-warn-bg: #fff8e6;
+  --st-warn-fg: #8a6d00;
+  --st-warn-border: #d9b84a;
+  --st-ok-bg: #eef8f1;
+  --st-ok-fg: #1e7e34;
+  --st-ok-border: #8ecb9f;
+  --st-err-bg: #fdecea;
+  --st-err-fg: #8c1d18;
+  --st-err-border: #e2a8a2;
+  --st-done-bg: #f4f6f8;
+  --st-done-fg: #546e7a;
+  --st-done-border: #aeb9c1;
+}

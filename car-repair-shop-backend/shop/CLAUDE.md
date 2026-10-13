@@ -15,11 +15,18 @@ mvn test       # unit + integration tests; integration tests REQUIRE Docker
 mvn package    # runs tests, then maven-shade-plugin -> target/lambda-shaded.jar (Lambda artifact)
 ```
 
-Local run: start `ShopApplication` with `SPRING_PROFILES_ACTIVE=local` (IDE run config is
-simplest; `spring-boot-maven-plugin` is not declared in `<build>`, so `mvn spring-boot:run`
-prefix resolution may fail). The `local` profile (`src/main/resources/application-local.properties`)
-expects DynamoDB Local on `http://localhost:8081`; table-creation CLI commands are in
-`src/main/resources/dynamodb/*.txt`. A Postman collection lives in `src/main/resources/postman/`.
+Local run: start the local environment first (`npm run local:up` from the repo root —
+LocalStack + mail sink, see `local-env/README.md`), then `npm run local:shop` (wraps
+`spring-boot-maven-plugin:3.3.1:run` by full coordinates, since the pom doesn't declare it) or
+`ShopApplication` from the IDE with `SPRING_PROFILES_ACTIVE=local`. The `local` profile
+(`src/main/resources/application-local.properties`) points DynamoDB at LocalStack `:4566` and
+SES at the mail sink `:8025` (`ses-endpoint`), so **local runs never send real e-mail**.
+Tables are created by `local-env/init/ready.d/10-resources.sh`; the old
+`src/main/resources/dynamodb/*.txt` CLI notes are superseded. A Postman collection lives in
+`src/main/resources/postman/`.
+
+If a test fails with "Unresolved compilation problem", an IDE language server compiled
+`target/` without Lombok — run `mvn clean test`.
 
 ## Configuration (names only — never commit real values)
 
@@ -36,13 +43,25 @@ facades/events, never internals** (e.g. `availability.UnavailableDayFacade`):
 - `availability/` — unavailable appointment days; `UnavailableDayFacade` is the public API;
   REST at `/api/internal/unavailable-day`.
 - `repair/request/` — the domain core. Command handlers (`SubmitNewRepairRequestHandler`,
-  `MarkAsHandledCommandHandler`, `MarkAsAppointmentMadeCommandHandler`), query handlers,
+  `SetAppointmentCommandHandler`, `MarkAsAppointmentMadeCommandHandler`), query handlers,
   State pattern for status transitions (`RepairRequestState` + `NewRepairRequest` /
   `HandledRepairRequest` / `AppointmentMadeRepairRequest`, built by `RepairRequestStateFactory`),
   Spring events in `events/`. REST: public `POST /api/repair-request/submit`,
-  admin `/api/internal/repair-request/**` (search, get, mark-as-handled, mark-as-appointment-made).
+  admin `/api/internal/repair-request/**` (search, get, appointment, mark-as-appointment-made).
+  `POST {id}/appointment {appointmentAt}` replaced `mark-as-handled`: the visit time is
+  required, validated by `AppointmentTimePolicy` (future, working day, not an unavailable day,
+  08:00–16:00 **Europe/Warsaw**), and triggers the "Termin wizyty" e-mail.
+- **Public status API** (`/api/public/repair-request/status/{token}`, no auth,
+  `RepairRequestPublicController` → `RepairRequestPublicStatusQueryHandler`): the customer's
+  status page. Looks the request up by `tracking_token` on GSI `TrackingTokenIndex`, returns
+  the allowlisted `PublicRepairRequestStatusDto` with VIN/phone/e-mail masked
+  (`PersonalDataMask`), `Cache-Control: no-store`. Unknown, malformed and expired tokens (90
+  days after completion) all return the identical `404 {"message":"Not found"}`. The token is
+  a secret — never log or return it. See `submission-portal/STATUS-PAGE-PLAN.md`.
+- **Timestamps are UTC** `LocalDateTime` without offset (`appointment_at`, `completed_at`,
+  `handled_at`, `submittedAt`, …). Only e-mails format them, in `Europe/Warsaw`.
 - `notification/` — customer-facing e-mails sent from the monolith. `NotificationFacade` is
-  the **only** public type; `ReviewRequestEmailSender` (SESv2, Polish copy) and `SesConfig`
+  the **only** public type; `ReviewRequestEmailSender`, `AppointmentEmailSender` (SESv2, Polish copy) and `SesConfig`
   (`SesV2Client` bean, `eu-north-1`, `url-connection-client`) are package-private. The facade
   never throws — a SES outage must not fail the action that triggered the e-mail.
 - `commons/` — shared `DomainEvent`, `PhoneNumberPattern`, DynamoDB type converters
@@ -52,7 +71,8 @@ facades/events, never internals** (e.g. `availability.UnavailableDayFacade`):
 
 DynamoDB tables: `repair_request` (hash key `id`; GSI `SubmittedAtIndex` on constant
 `dummyPartitionKey="DUMMY"` + range `submittedAt` — this is how listing sorted by submission
-date works, keep it) and `unavailable_day`.
+date works, keep it; GSI `TrackingTokenIndex` on `tracking_token`, projection ALL — the
+status-page lookup, sparse because older rows have no token) and `unavailable_day`.
 
 ## Kept-in-sync duplication (critical)
 
@@ -140,12 +160,14 @@ Keys it must define (all consumed at startup):
 | `car.repair.shop.aws.username` / `.password` | `SecurityConfig:32,35` | admin portal login |
 | `car.repair.shop.aws.jwt-secret-key` | `JwtHelper:25` | changing it logs all sessions out once |
 | `car.repair.shop.aws.access-key` / `.secret-access-key` | `AwsConfigurationProperties` | `@NotBlank` only — the prod `amazonDynamoDB` bean (`@Profile("!local && !test")`) ignores them and uses the execution role. Any non-blank placeholder works |
-| `car.repair.shop.aws.endpoint` | `DynamoDBConfig` | **leave unset in prod** — blank means real AWS; a value is LocalStack-only |
+| `car.repair.shop.aws.endpoint` | `DynamoDBConfig`, `SesConfig` | **leave unset in prod** — blank means real AWS; a value is LocalStack-only (and also redirects SES) |
+| `car.repair.shop.aws.ses-endpoint` | `SesConfig` | **leave unset in prod** — local only, the mail sink; falls back to `endpoint` |
+| `car.repair.shop.status-page-base-url` | `AppointmentEmailSender` | **leave unset in prod** — defaults to `https://renocar-zgloszenie.pl`; local profile sets `http://localhost:4200` so e-mailed status links open the local page |
 
 `application-local.properties` (committed) is the **`local` profile** file and holds fake
-values — `us-west-2`, `localhost:8081`, `renocar`/`12345`. **Never ship it as
-`application.properties`:** the region alone breaks every DynamoDB call, and it would publish
-working admin credentials plus the JWT signing key.
+values — LocalStack `localhost:4566`, mail sink `localhost:8025`, `renocar`/`12345`. **Never ship it as
+`application.properties`:** its endpoints point every DynamoDB and SES call at localhost, and it
+would publish working admin credentials plus the JWT signing key.
 
 Verify before uploading: `unzip -p target/lambda-shaded.jar application.properties` — if that
 prints nothing, the deploy will 502.

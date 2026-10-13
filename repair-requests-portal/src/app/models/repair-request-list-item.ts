@@ -6,4 +6,5 @@ export interface RepairRequestListItem {
     plateNumber: string, 
     status: string;
     submittedAt: string;
+    appointmentAt: string | null;
 }

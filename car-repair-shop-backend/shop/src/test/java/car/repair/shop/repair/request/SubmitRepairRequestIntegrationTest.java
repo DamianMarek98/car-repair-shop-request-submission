@@ -72,6 +72,7 @@ class SubmitRepairRequestIntegrationTest extends RepairRequestIntegrationTest {
         assertNotNull(result.getSubmittedAt());
         assertNull(result.getHandledAt());
         assertThat(result.getStatus()).isEqualTo(RepairRequestStatus.NEW);
+        assertThat(result.getTrackingToken()).matches("[A-Za-z0-9_-]{43}");
         repairRequestRepository.delete(result);
     }
 

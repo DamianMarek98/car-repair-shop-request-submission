@@ -64,3 +64,11 @@ mat-card-title {
 .action-button .mat-mdc-progress-spinner {
     --mdc-circular-progress-active-indicator-color: var(--motrio-red);
 }
+
+.appointment-section {
+    padding-bottom: 12px;
+}
+
+.appointment-section + mat-divider {
+    margin-bottom: 12px;
+}

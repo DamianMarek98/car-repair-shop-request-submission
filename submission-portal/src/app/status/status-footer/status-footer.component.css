@@ -1,0 +1,27 @@
+:host { display: block; }
+
+.footer {
+  padding: 12px 16px 14px;
+  background: var(--motrio-navy);
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, .2);
+  color: #fff;
+  font: 400 14px/21px var(--motrio-font);
+  text-align: center;
+}
+a { color: inherit; }
+a:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.wide-only { display: none; }
+
+@media (min-width: 900px) {
+  .wide-only { display: inline; }
+  .footer { padding: 18px 28px; text-align: left; }
+  .footer-inner {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 20px;
+    max-width: 1120px;
+    margin: 0 auto;
+  }
+  .footer-contact { text-align: right; }
+}

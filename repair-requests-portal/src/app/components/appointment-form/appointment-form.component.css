@@ -1,0 +1,36 @@
+.appointment-fields {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.date-field {
+    flex: 1 1 200px;
+}
+
+.time-field {
+    flex: 0 1 140px;
+}
+
+.appointment-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.appointment-error {
+    color: #8c1d18;
+    font-size: 13px;
+    padding-bottom: 8px;
+}
+
+.action-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Disabled buttons lose the Motrio red fill, so keep the spinner red for contrast. */
+.action-button .mat-mdc-progress-spinner {
+    --mdc-circular-progress-active-indicator-color: var(--motrio-red);
+}

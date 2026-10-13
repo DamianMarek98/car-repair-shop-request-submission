@@ -1,6 +1,6 @@
 package car.repair.shop.repair.request;
 
-import car.repair.shop.repair.request.exception.RepairRequestStateException;
+import java.time.LocalDateTime;
 
 class HandledRepairRequest extends RepairRequestState {
     public HandledRepairRequest(RepairRequest repairRequest) {
@@ -8,8 +8,8 @@ class HandledRepairRequest extends RepairRequestState {
     }
 
     @Override
-    void markAsHandled() {
-        throw new RepairRequestStateException("Cannot handle already handled repair request");
+    void setAppointment(LocalDateTime appointmentAt) {
+        repairRequest.setAppointment(appointmentAt);
     }
 
     @Override

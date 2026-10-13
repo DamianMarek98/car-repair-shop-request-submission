@@ -95,6 +95,7 @@ class RepairRequestSubmittedHandlerTest {
         assertThat(item.get("rodo").n()).isEqualTo("1");
         assertThat(item.get("review_email_consent").n()).isEqualTo("0");
         assertThat(item.get("status_value").s()).isEqualTo("NEW");
+        assertThat(item.get("tracking_token").s()).matches("[A-Za-z0-9_-]{43}");
         assertNotNull(item.get("submittedAt"));
         assertThat(item.get("submittedAt").s()).isNotEmpty();
         assertNotNull(item.get("preferred_visit_windows"));

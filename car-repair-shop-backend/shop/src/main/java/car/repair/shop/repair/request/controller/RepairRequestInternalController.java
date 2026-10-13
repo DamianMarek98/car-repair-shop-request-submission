@@ -1,13 +1,14 @@
 package car.repair.shop.repair.request.controller;
 
 import car.repair.shop.repair.request.MarkAsAppointmentMadeCommandHandler;
-import car.repair.shop.repair.request.MarkAsHandledCommandHandler;
 import car.repair.shop.repair.request.RepairRequestGetQueryHandler;
 import car.repair.shop.repair.request.SearchRepairRequestHandler;
+import car.repair.shop.repair.request.SetAppointmentCommandHandler;
 import car.repair.shop.repair.request.controller.dto.CloseRepairRequestCommand;
 import car.repair.shop.repair.request.controller.dto.CloseRepairRequestResult;
 import car.repair.shop.repair.request.controller.dto.RepairRequestDto;
 import car.repair.shop.repair.request.controller.dto.RepairRequestListItem;
+import car.repair.shop.repair.request.controller.dto.SetAppointmentCommand;
 import car.repair.shop.repair.request.query.SearchRepairRequestQuery;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -22,7 +23,7 @@ public class RepairRequestInternalController {
 
     private final SearchRepairRequestHandler searchRepairRequestHandler;
     private final RepairRequestGetQueryHandler repairRequestGetQueryHandler;
-    private final MarkAsHandledCommandHandler markAsHandledCommandHandler;
+    private final SetAppointmentCommandHandler setAppointmentCommandHandler;
     private final MarkAsAppointmentMadeCommandHandler markAsAppointmentMadeCommandHandler;
 
     @GetMapping("/search")
@@ -40,10 +41,15 @@ public class RepairRequestInternalController {
         return repairRequestGetQueryHandler.getById(id);
     }
 
-    @PostMapping("/{id}/mark-as-handled")
+    /**
+     * Books the visit (NEW -> HANDLED) or changes the time of a booked one. Replaces the former
+     * {@code mark-as-handled}: the workshop must always provide the visit time.
+     */
+    @PostMapping("/{id}/appointment")
     @ResponseStatus(code = HttpStatus.OK)
-    public void markRepairRequestAsHandled(@PathVariable String id) {
-        markAsHandledCommandHandler.handle(id);
+    public void setAppointment(@PathVariable String id,
+                               @RequestBody(required = false) SetAppointmentCommand command) {
+        setAppointmentCommandHandler.handle(id, command);
     }
 
     @PostMapping("/{id}/mark-as-appointment-made")

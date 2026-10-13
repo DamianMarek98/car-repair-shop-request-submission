@@ -11,7 +11,8 @@ ROLE_ARN="arn:aws:iam::009160054371:role/local-lambda"
 # Explicit so the SDK clients inside the Lambda containers always hit LocalStack, in the same
 # account as the resources (LocalStack otherwise hands Lambdas the default 000000000000 keys).
 # SES v2 goes to the mail sink - LocalStack community has no SES v2.
-LAMBDA_ENV="Variables={AWS_ENDPOINT_URL=http://renocar-localstack:4566,AWS_ENDPOINT_URL_SESV2=http://renocar-mail-sink:8025,AWS_ACCESS_KEY_ID=009160054371,AWS_SECRET_ACCESS_KEY=test}"
+# STATUS_PAGE_BASE_URL makes the confirmation e-mail link to the local submission-portal.
+LAMBDA_ENV="Variables={AWS_ENDPOINT_URL=http://renocar-localstack:4566,AWS_ENDPOINT_URL_SESV2=http://renocar-mail-sink:8025,AWS_ACCESS_KEY_ID=009160054371,AWS_SECRET_ACCESS_KEY=test,STATUS_PAGE_BASE_URL=http://localhost:4200}"
 
 CONSUMER_DIR="$BACKEND/repair-request-submitted-consumer"
 NOTIFICATION_DIR="$BACKEND/new-repair-request-notification-lambda"

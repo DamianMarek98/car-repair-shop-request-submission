@@ -27,8 +27,9 @@ export class RepairRequestService {
         return this.http.get<RepairRequest>(this.apiUrl + '/' + id);
     }
 
-    markRepairRequestAsHandled(id: string): Observable<void> {
-        return this.http.post<void>(this.apiUrl + '/' + id + '/mark-as-handled', {});
+    /** Books the visit (NEW) or changes its time (HANDLED). `appointmentAt` is UTC without offset. */
+    setAppointment(id: string, appointmentAt: string): Observable<void> {
+        return this.http.post<void>(this.apiUrl + '/' + id + '/appointment', { appointmentAt });
     }
 
     markRepairRequestAsAppointmentMade(id: string, sendReviewEmail: boolean): Observable<CloseRepairRequestResult> {

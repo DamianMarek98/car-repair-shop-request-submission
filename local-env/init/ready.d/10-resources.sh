@@ -18,6 +18,7 @@ awslocal iam create-role --role-name local-lambda \
 
 echo "[renocar] creating DynamoDB tables"
 # Mirrors @DynamoDBTable RepairRequest: hash key id, GSI SubmittedAtIndex (listing sorted by date),
+# GSI TrackingTokenIndex (status-page lookup by the link's secret; sparse - old rows have no token),
 # stream for the two stream Lambdas (production streams NEW_IMAGE at least; both images is a superset).
 awslocal dynamodb create-table \
   --table-name repair_request \
@@ -25,6 +26,7 @@ awslocal dynamodb create-table \
       AttributeName=id,AttributeType=S \
       AttributeName=dummyPartitionKey,AttributeType=S \
       AttributeName=submittedAt,AttributeType=S \
+      AttributeName=tracking_token,AttributeType=S \
   --key-schema AttributeName=id,KeyType=HASH \
   --billing-mode PAY_PER_REQUEST \
   --global-secondary-indexes '[{
@@ -32,6 +34,12 @@ awslocal dynamodb create-table \
       "KeySchema": [
         {"AttributeName": "dummyPartitionKey", "KeyType": "HASH"},
         {"AttributeName": "submittedAt", "KeyType": "RANGE"}
+      ],
+      "Projection": {"ProjectionType": "ALL"}
+    },{
+      "IndexName": "TrackingTokenIndex",
+      "KeySchema": [
+        {"AttributeName": "tracking_token", "KeyType": "HASH"}
       ],
       "Projection": {"ProjectionType": "ALL"}
     }]' \

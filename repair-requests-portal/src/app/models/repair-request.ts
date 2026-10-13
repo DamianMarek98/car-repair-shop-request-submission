@@ -15,5 +15,7 @@ export interface RepairRequest {
     preferredVisitWindows: PreferredVisitWindowDto[];
     submittedAt: string;
     handledAt: string;
+    appointmentAt: string | null;
+    completedAt: string | null;
     status: string;
   }

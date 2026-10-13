@@ -1,0 +1,24 @@
+<span class="chip" [ngClass]="'chip--' + view.palette">{{ view.chipLabel }}</span>
+
+<h1 class="headline">{{ view.headline }}</h1>
+<p class="subline" *ngIf="view.subline">{{ view.subline }}</p>
+
+<ol class="steps" aria-label="Etapy zgłoszenia">
+  <li class="step" *ngFor="let step of view.steps" [class.step--done]="step.done"
+    [attr.aria-current]="step.current ? 'step' : null">
+    <div class="track">
+      <span class="line line--left" *ngIf="step.lineLeftDone !== null" [class.line--done]="step.lineLeftDone"></span>
+      <span class="line line--right" *ngIf="step.lineRightDone !== null" [class.line--done]="step.lineRightDone"></span>
+      <span class="dot">
+        <span class="material-icons" aria-hidden="true" *ngIf="step.done">check</span>
+      </span>
+    </div>
+    <span class="step-label">{{ step.label }}<span class="sr-only">{{ step.done ? ' — ukończono' : ' — oczekuje' }}</span></span>
+  </li>
+</ol>
+
+<p class="banner" *ngIf="view.completed">
+  Dziękujemy za wizytę. Szczegóły naprawy przekazujemy telefonicznie oraz przy odbiorze samochodu.
+  Masz pytanie do naprawy? Zadzwoń pod <a href="tel:585201914">(58) 520-19-14</a>
+  lub zajrzyj na <a href="https://renocar.pl/kontakt/">stronę kontaktową</a>.
+</p>

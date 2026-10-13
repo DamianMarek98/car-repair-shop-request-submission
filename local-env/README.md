@@ -24,7 +24,7 @@ with empty tables.
 
 | Component | Local | Notes |
 |---|---|---|
-| DynamoDB `repair_request` (+ `SubmittedAtIndex`, stream), `unavailable_day` | LocalStack `:4566` | created by `init/ready.d/10-resources.sh` |
+| DynamoDB `repair_request` (+ `SubmittedAtIndex`, `TrackingTokenIndex`, stream), `unavailable_day` | LocalStack `:4566` | created by `init/ready.d/10-resources.sh` |
 | `shop` | host `:8080`, profile `local` | `application-local.properties` |
 | Consumer Lambda (production submit path) | LocalStack Lambda | not used by the local form (see below); call it with `local:submit-via-lambda` |
 | Notification Lambda → SNS | LocalStack Lambda, triggered by the stream | the SNS topic delivers to SQS queue `local-notifications` |
@@ -51,6 +51,10 @@ curl -X DELETE localhost:8025/emails            # clear the mail sink
 - **Everyday flow:** submit on `:4200` → the stream fires the confirmation e-mail and the SNS
   notification → the request shows on `:4201` → "Umów wizytę" → a "Termin wizyty" e-mail →
   "Wizyta odbyta" → a review e-mail (if the customer consented).
+- **Status page:** the confirmation and "Termin wizyty" e-mails at `:8025` contain a
+  `http://localhost:4200/status/{token}` link (locally they point at the local portal, in
+  production at renocar-zgloszenie.pl). Open it, then change the request in the admin portal
+  and refresh. `npm run local:status-links` prints the link of every request.
 - **Production submit path:** locally the form posts to `shop`'s own
   `/api/repair-request/submit`, while production posts to the consumer Lambda. To test the
   Lambda path: `npm run local:submit-via-lambda -- path/to/dto.json` (defaults to the

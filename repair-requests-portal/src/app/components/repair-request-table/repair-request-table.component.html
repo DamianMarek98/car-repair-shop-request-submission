@@ -28,6 +28,11 @@
             </mat-cell>
         </ng-container>
 
+        <ng-container matColumnDef="appointmentAt">
+            <mat-header-cell *matHeaderCellDef> Termin wizyty </mat-header-cell>
+            <mat-cell *matCellDef="let element"> {{ toBrowserTimeZone(element.appointmentAt) }} </mat-cell>
+        </ng-container>
+
         <ng-container matColumnDef="submittedAt">
             <mat-header-cell *matHeaderCellDef mat-sort-header> Zgłoszono </mat-header-cell>
             <mat-cell *matCellDef="let element"> {{ toBrowserTimeZone(element.submittedAt) }} </mat-cell>

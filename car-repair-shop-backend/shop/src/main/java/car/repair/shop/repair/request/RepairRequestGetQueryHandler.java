@@ -15,7 +15,7 @@ import java.util.Comparator;
 public class RepairRequestGetQueryHandler {
     private final RepairRequestRepository repairRequestRepository;
 
-    private static @NotNull Comparator<PreferredVisitWindowDto> getPreferredVisitWindowDtoComparator() {
+    static @NotNull Comparator<PreferredVisitWindowDto> getPreferredVisitWindowDtoComparator() {
         return (window1, window2) -> {
             var dateResult = window1.date().compareTo(window2.date());
             if (dateResult == 0 && window1.from() != null && window2.from() != null) {

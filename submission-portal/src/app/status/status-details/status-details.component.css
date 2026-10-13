@@ -1,0 +1,62 @@
+:host {
+  display: block;
+  overflow: hidden;
+  background: var(--motrio-card);
+  border-radius: var(--motrio-radius);
+  box-shadow: var(--motrio-shadow);
+}
+
+.title {
+  margin: 0;
+  padding: 16px 16px 10px;
+  color: var(--motrio-navy);
+  font: 600 14px/20px var(--motrio-font);
+  letter-spacing: normal;
+}
+
+/* Phone: one column in the mockup's order (plate, VIN, description, windows, contact data).
+   The rows list dissolves into the column so `order` can interleave the two blocks. */
+.body { display: flex; flex-direction: column; }
+.rows { display: contents; }
+
+.row, .block { padding: 10px 16px; border-top: 1px solid var(--motrio-divider); }
+.row { display: flex; justify-content: space-between; gap: 12px; }
+.block--description { order: 3; }
+.block--windows { order: 4; }
+.row--submitter { order: 5; }
+.row--phone { order: 6; }
+.row--email { order: 7; }
+/* the header already says when it was submitted */
+.row--submitted { display: none; }
+
+dt, .label { flex: none; margin: 0; color: var(--motrio-text-muted); font: 400 13px/20px var(--motrio-font); }
+dd { margin: 0; color: var(--motrio-text); font: 600 13px/20px var(--motrio-font); text-align: right; }
+.break { word-break: break-all; }
+
+.description {
+  margin: 0;
+  padding-top: 4px;
+  font: 400 14px/22px var(--motrio-font);
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.windows { display: flex; flex-direction: column; gap: 4px; margin: 0; padding: 4px 0 0; list-style: none; }
+.window { display: flex; justify-content: space-between; gap: 10px; font: 400 13px/20px var(--motrio-font); }
+.window-date { font-weight: 600; }
+.window-hours { color: var(--motrio-text-muted); }
+
+@media (min-width: 900px) {
+  :host { overflow: visible; padding: 24px 28px; }
+  .title { padding: 0 0 14px; font-size: 16px; line-height: 24px; }
+  .body { display: block; }
+  .rows { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 2px 28px; margin: 0; }
+  /* desktop keeps the document order: plate, VIN, submitter, phone, e-mail, submitted */
+  .row { order: 0; padding: 11px 0; gap: 16px; }
+  .row--submitted { display: flex; }
+  .block { margin-top: 12px; padding: 14px 0 0; }
+  .block--windows { margin-top: 16px; padding-top: 16px; }
+  .description { max-width: 70ch; padding-top: 6px; font-size: 15px; line-height: 24px; }
+  .windows { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; padding-top: 8px; }
+  .window { padding: 10px 14px; border-radius: 6px; background: var(--motrio-surface); }
+}

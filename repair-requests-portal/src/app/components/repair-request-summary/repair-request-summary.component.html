@@ -96,6 +96,13 @@
                         <span matListItemTitle>Zgłoszono:</span>
                         <span matListItemLine>{{ toBrowserTimeZone(repairRequest?.submittedAt) }}</span>
                     </mat-list-item>
+                    <div *ngIf="repairRequest?.appointmentAt">
+                        <mat-divider></mat-divider>
+                        <mat-list-item role="listitem">
+                            <span matListItemTitle>Termin wizyty:</span>
+                            <span matListItemLine>{{ toBrowserTimeZone(repairRequest?.appointmentAt ?? undefined) }}</span>
+                        </mat-list-item>
+                    </div>
                     <div *ngIf="repairRequest?.handledAt">
                         <mat-divider></mat-divider>
                         <mat-list-item role="listitem">
@@ -125,13 +132,24 @@
                     <mat-card-title>Akcje:</mat-card-title>
                 </mat-card-header>
                 <mat-card-content style="padding-top: 1vh;">
-                    <button mat-raised-button class="action-button" *ngIf="repairRequest?.status === 'NEW'"
-                        [disabled]="actionInProgress" [attr.aria-busy]="actionInProgress"
-                        (click)="markRepairRequestAsHandled()">
-                        <mat-spinner *ngIf="actionInProgress" diameter="18"></mat-spinner>
-                        <span>Obsłużone</span>
-                    </button>
+                    <app-appointment-form *ngIf="repairRequest?.status === 'NEW'" submitLabel="Umów wizytę"
+                        [busy]="actionInProgress" (appointmentSubmitted)="setAppointment($event)">
+                    </app-appointment-form>
                     <div *ngIf="repairRequest?.status === 'HANDLED'">
+                        <div class="appointment-section">
+                            <app-appointment-form *ngIf="changingAppointment; else changeAppointmentButton"
+                                submitLabel="Zapisz nowy termin" [appointmentAt]="repairRequest?.appointmentAt ?? null"
+                                [busy]="actionInProgress" [cancellable]="true"
+                                (appointmentSubmitted)="setAppointment($event)" (cancelled)="changingAppointment = false">
+                            </app-appointment-form>
+                            <ng-template #changeAppointmentButton>
+                                <button mat-stroked-button class="change-appointment-button" [disabled]="actionInProgress"
+                                    (click)="changingAppointment = true">
+                                    Zmień termin
+                                </button>
+                            </ng-template>
+                        </div>
+                        <mat-divider></mat-divider>
                         <div *ngIf="canSendReviewEmail(); else noReviewEmailConsent" style="padding-bottom: 1vh;">
                             <mat-checkbox [checked]="sendReviewEmail" [disabled]="actionInProgress"
                                 (change)="sendReviewEmail = $event.checked">

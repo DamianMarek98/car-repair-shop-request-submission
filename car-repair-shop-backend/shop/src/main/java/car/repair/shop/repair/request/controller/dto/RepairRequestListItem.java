@@ -6,7 +6,7 @@ import car.repair.shop.repair.request.RepairRequestStatus;
 import java.time.LocalDateTime;
 
 public record RepairRequestListItem(String id, String vin, String plateNumber, String firstName, String lastName, RepairRequestStatus status,
-                                    LocalDateTime submittedAt) {
+                                    LocalDateTime submittedAt, LocalDateTime appointmentAt) {
 
     public static RepairRequestListItem from(RepairRequest repairRequest) {
         return new RepairRequestListItem(repairRequest.getId(),
@@ -15,6 +15,7 @@ public record RepairRequestListItem(String id, String vin, String plateNumber, S
                 repairRequest.getSubmitterFirstName(),
                 repairRequest.getSubmitterLastName(),
                 repairRequest.getStatus(),
-                repairRequest.getSubmittedAt());
+                repairRequest.getSubmittedAt(),
+                repairRequest.getAppointmentAt());
     }
 }

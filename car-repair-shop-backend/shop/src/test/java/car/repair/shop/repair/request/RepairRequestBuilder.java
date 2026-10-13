@@ -15,6 +15,7 @@ public class RepairRequestBuilder {
     private boolean rodo;
     private boolean reviewEmailConsent;
     private RepairRequestStatus status;
+    private String trackingToken;
 
     RepairRequestBuilder withVin(String vin) {
         this.vin = vin;
@@ -81,9 +82,15 @@ public class RepairRequestBuilder {
         return this;
     }
 
+    RepairRequestBuilder withTrackingToken(String trackingToken) {
+        this.trackingToken = trackingToken;
+        return this;
+    }
+
     RepairRequest build() {
         var repairRequest = new RepairRequest();
         repairRequest.setVin(vin);
+        repairRequest.setPlateNumber(plateNumber);
         repairRequest.setIssueDescription(issueDescription);
         repairRequest.setSubmitterFirstName(firstName);
         repairRequest.setSubmitterLastName(lastName);
@@ -94,6 +101,7 @@ public class RepairRequestBuilder {
         repairRequest.setRodo(rodo);
         repairRequest.setReviewEmailConsent(reviewEmailConsent);
         repairRequest.setStatus(status == null ? RepairRequestStatus.NEW : status);
+        repairRequest.setTrackingToken(trackingToken);
         return repairRequest;
     }
 }

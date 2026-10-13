@@ -26,21 +26,34 @@ public class NewRepairRequestSubmittedEmailNotifier implements RequestHandler<Dy
     private static final String SES_FROM = "info@renocar-zgloszenie.pl";
     private static final String SES_REPLY_TO = "info@renocar.pl";
     private static final String SHOP_PHONE_NUMBER = "58 520 19 14 lub 690 182 354";
+    // Where the customer's status page lives. Overridable only so the local environment can
+    // link to http://localhost:4200 (local-env/deploy-lambdas.sh); production uses the default.
+    private static final String STATUS_PAGE_BASE_URL_ENV = "STATUS_PAGE_BASE_URL";
+    private static final String DEFAULT_STATUS_PAGE_BASE_URL = "https://renocar-zgloszenie.pl";
 
     private final SesV2Client sesClient;
     private final String fromAddress;
     private final String replyTo;
     private final String shopPhoneNumber;
+    private final String statusPageBaseUrl;
 
     public NewRepairRequestSubmittedEmailNotifier() {
-        this(SesV2Client.builder().region(SES_REGION).build(), SES_FROM, SES_REPLY_TO, SHOP_PHONE_NUMBER);
+        this(SesV2Client.builder().region(SES_REGION).build(), SES_FROM, SES_REPLY_TO, SHOP_PHONE_NUMBER,
+                statusPageBaseUrlFromEnvironment());
     }
 
-    public NewRepairRequestSubmittedEmailNotifier(SesV2Client sesClient, String fromAddress, String replyTo, String shopPhoneNumber) {
+    public NewRepairRequestSubmittedEmailNotifier(SesV2Client sesClient, String fromAddress, String replyTo,
+                                                  String shopPhoneNumber, String statusPageBaseUrl) {
         this.sesClient = sesClient;
         this.fromAddress = fromAddress;
         this.replyTo = replyTo;
         this.shopPhoneNumber = shopPhoneNumber;
+        this.statusPageBaseUrl = statusPageBaseUrl;
+    }
+
+    private static String statusPageBaseUrlFromEnvironment() {
+        String configured = System.getenv(STATUS_PAGE_BASE_URL_ENV);
+        return configured == null || configured.isBlank() ? DEFAULT_STATUS_PAGE_BASE_URL : configured;
     }
 
     @Override
@@ -68,13 +81,27 @@ public class NewRepairRequestSubmittedEmailNotifier implements RequestHandler<Dy
         }
         String firstName = attr(newImage, "submitter_first_name");
         String requestId = attr(newImage, "id");
+        String statusUrl = statusUrl(statusPageBaseUrl, attr(newImage, "tracking_token"));
 
+        // the status URL is a secret - never log it
         context.getLogger().log("Sending confirmation email for request " + requestId);
-        sesClient.sendEmail(buildSendEmailRequest(fromAddress, replyTo, email, firstName, requestId, shopPhoneNumber));
+        sesClient.sendEmail(buildSendEmailRequest(fromAddress, replyTo, email, firstName, requestId, shopPhoneNumber, statusUrl));
+    }
+
+    /**
+     * @return the customer's status page URL, or null for a request without a tracking token
+     * (submitted before the status page existed) - the e-mail then simply has no link.
+     */
+    static String statusUrl(String statusPageBaseUrl, String trackingToken) {
+        if (trackingToken == null || trackingToken.isBlank()) {
+            return null;
+        }
+        return statusPageBaseUrl + "/status/" + trackingToken;
     }
 
     static SendEmailRequest buildSendEmailRequest(String fromAddress, String replyTo, String toEmail,
-                                                    String firstName, String requestId, String shopPhoneNumber) {
+                                                    String firstName, String requestId, String shopPhoneNumber,
+                                                    String statusUrl) {
         SendEmailRequest.Builder requestBuilder = SendEmailRequest.builder()
                 .fromEmailAddress(fromAddress)
                 .destination(Destination.builder().toAddresses(toEmail).build())
@@ -83,7 +110,7 @@ public class NewRepairRequestSubmittedEmailNotifier implements RequestHandler<Dy
                                 .subject(Content.builder().data(SUBJECT).charset(CHARSET).build())
                                 .body(Body.builder()
                                         .text(Content.builder()
-                                                .data(buildBody(firstName, requestId, shopPhoneNumber))
+                                                .data(buildBody(firstName, requestId, shopPhoneNumber, statusUrl))
                                                 .charset(CHARSET)
                                                 .build())
                                         .build())
@@ -97,19 +124,24 @@ public class NewRepairRequestSubmittedEmailNotifier implements RequestHandler<Dy
         return requestBuilder.build();
     }
 
-    static String buildBody(String firstName, String requestId, String shopPhoneNumber) {
+    static String buildBody(String firstName, String requestId, String shopPhoneNumber, String statusUrl) {
         String name = firstName == null ? "" : firstName;
+        String statusParagraph = statusUrl == null ? "" : """
+                Status zgłoszenia możesz sprawdzić w każdej chwili tutaj:
+                %s
+
+                """.formatted(statusUrl);
         return """
                 Dzień dobry %s,
 
                 dziękujemy za zgłoszenie naprawy w warsztacie RENO CAR. Otrzymaliśmy Twoje zgłoszenie \
                 (nr %s) i skontaktujemy się z Tobą wkrótce, aby ustalić termin wizyty.
 
-                W razie pytań prosimy o kontakt: tel. %s.
+                %sW razie pytań prosimy o kontakt: tel. %s.
 
                 Pozdrawiamy,
                 Zespół RENO CAR
-                """.formatted(name, requestId, shopPhoneNumber);
+                """.formatted(name, requestId, statusParagraph, shopPhoneNumber);
     }
 
     private static String attr(Map<String, AttributeValue> image, String key) {

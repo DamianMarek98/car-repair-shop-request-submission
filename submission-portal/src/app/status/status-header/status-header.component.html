@@ -1,0 +1,15 @@
+<header class="header">
+  <div class="header-inner">
+    <a class="logo" href="https://renocar.pl/" target="_blank" rel="noopener noreferrer"
+      title="Przejdź do strony RENO CAR">
+      <img src="/logo-motrio-new.png" alt="RENO CAR - Pogwarancyjny Serwis Renault | Motrio">
+    </a>
+    <div class="header-text">
+      <div class="header-title">{{ title }}</div>
+      <div class="header-meta">
+        <ng-container *ngIf="submittedOn">zgłoszono {{ submittedOn }}<span class="wide-only"> · </span></ng-container>
+        <span class="wide-only">tel. <a href="tel:585201914">(58) 520-19-14</a></span>
+      </div>
+    </div>
+  </div>
+</header>

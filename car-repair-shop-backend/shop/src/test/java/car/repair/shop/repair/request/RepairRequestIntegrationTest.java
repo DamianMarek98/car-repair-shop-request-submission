@@ -4,6 +4,8 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.model.CreateTableRequest;
 import com.amazonaws.services.dynamodbv2.model.GlobalSecondaryIndex;
+import com.amazonaws.services.dynamodbv2.model.Projection;
+import com.amazonaws.services.dynamodbv2.model.ProjectionType;
 import com.amazonaws.services.dynamodbv2.model.ProvisionedThroughput;
 import com.amazonaws.services.dynamodbv2.util.TableUtils;
 import jakarta.annotation.PostConstruct;
@@ -55,6 +57,8 @@ abstract class RepairRequestIntegrationTest {
         if (globalSecondaryIndexes != null) {
             for (GlobalSecondaryIndex gsi : globalSecondaryIndexes) {
                 gsi.setProvisionedThroughput(new ProvisionedThroughput(1L, 1L));
+                // generateCreateTableRequest defaults to KEYS_ONLY; production indexes project ALL
+                gsi.setProjection(new Projection().withProjectionType(ProjectionType.ALL));
             }
         }
 

@@ -68,6 +68,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
         return path.equals("/api/internal/login") ||
                 path.equals("/api/repair-request/submit") ||
-                path.equals("/api/internal/unavailable-day/all");
+                path.equals("/api/internal/unavailable-day/all") ||
+                path.startsWith("/api/public/");
     }
 }

@@ -62,6 +62,18 @@ public class RepairRequest {
     @DynamoDBTypeConverted(converter = LocalDateTimeConverter.class)
     private LocalDateTime handledAt;
 
+    @DynamoDBAttribute(attributeName = "appointment_at")
+    @DynamoDBTypeConverted(converter = LocalDateTimeConverter.class)
+    private LocalDateTime appointmentAt;
+
+    @DynamoDBAttribute(attributeName = "completed_at")
+    @DynamoDBTypeConverted(converter = LocalDateTimeConverter.class)
+    private LocalDateTime completedAt;
+
+    // Secret of the customer's status link; looked up through the sparse TrackingTokenIndex GSI
+    @DynamoDBIndexHashKey(attributeName = "tracking_token", globalSecondaryIndexName = "TrackingTokenIndex")
+    private String trackingToken;
+
     @DynamoDBAttribute(attributeName = "status_value")
     @DynamoDBTypeConvertedEnum
     private RepairRequestStatus status;
@@ -101,6 +113,7 @@ public class RepairRequest {
                         .map(PreferredVisitWindow::from)
                         .toList();
         repairRequest.status = RepairRequestStatus.NEW;
+        repairRequest.trackingToken = TrackingToken.generate();
         return repairRequest;
     }
 
@@ -109,7 +122,15 @@ public class RepairRequest {
         status = RepairRequestStatus.HANDLED;
     }
 
+    /**
+     * @param appointmentAt UTC, like every other timestamp on this entity
+     */
+    protected void setAppointment(LocalDateTime appointmentAt) {
+        this.appointmentAt = appointmentAt;
+    }
+
     protected void maskAsAppointmentMade() {
+        completedAt = ZonedDateTime.now(ZoneId.of("UTC")).toLocalDateTime();
         status = RepairRequestStatus.APPOINTMENT_MADE;
     }
 

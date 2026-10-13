@@ -270,9 +270,11 @@ Design notes:
 
 ### 3.3 Email copy (Polish)
 
-No status link — Feature 12 (tokenised status page) doesn't exist yet, so there's nothing to
-link to. Leave a comment marking where it slots in later; don't build a placeholder URL that
-404s today.
+**Status link (added 2026-10 with Feature 12):** when the NEW_IMAGE has a `tracking_token`
+the body gets one extra paragraph — "Status zgłoszenia możesz sprawdzić w każdej chwili tutaj:"
+followed by `https://renocar-zgloszenie.pl/status/{tracking_token}` alone on its line (so
+mail clients auto-link exactly the URL). Requests without a token get the original copy with
+no link. See `submission-portal/STATUS-PAGE-PLAN.md` §3.6.
 
 > **Temat:** Potwierdzenie zgłoszenia naprawy — RENO CAR
 >

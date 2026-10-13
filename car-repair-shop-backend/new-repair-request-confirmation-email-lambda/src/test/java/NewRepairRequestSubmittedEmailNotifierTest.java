@@ -24,6 +24,8 @@ class NewRepairRequestSubmittedEmailNotifierTest {
     private static final String FROM = "no-reply@renocar-zgloszenie.pl";
     private static final String REPLY_TO = "kontakt@renocar-zgloszenie.pl";
     private static final String PHONE = "+48 000 000 000";
+    private static final String STATUS_PAGE = "https://status.example.test";
+    private static final String TRACKING_TOKEN = "6cCU0c9ucsNcOij_M05dpCNSGM2M3nIRIdloHUQzP0Q";
 
     private NewRepairRequestSubmittedEmailNotifier notifier;
     private SesV2Client sesClient;
@@ -37,7 +39,7 @@ class NewRepairRequestSubmittedEmailNotifierTest {
     @BeforeEach
     void setUp() {
         sesClient = mock(SesV2Client.class);
-        notifier = new NewRepairRequestSubmittedEmailNotifier(sesClient, FROM, REPLY_TO, PHONE);
+        notifier = new NewRepairRequestSubmittedEmailNotifier(sesClient, FROM, REPLY_TO, PHONE, STATUS_PAGE);
         when(mockContext.getLogger()).thenReturn(mockLogger);
     }
 
@@ -66,6 +68,68 @@ class NewRepairRequestSubmittedEmailNotifierTest {
         assert sent.content().simple().body().text().data().contains("abc-123");
         assert sent.content().simple().body().text().data().contains("Jan");
         assert sent.content().simple().body().text().charset().equals("UTF-8");
+    }
+
+    @Test
+    void givenInsertWithTrackingTokenShouldLinkToStatusPage() {
+        // Given
+        DynamodbEvent event = insertEvent(Map.of(
+                "email", new AttributeValue("jan.kowalski@example.com"),
+                "submitter_first_name", new AttributeValue("Jan"),
+                "id", new AttributeValue("abc-123"),
+                "tracking_token", new AttributeValue(TRACKING_TOKEN)
+        ));
+
+        // When
+        notifier.handleRequest(event, mockContext);
+
+        // Then
+        ArgumentCaptor<SendEmailRequest> captor = ArgumentCaptor.forClass(SendEmailRequest.class);
+        verify(sesClient).sendEmail(captor.capture());
+        String body = captor.getValue().content().simple().body().text().data();
+        // the URL must sit alone on its line so mail clients auto-link exactly it
+        assert body.contains("\n" + STATUS_PAGE + "/status/" + TRACKING_TOKEN + "\n");
+        assert body.contains("Status zgłoszenia");
+    }
+
+    @Test
+    void givenInsertWithoutTrackingTokenShouldSendWithoutStatusLink() {
+        // Given - a request submitted before the status page existed
+        DynamodbEvent event = insertEvent(Map.of(
+                "email", new AttributeValue("jan.kowalski@example.com"),
+                "submitter_first_name", new AttributeValue("Jan"),
+                "id", new AttributeValue("abc-123")
+        ));
+
+        // When
+        notifier.handleRequest(event, mockContext);
+
+        // Then
+        ArgumentCaptor<SendEmailRequest> captor = ArgumentCaptor.forClass(SendEmailRequest.class);
+        verify(sesClient).sendEmail(captor.capture());
+        String body = captor.getValue().content().simple().body().text().data();
+        assert !body.contains("/status/");
+        assert !body.contains("Status zgłoszenia");
+        assert body.contains("(nr abc-123)");
+        assert body.contains("W razie pytań");
+    }
+
+    @Test
+    void shouldNeverLogTheStatusLink() {
+        // Given - the link is a secret; CloudWatch must not hold it
+        DynamodbEvent event = insertEvent(Map.of(
+                "email", new AttributeValue("jan.kowalski@example.com"),
+                "id", new AttributeValue("abc-123"),
+                "tracking_token", new AttributeValue(TRACKING_TOKEN)
+        ));
+
+        // When
+        notifier.handleRequest(event, mockContext);
+
+        // Then
+        ArgumentCaptor<String> logged = ArgumentCaptor.forClass(String.class);
+        verify(mockLogger, atLeastOnce()).log(logged.capture());
+        assert logged.getAllValues().stream().noneMatch(line -> line.contains(TRACKING_TOKEN));
     }
 
     @Test

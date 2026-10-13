@@ -1,0 +1,45 @@
+<h2 class="title">Szczegóły zgłoszenia</h2>
+
+<div class="body">
+  <dl class="rows">
+    <div class="row" *ngIf="request.plateNumber">
+      <dt>Numer rejestracyjny</dt>
+      <dd>{{ request.plateNumber }}</dd>
+    </div>
+    <div class="row" *ngIf="request.vin">
+      <dt>VIN</dt>
+      <dd class="break">{{ request.vin }}</dd>
+    </div>
+    <div class="row row--submitter">
+      <dt>Zgłaszający</dt>
+      <dd>{{ request.submitterFirstName }}</dd>
+    </div>
+    <div class="row row--phone" *ngIf="request.phoneNumber">
+      <dt>Numer tel.</dt>
+      <dd>{{ request.phoneNumber }}</dd>
+    </div>
+    <div class="row row--email" *ngIf="request.email">
+      <dt>Email</dt>
+      <dd class="break">{{ request.email }}</dd>
+    </div>
+    <div class="row row--submitted">
+      <dt>Zgłoszono</dt>
+      <dd>{{ view.submittedOn }}</dd>
+    </div>
+  </dl>
+
+  <div class="block block--description">
+    <div class="label">Opis zgłoszenia</div>
+    <p class="description">{{ request.issueDescription }}</p>
+  </div>
+
+  <div class="block block--windows" *ngIf="view.windows.length > 0">
+    <div class="label">Preferowane terminy wizyty</div>
+    <ul class="windows">
+      <li class="window" *ngFor="let window of view.windows">
+        <span class="window-date">{{ window.date }}</span>
+        <span class="window-hours" *ngIf="window.hours">{{ window.hours }}</span>
+      </li>
+    </ul>
+  </div>
+</div>

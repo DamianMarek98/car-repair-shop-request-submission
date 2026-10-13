@@ -16,6 +16,7 @@
     "local:submit-via-lambda": "./local-env/submit-via-lambda.sh",
     "local:scan": "./local-env/aws-local.sh dynamodb scan --table-name repair_request --output json",
     "local:emails": "curl -s http://localhost:8025/emails",
-    "local:notifications": "./local-env/aws-local.sh sqs receive-message --queue-url http://localhost:4566/009160054371/local-notifications --max-number-of-messages 10 --query Messages[].Body --output text"
+    "local:notifications": "./local-env/aws-local.sh sqs receive-message --queue-url http://localhost:4566/009160054371/local-notifications --max-number-of-messages 10 --query Messages[].Body --output text",
+    "local:status-links": "./local-env/aws-local.sh dynamodb scan --table-name repair_request --query 'Items[].[submitter_first_name.S,status_value.S,tracking_token.S]' --output text | awk '{print $1\" (\"$2\"): http://localhost:4200/status/\"$3}'"
   }
 }
