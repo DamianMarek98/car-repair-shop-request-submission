@@ -3,7 +3,11 @@ package car.repair.shop.team;
 import car.repair.shop.team.controller.dto.EmployeeCommand;
 import car.repair.shop.team.controller.dto.EmployeeListView;
 import car.repair.shop.team.controller.dto.EmployeeView;
+import car.repair.shop.team.controller.dto.LeaveCommand;
+import car.repair.shop.team.controller.dto.LeaveSaveResult;
+import car.repair.shop.team.controller.dto.LeaveView;
 import car.repair.shop.team.controller.dto.PoolCommand;
+import car.repair.shop.team.controller.dto.YearReport;
 import car.repair.shop.team.exception.TeamErrorCode;
 import car.repair.shop.team.exception.TeamException;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +19,8 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -22,12 +28,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 
 /**
- * Public API of the team module: employees, their yearly leave pools and balances.
+ * Public API of the team module: employees, their yearly leave pools, leave, balances and reports.
  * <p>
  * Validation lives here rather than in Bean Validation annotations, so every rejection carries a
  * {@link TeamErrorCode} the portal can translate. One person edits this data at a time (owner
@@ -129,6 +137,130 @@ public class TeamFacade {
         leavesOf(id).forEach(leave -> leaveRepository.deleteById(leave.getId()));
         employeeRepository.deleteById(id);
         log.info("Deleted employee {} with their leave", id);
+    }
+
+    /**
+     * Leave for the Urlopy screen. Exactly one mode: {@code from}+{@code to} (any employee, overlapping
+     * the range - the calendar asks for its visible grid) or {@code employeeId}+{@code year} (that
+     * employee's leave with at least one working day in the year).
+     */
+    public List<LeaveView> listLeaves(String from, String to, String employeeId, String year) {
+        boolean byRange = from != null && to != null && employeeId == null && year == null;
+        boolean byEmployee = employeeId != null && year != null && from == null && to == null;
+        if (byRange) {
+            var rangeStart = parseQueryDate(from);
+            var rangeEnd = parseQueryDate(to);
+            if (rangeEnd.isBefore(rangeStart)) {
+                throw new TeamException(TeamErrorCode.INVALID_QUERY, "'to' is before 'from'");
+            }
+            return allLeaves().stream()
+                    .filter(leave -> !leave.getStartDate().isAfter(rangeEnd) && !leave.getEndDate().isBefore(rangeStart))
+                    .sorted(Comparator.comparing(Leave::getStartDate).thenComparing(Leave::getEmployeeId))
+                    .map(TeamFacade::leaveView)
+                    .toList();
+        }
+        if (byEmployee) {
+            findEmployee(employeeId);
+            int leaveYear = parseYear(year);
+            return leavesOf(employeeId).stream()
+                    .filter(leave -> WorkingDays.countInYear(leave.getStartDate(), leave.getEndDate(), leaveYear) > 0)
+                    .sorted(Comparator.comparing(Leave::getStartDate))
+                    .map(TeamFacade::leaveView)
+                    .toList();
+        }
+        throw new TeamException(TeamErrorCode.INVALID_QUERY, "Use either from+to or employeeId+year");
+    }
+
+    public LeaveSaveResult createLeave(LeaveCommand command) {
+        if (command.employeeId() == null) {
+            throw new TeamException(TeamErrorCode.EMPLOYEE_NOT_FOUND, "Employee not found");
+        }
+        var employee = findEmployee(command.employeeId());
+        var otherLeaves = leavesOf(employee.getId());
+        LeavePolicy.validate(command.startDate(), command.endDate(), otherLeaves, null, today());
+
+        var leave = new Leave();
+        leave.setEmployeeId(employee.getId());
+        leave.setStartDate(command.startDate());
+        leave.setEndDate(command.endDate());
+        leave.setCreatedAt(nowUtc());
+        leave.setUpdatedAt(leave.getCreatedAt());
+        var saved = leaveRepository.save(leave);
+
+        var years = new TreeSet<>(WorkingDays.countByYear(saved.getStartDate(), saved.getEndDate()).keySet());
+        return saveResult(employee, saved, withSaved(otherLeaves, saved), years);
+    }
+
+    /** Moves the dates of a leave. The employee can't change - delete the leave and add a new one instead. */
+    public LeaveSaveResult updateLeave(String id, LeaveCommand command) {
+        var leave = findLeave(id);
+        if (command.employeeId() != null && !command.employeeId().equals(leave.getEmployeeId())) {
+            throw new TeamException(TeamErrorCode.EMPLOYEE_CHANGE_NOT_ALLOWED, "Leave can't be moved to another employee");
+        }
+        var employee = findEmployee(leave.getEmployeeId());
+        var otherLeaves = leavesOf(employee.getId()).stream().filter(other -> !other.getId().equals(id)).toList();
+        LeavePolicy.validate(command.startDate(), command.endDate(), otherLeaves, id, today());
+
+        // the balance of the years the leave left must be returned too
+        var years = new TreeSet<>(WorkingDays.countByYear(leave.getStartDate(), leave.getEndDate()).keySet());
+        leave.setStartDate(command.startDate());
+        leave.setEndDate(command.endDate());
+        leave.setUpdatedAt(nowUtc());
+        var saved = leaveRepository.save(leave);
+
+        years.addAll(WorkingDays.countByYear(saved.getStartDate(), saved.getEndDate()).keySet());
+        return saveResult(employee, saved, withSaved(otherLeaves, saved), years);
+    }
+
+    public void deleteLeave(String id) {
+        findLeave(id);
+        leaveRepository.deleteById(id);
+    }
+
+    /** @param year 4-digit year, or null/blank for the current year */
+    public YearReport yearReport(String employeeId, String year) {
+        var employee = findEmployee(employeeId);
+        var today = today();
+        int reportYear = year == null || year.isBlank() ? today.getYear() : parseYear(year);
+        return YearReportBuilder.build(employee, leavesOf(employeeId), reportYear, today);
+    }
+
+    /**
+     * Balances come from the in-memory list (other leave + the saved one), not a fresh scan: a DynamoDB
+     * scan right after a write is only eventually consistent and could miss the row just saved.
+     */
+    private LeaveSaveResult saveResult(Employee employee, Leave saved, List<Leave> leavesAfterSave, SortedSet<Integer> years) {
+        var today = today();
+        var balances = years.stream()
+                .map(year -> LeaveBalanceCalculator.balance(employee, leavesAfterSave, year, today))
+                .toList();
+        var warnings = LeavePolicy.poolWarnings(employee, leavesAfterSave, saved.getStartDate(), saved.getEndDate(), today);
+        return new LeaveSaveResult(leaveView(saved), balances, warnings);
+    }
+
+    private static List<Leave> withSaved(List<Leave> otherLeaves, Leave saved) {
+        var leaves = new ArrayList<>(otherLeaves);
+        leaves.add(saved);
+        return leaves;
+    }
+
+    private static LeaveView leaveView(Leave leave) {
+        var byYear = WorkingDays.countByYear(leave.getStartDate(), leave.getEndDate());
+        int total = byYear.values().stream().mapToInt(Integer::intValue).sum();
+        return new LeaveView(leave.getId(), leave.getEmployeeId(), leave.getStartDate(), leave.getEndDate(), total, byYear);
+    }
+
+    private static LocalDate parseQueryDate(String value) {
+        try {
+            return LocalDate.parse(value.trim());
+        } catch (DateTimeParseException e) {
+            throw new TeamException(TeamErrorCode.INVALID_QUERY, "Dates must be YYYY-MM-DD");
+        }
+    }
+
+    private Leave findLeave(String id) {
+        return leaveRepository.findById(id)
+                .orElseThrow(() -> new TeamException(TeamErrorCode.LEAVE_NOT_FOUND, "Leave not found"));
     }
 
     /**

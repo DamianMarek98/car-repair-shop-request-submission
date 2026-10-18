@@ -15,6 +15,7 @@
     "local:admin-portal": "npm --prefix repair-requests-portal start",
     "local:submit-via-lambda": "./local-env/submit-via-lambda.sh",
     "local:scan": "./local-env/aws-local.sh dynamodb scan --table-name repair_request --output json",
+    "local:seed-team": "node local-env/seed-team.mjs",
     "local:emails": "curl -s http://localhost:8025/emails",
     "local:notifications": "./local-env/aws-local.sh sqs receive-message --queue-url http://localhost:4566/009160054371/local-notifications --max-number-of-messages 10 --query Messages[].Body --output text"
   }

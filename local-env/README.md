@@ -58,6 +58,22 @@ curl -X DELETE localhost:8025/emails            # clear the mail sink
 - **The notification Lambda skips a request whose first name is exactly `test`**, as in
   production.
 
+## Zespół i Urlopy (team & leave panels)
+
+The expected numbers in `spec/05-team-and-leave-plan.md` §6.0 need a fixed "today" and seed data:
+
+```bash
+npm run local:up                                            # fresh, empty tables
+CAR_REPAIR_SHOP_CLOCK_FIXEDDATE=2026-11-02 npm run local:shop   # backend thinks today is Mon 2 Nov 2026
+npm run local:seed-team                                     # 8 workers + their leave, via the API
+```
+
+- The fixed date works **only in the `local` profile** (`ClockConfig`); time still moves from
+  midnight of that day. Without the variable the shop uses the real date.
+- The seed refuses to run when employees already exist. Re-seed with `local:down` + `local:up`.
+  It prints every `POOL_EXCEEDED` warning; the scenario has exactly one (Joanna, 2026, −2).
+- Inspect: `./local-env/aws-local.sh dynamodb scan --table-name employee` (or `employee_leave`).
+
 ## After changing code
 
 - A Lambda: `npm run local:lambdas` rebuilds and redeploys all three (tests skipped). Use

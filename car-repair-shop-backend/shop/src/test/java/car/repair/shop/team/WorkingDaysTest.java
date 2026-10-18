@@ -3,9 +3,9 @@ package car.repair.shop.team;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 
 class WorkingDaysTest {
 
@@ -39,7 +39,8 @@ class WorkingDaysTest {
     void leaveOverNewYear_isSplitByCalendarYear() {
         var byYear = WorkingDays.countByYear(LocalDate.of(2026, 12, 28), LocalDate.of(2027, 1, 8));
 
-        assertThat(byYear).containsExactlyEntriesOf(Map.of(2026, 4, 2027, 6));
+        // a SortedMap: years in order (Map.of would compare in a random order)
+        assertThat(byYear).containsExactly(entry(2026, 4), entry(2027, 6));
     }
 
     @Test
@@ -47,7 +48,7 @@ class WorkingDaysTest {
         // Fri 31 Dec 2027 - Sun 2 Jan 2028: the 2028 part is weekend only, so 2028 is not listed
         var byYear = WorkingDays.countByYear(LocalDate.of(2027, 12, 31), LocalDate.of(2028, 1, 2));
 
-        assertThat(byYear).containsExactlyEntriesOf(Map.of(2027, 1));
+        assertThat(byYear).containsExactly(entry(2027, 1));
     }
 
     @Test

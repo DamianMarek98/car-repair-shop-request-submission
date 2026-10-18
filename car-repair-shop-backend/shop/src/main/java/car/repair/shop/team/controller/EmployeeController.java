@@ -5,6 +5,7 @@ import car.repair.shop.team.controller.dto.EmployeeCommand;
 import car.repair.shop.team.controller.dto.EmployeeListView;
 import car.repair.shop.team.controller.dto.EmployeeView;
 import car.repair.shop.team.controller.dto.PoolCommand;
+import car.repair.shop.team.controller.dto.YearReport;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -49,5 +50,12 @@ public class EmployeeController {
     @ResponseStatus(code = HttpStatus.NO_CONTENT)
     public void delete(@PathVariable String id) {
         teamFacade.deleteEmployee(id);
+    }
+
+    /** Raport roczny: one employee's year summary (defaults to the current year). */
+    @GetMapping("/{id}/report")
+    @ResponseStatus(code = HttpStatus.OK)
+    public YearReport report(@PathVariable String id, @RequestParam(required = false) String year) {
+        return teamFacade.yearReport(id, year);
     }
 }

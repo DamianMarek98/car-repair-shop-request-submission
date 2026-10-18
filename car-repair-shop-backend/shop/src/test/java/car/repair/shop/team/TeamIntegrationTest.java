@@ -21,6 +21,8 @@ import org.testcontainers.utility.DockerImageName;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Base for team-module integration tests: LocalStack DynamoDB with both team tables, emptied before
@@ -75,6 +77,25 @@ abstract class TeamIntegrationTest {
     void emptyTables() {
         leaveRepository.deleteAll();
         employeeRepository.deleteAll();
+    }
+
+    /** Writes an employee straight to the table; {@code typedPools} as year → days. */
+    Employee givenEmployee(String firstName, String lastName, int defaultDays, Map<String, Integer> typedPools) {
+        var employee = new Employee();
+        employee.setFirstName(firstName);
+        employee.setLastName(lastName);
+        employee.setDefaultAnnualDays(defaultDays);
+        employee.setAnnualDaysByYear(new HashMap<>(typedPools));
+        employee.setColorIndex(0);
+        return employeeRepository.save(employee);
+    }
+
+    Leave givenLeave(Employee employee, String start, String end) {
+        var leave = new Leave();
+        leave.setEmployeeId(employee.getId());
+        leave.setStartDate(LocalDate.parse(start));
+        leave.setEndDate(LocalDate.parse(end));
+        return leaveRepository.save(leave);
     }
 
     @TestConfiguration

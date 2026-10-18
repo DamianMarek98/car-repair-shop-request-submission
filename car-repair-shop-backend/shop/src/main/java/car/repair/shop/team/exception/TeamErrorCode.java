@@ -11,7 +11,21 @@ public enum TeamErrorCode {
     EMPLOYEE_NOT_FOUND(HttpStatus.NOT_FOUND),
     INVALID_NAME(HttpStatus.BAD_REQUEST),
     INVALID_POOL(HttpStatus.BAD_REQUEST),
-    INVALID_YEAR(HttpStatus.BAD_REQUEST);
+    INVALID_YEAR(HttpStatus.BAD_REQUEST),
+
+    LEAVE_NOT_FOUND(HttpStatus.NOT_FOUND),
+    /** Missing dates, end before start, or longer than the sanity limit. */
+    INVALID_RANGE(HttpStatus.BAD_REQUEST),
+    /** The range holds only Saturdays and Sundays. */
+    NO_WORKING_DAYS(HttpStatus.UNPROCESSABLE_ENTITY),
+    /** Ends after the end of next year - the planning horizon. */
+    TOO_FAR_AHEAD(HttpStatus.UNPROCESSABLE_ENTITY),
+    /** Overlaps another leave of the same employee (adjacent ranges are fine). */
+    LEAVE_OVERLAP(HttpStatus.CONFLICT),
+    /** A leave can't be moved to another employee - delete it and add a new one. */
+    EMPLOYEE_CHANGE_NOT_ALLOWED(HttpStatus.BAD_REQUEST),
+    /** Leave listing needs either from+to or employeeId+year. */
+    INVALID_QUERY(HttpStatus.BAD_REQUEST);
 
     private final HttpStatus status;
 }
