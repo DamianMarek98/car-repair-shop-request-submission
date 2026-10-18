@@ -108,3 +108,64 @@ a {
   color: #546e7a;
   border-color: #aeb9c1;
 }
+
+/* ===== Team panels (Zespół / Urlopy / Raport) - shared, kept global so each component stays
+   under the 4 kB per-component style budget in angular.json ===== */
+.panel-card {
+  background: var(--motrio-card);
+  border-radius: var(--motrio-radius);
+  box-shadow: var(--motrio-shadow);
+  overflow: hidden;
+}
+
+.panel-card__title {
+  background: var(--motrio-navy);
+  color: #ffffff;
+  min-height: 56px;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.panel-chip {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 14px;
+  border-radius: 14px;
+  background: #eef1f4;
+  border: 1px solid #c5ccd4;
+  font-size: 13px;
+  font-weight: 700;
+  color: #4f6073;
+  white-space: nowrap;
+}
+
+.panel-chip--negative {
+  color: #b4152b;
+  border-color: #e7a3ad;
+  background: #fbe9ec;
+}
+
+.panel-error {
+  color: #b4152b;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.panel-muted {
+  color: #5b6577;
+}
+
+.panel-link {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--motrio-navy);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}

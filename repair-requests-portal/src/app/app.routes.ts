@@ -10,5 +10,7 @@ export const routes: Routes = [
     { path: 'table-component', component: RepairRequestTableComponent, canActivate: [AuthGuard] },
     { path: '', component: RepairRequestTableComponent, canActivate: [AuthGuard] },
     { path: 'repair-request/:id', component: RepairRequestSummaryComponent, canActivate: [AuthGuard] },
-    { path: 'unavailable-days', component: UnavailableDaysComponent, canActivate: [AuthGuard] }
+    { path: 'unavailable-days', component: UnavailableDaysComponent, canActivate: [AuthGuard] },
+    // lazy: keeps Material table/select/dialog out of the initial bundle (the build fails at 1 MB)
+    { path: 'team', loadComponent: () => import('./components/team/team.component').then(m => m.TeamComponent), canActivate: [AuthGuard] }
 ];

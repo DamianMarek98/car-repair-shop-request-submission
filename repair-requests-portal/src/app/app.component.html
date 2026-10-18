@@ -17,6 +17,9 @@
         <a [routerLink]="['unavailable-days']" routerLinkActive="is-active" (click)="closeMenu()">Dostępność</a>
       </li>
       <li>
+        <a [routerLink]="['team']" routerLinkActive="is-active" (click)="closeMenu()">Zespół</a>
+      </li>
+      <li>
         <a (click)="clearToken(); closeMenu()" [routerLink]="['login-component']">Wyloguj</a>
       </li>
     </ul>
