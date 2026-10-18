@@ -24,7 +24,7 @@ with empty tables.
 
 | Component | Local | Notes |
 |---|---|---|
-| DynamoDB `repair_request` (+ `SubmittedAtIndex`, stream), `unavailable_day` | LocalStack `:4566` | created by `init/ready.d/10-resources.sh` |
+| DynamoDB `repair_request` (+ `SubmittedAtIndex`, stream), `unavailable_day`, `employee`, `employee_leave` | LocalStack `:4566` | created by `init/ready.d/10-resources.sh` |
 | `shop` | host `:8080`, profile `local` | `application-local.properties` |
 | Consumer Lambda (production submit path) | LocalStack Lambda | not used by the local form (see below); call it with `local:submit-via-lambda` |
 | Notification Lambda → SNS | LocalStack Lambda, triggered by the stream | the SNS topic delivers to SQS queue `local-notifications` |
