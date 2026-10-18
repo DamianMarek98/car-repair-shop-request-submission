@@ -7,6 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
+import { RouterLink } from '@angular/router';
 import { concatMap, Observable, of } from 'rxjs';
 import { daysLabel } from '../../commons/days-label';
 import { teamErrorMessage, teamErrorMessageForCode } from '../../commons/team-error-messages';
@@ -27,7 +28,7 @@ const MAX_NAME_LENGTH = 60;
   selector: 'app-team',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, MatTableModule, MatFormFieldModule, MatInputModule, MatSelectModule,
-    MatButtonModule, MatDialogModule],
+    MatButtonModule, MatDialogModule, RouterLink],
   templateUrl: './team.component.html',
   styleUrl: './team.component.css'
 })

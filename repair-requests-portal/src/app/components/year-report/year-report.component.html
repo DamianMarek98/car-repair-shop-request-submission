@@ -1,0 +1,91 @@
+<div class="report">
+  <div class="report__actions no-print">
+    <a class="panel-button panel-button--secondary" routerLink="/team">Wróć</a>
+    <div class="panel-spacer"></div>
+    <button class="panel-button" (click)="print()" [disabled]="!report" data-test="print">Drukuj</button>
+  </div>
+
+  @if (error) {
+    <div class="panel-error">{{ error }}</div>
+  }
+
+  @if (report; as r) {
+    <div class="panel-card report__page">
+      <div class="panel-card__title report__title">Raport roczny urlopów</div>
+      <div class="report__body">
+        <div class="report__head">
+          <div>
+            <div class="report__name" data-test="name">{{ r.employee.firstName }} {{ r.employee.lastName }}</div>
+            <div class="panel-muted">Rok {{ r.year }} · stan na {{ formatPl(r.generatedOn) }}</div>
+          </div>
+          <div class="report__brand">RENO CAR</div>
+        </div>
+
+        <div class="report__tiles">
+          <div class="tile">
+            <div class="tile__label">Pula</div>
+            <div class="tile__value" data-test="pool">{{ r.pool }}</div>
+            <div class="tile__note">{{ r.poolIsDefault ? 'domyślna' : 'wpisana na ' + r.year }}</div>
+          </div>
+          <div class="tile">
+            <div class="tile__label">Wykorzystano</div>
+            <div class="tile__value" data-test="taken">{{ r.taken }}</div>
+          </div>
+          <div class="tile">
+            <div class="tile__label">Zaplanowano</div>
+            <div class="tile__value" data-test="planned">{{ r.planned }}</div>
+          </div>
+          <div class="tile">
+            <div class="tile__label">Pozostało</div>
+            <div class="tile__value" [class.tile__value--negative]="r.remaining < 0" data-test="remaining">{{ r.remaining }}</div>
+          </div>
+        </div>
+
+        <table class="report__table report__months">
+          <thead>
+            <tr>
+              @for (month of monthsShort; track month; let i = $index) {
+                <th [title]="months[i]">{{ month }}</th>
+              }
+              <th>Razem</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              @for (days of r.months; track $index) {
+                <td data-test="month">{{ days }}</td>
+              }
+              <td><strong>{{ monthsTotal }}</strong></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <table class="report__table">
+          <thead>
+            <tr><th>Od</th><th>Do</th><th>Dni robocze w {{ r.year }}</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            @for (leave of r.leaves; track leave.startDate) {
+              <tr data-test="leave-row">
+                <td>{{ formatPl(leave.startDate) }}</td>
+                <td>{{ formatPl(leave.endDate) }}</td>
+                <td>{{ leave.daysInYear }}</td>
+                <td data-test="status">{{ statusLabels[leave.status] }}</td>
+              </tr>
+            } @empty {
+              <tr><td colspan="4" class="panel-muted">Brak urlopów w {{ r.year }}.</td></tr>
+            }
+          </tbody>
+        </table>
+
+        <div class="report__notes panel-muted">
+          @if (isGoLiveYear) {
+            <p data-test="go-live-note">Rok rozpoczęty w trakcie: pula {{ r.year }} to dni pozostałe na dzień startu narzędzia.</p>
+          }
+          <p>Dni robocze = poniedziałek–piątek; święta nie są pomijane automatycznie. Urlop obejmujący przełom
+            roku liczy tylko dni z roku {{ r.year }}.</p>
+        </div>
+      </div>
+    </div>
+  }
+</div>

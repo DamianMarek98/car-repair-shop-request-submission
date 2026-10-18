@@ -125,6 +125,8 @@
                 Wykorzystano {{ daysLabel(selected.balance.taken) }}, zaplanowano {{ daysLabel(selected.balance.planned) }}.
                 Wartości wyliczane z zapisanych urlopów.
               </div>
+              <a class="panel-link" [routerLink]="['/team', selected.id, 'report']" [queryParams]="{ year: year }"
+                 data-test="report-link">Raport roczny {{ year }} (podgląd i wydruk)</a>
             </div>
           }
 

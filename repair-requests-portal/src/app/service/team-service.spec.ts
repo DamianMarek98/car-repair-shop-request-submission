@@ -64,6 +64,15 @@ describe('TeamService', () => {
     clear.flush({});
   });
 
+  it('asks for a yearly report', () => {
+    service.report('id-1', 2026).subscribe();
+
+    const request = http.expectOne(r => r.url === base + '/id-1/report');
+    expect(request.request.method).toBe('GET');
+    expect(request.request.params.get('year')).toBe('2026');
+    request.flush({});
+  });
+
   it('deletes by id', () => {
     service.delete('id-1').subscribe();
 

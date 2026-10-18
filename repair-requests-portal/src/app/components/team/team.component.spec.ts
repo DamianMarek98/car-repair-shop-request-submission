@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 
 import { TeamComponent } from './team.component';
@@ -40,7 +41,7 @@ describe('TeamComponent', () => {
 
     await TestBed.configureTestingModule({
       imports: [TeamComponent],
-      providers: [provideNoopAnimations(), { provide: TeamService, useValue: teamService }],
+      providers: [provideNoopAnimations(), provideRouter([]), { provide: TeamService, useValue: teamService }],
     }).compileComponents();
 
     fixture = TestBed.createComponent(TeamComponent);

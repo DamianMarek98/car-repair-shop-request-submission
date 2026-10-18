@@ -13,5 +13,7 @@ export const routes: Routes = [
     { path: 'unavailable-days', component: UnavailableDaysComponent, canActivate: [AuthGuard] },
     // lazy: keeps Material table/select/dialog out of the initial bundle (the build fails at 1 MB)
     { path: 'team', loadComponent: () => import('./components/team/team.component').then(m => m.TeamComponent), canActivate: [AuthGuard] },
-    { path: 'leaves', loadComponent: () => import('./components/leave-calendar/leave-calendar.component').then(m => m.LeaveCalendarComponent), canActivate: [AuthGuard] }
+    { path: 'leaves', loadComponent: () => import('./components/leave-calendar/leave-calendar.component').then(m => m.LeaveCalendarComponent), canActivate: [AuthGuard] },
+    // :id and ?year= arrive as component inputs (withComponentInputBinding in app.config)
+    { path: 'team/:id/report', loadComponent: () => import('./components/year-report/year-report.component').then(m => m.YearReportComponent), canActivate: [AuthGuard] }
 ];

@@ -201,3 +201,90 @@ a {
 .panel-x-button:hover {
   background: #fbe9ec;
 }
+
+/* Material-free button in the Motrio look, for lazy screens where MatButtonModule would cost
+   initial-bundle size (see year-report.component.ts) */
+.panel-button {
+  display: inline-flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 22px;
+  border: 1px solid var(--motrio-red);
+  border-radius: var(--motrio-radius);
+  background: var(--motrio-red);
+  color: #ffffff;
+  font: 600 14px 'Poppins', Arial, sans-serif;
+  letter-spacing: 0.5px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.panel-button:hover:not([disabled]) {
+  background: var(--motrio-red-hover);
+}
+
+.panel-button[disabled] {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.panel-button--secondary,
+.panel-button--secondary:hover:not([disabled]) {
+  background: #ffffff;
+  color: var(--motrio-red);
+}
+
+/* ===== Print (Raport roczny) - global, because the sidebar lives in app.component =====
+   One A4 page, black on white, no navigation or buttons. */
+@media print {
+  @page {
+    size: A4;
+    margin: 15mm;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+  }
+
+  .sidebar,
+  .no-print,
+  .mat-mdc-snack-bar-container {
+    display: none !important;
+  }
+
+  .layout {
+    display: block !important;
+    min-height: 0 !important;
+  }
+
+  .content {
+    padding: 0 !important;
+    background: #ffffff !important;
+  }
+
+  .report {
+    max-width: none !important;
+  }
+
+  .report .panel-card {
+    box-shadow: none;
+    border: 1px solid #000000;
+  }
+
+  .report *,
+  .report .panel-card__title {
+    color: #000000 !important;
+    background: transparent !important;
+    border-color: #000000 !important;
+  }
+
+  .report .panel-card__title {
+    border-bottom: 1px solid #000000;
+  }
+
+  .report table,
+  .report tr {
+    page-break-inside: avoid;
+  }
+}

@@ -4,6 +4,7 @@ import { Observable } from "rxjs";
 import { environment } from "../../environments/environment";
 import { Employee, EmployeeCommand } from "../models/employee";
 import { EmployeeList } from "../models/employee-list";
+import { YearReport } from "../models/year-report";
 
 @Injectable({
     providedIn: 'root'
@@ -34,5 +35,11 @@ export class TeamService {
 
     delete(id: string): Observable<void> {
         return this.http.delete<void>(this.apiUrl + '/' + id);
+    }
+
+    /** Raport roczny: one employee's year summary; without a year the backend uses its current year. */
+    report(id: string, year?: number): Observable<YearReport> {
+        const params: Record<string, number> = year === undefined ? {} : { year };
+        return this.http.get<YearReport>(this.apiUrl + '/' + id + '/report', { params });
     }
 }
