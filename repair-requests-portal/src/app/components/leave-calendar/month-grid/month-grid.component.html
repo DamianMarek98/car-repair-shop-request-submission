@@ -1,0 +1,44 @@
+<div class="grid" data-test="month-grid">
+  <div class="grid__row grid__head">
+    @for (weekday of weekdays; track weekday; let i = $index) {
+      <div class="grid__weekday" [class.grid__weekday--weekend]="i >= 5">{{ weekday }}</div>
+    }
+  </div>
+  @for (week of weeks; track week.days[0].date) {
+    <div class="grid__row">
+      @for (day of week.days; track day.date) {
+        <div class="cell" data-test="day-cell" [attr.data-date]="day.date"
+             [class.cell--out]="!day.inMonth" [class.cell--weekend]="day.weekend" [class.cell--range]="inRange(day.date)"
+             (click)="dayClick.emit(day.date)">
+          <span class="cell__day" [class.cell__day--today]="day.today">{{ day.dayOfMonth }}</span>
+          @for (slot of day.slots; track $index) {
+            @if (slot) {
+              <div class="bar" data-test="leave-bar" [attr.data-leave]="slot.leave.id"
+                   [class.bar--left]="slot.continuesLeft" [class.bar--right]="slot.continuesRight"
+                   [class.bar--weekend]="day.weekend" [class.bar--selected]="slot.leave.id === selectedLeaveId"
+                   [class.bar--overflow]="slot.showLabel && slot.continuesRight"
+                   [style.background]="background(slot)" [style.color]="color(slot)" [title]="title(slot)"
+                   (click)="onBarClick($event, slot.leave)">{{ label(slot) }}</div>
+            } @else {
+              <div class="bar bar--empty"></div>
+            }
+          }
+          @if (day.more > 0) {
+            <div class="cell__more" data-test="more">+{{ day.more }} więcej</div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<ul class="day-list" data-test="day-list">
+  @for (entry of dayList; track entry.date) {
+    <li class="day-list__item">
+      <span class="day-list__date">{{ entry.label }}</span>
+      <span>{{ entry.names.join(', ') }}</span>
+    </li>
+  } @empty {
+    <li class="day-list__item panel-muted">W tym miesiącu nikt nie ma urlopu.</li>
+  }
+</ul>

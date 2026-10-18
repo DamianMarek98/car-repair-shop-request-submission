@@ -169,3 +169,35 @@ a {
   text-decoration: underline;
   cursor: pointer;
 }
+
+/* body has .mat-typography, whose "h1" rule is more specific than a bare class */
+.mat-typography .panel-title,
+.panel-title {
+  margin: 0;
+  font-size: 24px;
+  line-height: 32px;
+  letter-spacing: normal;
+  font-weight: 700;
+  color: var(--motrio-navy);
+}
+
+.panel-spacer {
+  flex: 1;
+}
+
+/* small round "×" delete button */
+.panel-x-button {
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 15px;
+  background: transparent;
+  color: #c8102e;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.panel-x-button:hover {
+  background: #fbe9ec;
+}

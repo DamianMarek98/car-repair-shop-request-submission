@@ -1,7 +1,7 @@
 <div class="team">
   <div class="team__header">
-    <h1 class="team__title">Zespół</h1>
-    <div class="team__spacer"></div>
+    <h1 class="panel-title">Zespół</h1>
+    <div class="panel-spacer"></div>
     <mat-form-field class="team__year" subscriptSizing="dynamic" appearance="outline">
       <mat-label>Rok</mat-label>
       <mat-select [value]="year" (selectionChange)="onYearChange($event.value)" data-test="year-select">
@@ -135,7 +135,7 @@
           <div class="editor__actions">
             <button mat-raised-button type="submit" [disabled]="saving">{{ isNew ? 'Dodaj' : 'Zapisz' }}</button>
             <button mat-raised-button type="button" class="motrio-btn-secondary" (click)="cancel()">Anuluj</button>
-            <div class="team__spacer"></div>
+            <div class="panel-spacer"></div>
             @if (selected) {
               <button mat-button type="button" class="editor__delete" (click)="askDelete()">Usuń</button>
             }

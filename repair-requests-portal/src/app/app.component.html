@@ -20,6 +20,9 @@
         <a [routerLink]="['team']" routerLinkActive="is-active" (click)="closeMenu()">Zespół</a>
       </li>
       <li>
+        <a [routerLink]="['leaves']" routerLinkActive="is-active" (click)="closeMenu()">Urlopy</a>
+      </li>
+      <li>
         <a (click)="clearToken(); closeMenu()" [routerLink]="['login-component']">Wyloguj</a>
       </li>
     </ul>
