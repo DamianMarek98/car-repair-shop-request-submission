@@ -1,0 +1,99 @@
+.report {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 900px;
+}
+
+.report__actions,
+.report__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.report__body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.report__head {
+  justify-content: space-between;
+}
+
+.report__name {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--motrio-navy);
+}
+
+.report__brand {
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  color: var(--motrio-navy);
+}
+
+.report__tiles {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.tile {
+  padding: 14px 16px;
+  border: 1px solid #d5dbe2;
+  border-radius: 6px;
+}
+
+.tile__label,
+.tile__note {
+  font-size: 13px;
+  color: #4f5b6b;
+}
+
+.tile__label {
+  font-weight: 700;
+}
+
+.tile__value {
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--motrio-navy);
+}
+
+.tile__value--negative {
+  color: #b4152b;
+}
+
+.report__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.report__table th,
+.report__table td {
+  padding: 8px 10px;
+  border: 1px solid #d5dbe2;
+  text-align: left;
+}
+
+.report__table th {
+  background: #eef1f4;
+  font-weight: 700;
+}
+
+.report__months th,
+.report__months td {
+  text-align: center;
+}
+
+.report__notes {
+  font-size: 12px;
+}
+
+.report__notes p {
+  margin: 0 0 4px;
+}

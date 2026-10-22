@@ -1,0 +1,151 @@
+<div class="team">
+  <div class="team__header">
+    <h1 class="panel-title">Zespół</h1>
+    <div class="panel-spacer"></div>
+    <mat-form-field class="team__year" subscriptSizing="dynamic" appearance="outline">
+      <mat-label>Rok</mat-label>
+      <mat-select [value]="year" (selectionChange)="onYearChange($event.value)" data-test="year-select">
+        @for (option of list?.availableYears ?? []; track option) {
+          <mat-option [value]="option">{{ option }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field class="team__search" subscriptSizing="dynamic" appearance="outline">
+      <mat-label>Szukaj pracownika</mat-label>
+      <input matInput [value]="search" (input)="search = $any($event.target).value" data-test="search">
+    </mat-form-field>
+    <button mat-raised-button (click)="startNew()">+ Dodaj pracownika</button>
+  </div>
+
+  @if (loadError) {
+    <div class="panel-error">{{ loadError }}</div>
+  }
+
+  <div class="team__grid">
+    <div class="panel-card">
+      <mat-table [dataSource]="rows" class="team__table">
+        <ng-container matColumnDef="firstName">
+          <mat-header-cell *matHeaderCellDef>Imię</mat-header-cell>
+          <mat-cell *matCellDef="let e">{{ e.firstName }}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="lastName">
+          <mat-header-cell *matHeaderCellDef>Nazwisko</mat-header-cell>
+          <mat-cell *matCellDef="let e">{{ e.lastName }}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="pool">
+          <mat-header-cell *matHeaderCellDef>Pula ({{ year }})</mat-header-cell>
+          <mat-cell *matCellDef="let e">{{ daysLabel(e.balance.pool) }}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="taken">
+          <mat-header-cell *matHeaderCellDef>Wykorzystano</mat-header-cell>
+          <mat-cell *matCellDef="let e">{{ daysLabel(e.balance.taken) }}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="planned">
+          <mat-header-cell *matHeaderCellDef>Zaplanowano</mat-header-cell>
+          <mat-cell *matCellDef="let e">{{ daysLabel(e.balance.planned) }}</mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="remaining">
+          <mat-header-cell *matHeaderCellDef>Pozostało</mat-header-cell>
+          <mat-cell *matCellDef="let e">
+            <span class="panel-chip" [class.panel-chip--negative]="e.balance.remaining < 0" data-test="remaining">
+              {{ daysLabel(e.balance.remaining) }}
+            </span>
+          </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="open">
+          <mat-header-cell *matHeaderCellDef></mat-header-cell>
+          <mat-cell *matCellDef="let e" class="team__chevron">›</mat-cell>
+        </ng-container>
+
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let e; columns: displayedColumns" class="team__row" data-test="employee-row"
+                 [class.team__row--selected]="e.id === selected?.id" (click)="select(e)"></mat-row>
+      </mat-table>
+      @if (list && rows.length === 0) {
+        <div class="team__empty panel-muted">
+          {{ list.employees.length === 0 ? 'Brak pracowników. Dodaj pierwszego.' : 'Brak pracowników pasujących do wyszukiwania.' }}
+        </div>
+      }
+      <div class="team__footer">Liczba pracowników: {{ list?.employees?.length ?? 0 }}</div>
+    </div>
+
+    <div class="panel-card">
+      <div class="panel-card__title">
+        {{ isNew ? 'Nowy pracownik' : selected ? 'Edycja: ' + selected.firstName + ' ' + selected.lastName : 'Pracownik' }}
+      </div>
+
+      @if (showEditor) {
+        <form class="editor__body" [formGroup]="form" (ngSubmit)="save()">
+          <div class="editor__names">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label>Imię</mat-label>
+              <input matInput formControlName="firstName" maxlength="60">
+            </mat-form-field>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label>Nazwisko</mat-label>
+              <input matInput formControlName="lastName" maxlength="60">
+            </mat-form-field>
+          </div>
+
+          <div class="editor__pools">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label>Pula na {{ year }}</mat-label>
+              <input matInput type="number" min="0" max="365" formControlName="yearPool" data-test="year-pool">
+              <span matTextSuffix>dni</span>
+            </mat-form-field>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-label>Domyślna pula</mat-label>
+              <input matInput type="number" min="0" max="365" formControlName="defaultAnnualDays">
+              <span matTextSuffix>dni</span>
+            </mat-form-field>
+          </div>
+          <div class="editor__hint">
+            @if (isCurrentYear) {
+              Na start: wpisz dni pozostałe na dzień startu; nie dodawaj wcześniejszych urlopów.
+            }
+            Domyślna pula obowiązuje w latach bez wpisanej puli.
+            @if (selected && !selected.balance.poolIsDefault) {
+              <button type="button" class="panel-link editor__restore" (click)="restoreDefaultPool()">
+                Przywróć domyślną pulę na {{ year }}
+              </button>
+            }
+          </div>
+
+          @if (selected) {
+            <div class="stats">
+              <div class="stats__label">Pozostało dni urlopu w {{ year }}</div>
+              <div class="stats__value">
+                <span class="stats__left" [class.stats__left--negative]="selected.balance.remaining < 0">
+                  {{ selected.balance.remaining }}
+                </span>
+                <span class="stats__total">z {{ daysLabel(selected.balance.pool) }}</span>
+              </div>
+              <div class="stats__bar"><div class="stats__fill" [style.width.%]="usedPercent"></div></div>
+              <div class="stats__note">
+                Wykorzystano {{ daysLabel(selected.balance.taken) }}, zaplanowano {{ daysLabel(selected.balance.planned) }}.
+                Wartości wyliczane z zapisanych urlopów.
+              </div>
+              <a class="panel-link" [routerLink]="['/team', selected.id, 'report']" [queryParams]="{ year: year }"
+                 data-test="report-link">Raport roczny {{ year }} (podgląd i wydruk)</a>
+            </div>
+          }
+
+          @if (formError) {
+            <div class="panel-error" data-test="form-error">{{ formError }}</div>
+          }
+
+          <div class="editor__actions">
+            <button mat-raised-button type="submit" [disabled]="saving">{{ isNew ? 'Dodaj' : 'Zapisz' }}</button>
+            <button mat-raised-button type="button" class="motrio-btn-secondary" (click)="cancel()">Anuluj</button>
+            <div class="panel-spacer"></div>
+            @if (selected) {
+              <button mat-button type="button" class="editor__delete" (click)="askDelete()">Usuń</button>
+            }
+          </div>
+        </form>
+      } @else {
+        <div class="editor__empty panel-muted">Wybierz pracownika z listy lub dodaj nowego.</div>
+      }
+    </div>
+  </div>
+</div>

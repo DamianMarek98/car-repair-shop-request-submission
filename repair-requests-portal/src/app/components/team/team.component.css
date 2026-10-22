@@ -1,0 +1,176 @@
+.team {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  color: var(--motrio-text);
+}
+
+.team__header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.team__year {
+  width: 120px;
+}
+
+.team__search {
+  width: 260px;
+}
+
+.team__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 380px;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 1100px) {
+  .team__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ===== Table ===== */
+.team__table .mat-mdc-header-row {
+  background: var(--motrio-navy);
+  min-height: 56px;
+}
+
+.team__table .mat-mdc-header-cell {
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.team__row {
+  cursor: pointer;
+}
+
+.team__row:hover {
+  background: var(--motrio-surface);
+}
+
+.team__row--selected,
+.team__row--selected:hover {
+  background: #e3e7ee;
+}
+
+.team__table .mat-column-open {
+  flex: 0 0 40px;
+}
+
+.team__chevron {
+  color: #5b6577;
+  font-size: 20px;
+}
+
+.team__empty {
+  padding: 28px 24px;
+}
+
+.team__footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px 24px;
+  font-size: 14px;
+}
+
+/* ===== Editor ===== */
+.editor__body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.editor__names,
+.editor__pools {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.editor__hint {
+  margin-top: -8px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #5b6577;
+}
+
+.stats {
+  background: #eef1f4;
+  border-radius: 6px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.stats__label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #4f5b6b;
+}
+
+.stats__value {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.stats__left {
+  font-size: 34px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--motrio-navy);
+}
+
+.stats__left--negative {
+  color: #b4152b;
+}
+
+.stats__total {
+  font-size: 15px;
+  color: #4f5b6b;
+}
+
+.stats__bar {
+  height: 6px;
+  border-radius: 3px;
+  background: #d5dbe2;
+  overflow: hidden;
+}
+
+.stats__fill {
+  height: 100%;
+  background: var(--motrio-navy);
+}
+
+.stats__note {
+  font-size: 13px;
+  color: #5b6577;
+}
+
+.editor__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.editor__delete {
+  color: #c8102e;
+  font-weight: 700;
+}
+
+.editor__empty {
+  padding: 32px 24px;
+  line-height: 1.5;
+}
+
+.editor__restore {
+  display: block;
+  margin-top: 4px;
+}

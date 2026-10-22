@@ -1,0 +1,129 @@
+<div class="leaves">
+  <div class="leaves__header">
+    <h1 class="panel-title">Urlopy</h1>
+    <div class="panel-spacer"></div>
+    <label class="leaves__filter">
+      <input type="checkbox" [checked]="onlySelected" (change)="toggleOnlySelected()" data-test="only-selected">
+      Tylko wybrany pracownik
+    </label>
+  </div>
+
+  @if (loadError) {
+    <div class="panel-error">{{ loadError }}</div>
+  }
+
+  <div class="leaves__grid">
+    <div class="panel-card">
+      <div class="month-nav">
+        <div class="month-nav__label" data-test="month-label">{{ monthLabel }}</div>
+        <div class="panel-spacer"></div>
+        <button mat-raised-button class="motrio-btn-secondary" (click)="goToday()">Dzisiaj</button>
+        <button mat-icon-button aria-label="Poprzedni miesiąc" class="month-nav__arrow" (click)="shiftMonth(-1)">‹</button>
+        <button mat-icon-button aria-label="Następny miesiąc" class="month-nav__arrow" (click)="shiftMonth(1)">›</button>
+      </div>
+      @if (viewYear) {
+        <app-month-grid [year]="viewYear" [month]="viewMonth" [leaves]="shownLeaves" [today]="today"
+                        [employees]="employeeById" [rangeStart]="start" [rangeEnd]="end"
+                        [selectedLeaveId]="editing?.id ?? null"
+                        (dayClick)="onDayClick($event)" (leaveClick)="editLeave($event)"></app-month-grid>
+      }
+      <div class="legend">
+        <span class="legend__item"><span class="legend__swatch"></span>Dzień roboczy, odliczany od puli</span>
+        <span class="legend__item"><span class="legend__swatch legend__swatch--weekend"></span>Weekend, nie jest odliczany</span>
+        <span class="legend__item panel-muted">Święta nie są pomijane automatycznie: podziel urlop, edytując go w kalendarzu.</span>
+      </div>
+    </div>
+
+    <div class="panel-card">
+      <div class="panel-card__title" data-test="form-title">{{ editing ? 'Edycja urlopu' : 'Nowy urlop' }}</div>
+      <div class="form">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Pracownik</mat-label>
+          <mat-select [value]="employeeId" (selectionChange)="onEmployeeChange($event.value)" [disabled]="!!editing">
+            @for (employee of employees; track employee.id) {
+              <mat-option [value]="employee.id">{{ employee.firstName }} {{ employee.lastName }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <div class="balance">
+          <span class="balance__dot" [style.background]="dotColor"></span>
+          <span class="balance__label">Pozostało dni urlopu w {{ formYear }}</span>
+          <span class="balance__value" [class.balance__value--low]="(formBalance?.remaining ?? 1) <= 0" data-test="form-remaining">
+            {{ formBalance?.remaining ?? '…' }}
+          </span>
+          <span class="balance__pool">/ {{ formBalance ? daysLabel(formBalance.pool) : '…' }}</span>
+        </div>
+
+        <div class="form__dates">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Od</mat-label>
+            <input matInput type="date" [value]="start" (change)="onStartChange($any($event.target).value)" data-test="start">
+          </mat-form-field>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-label>Do</mat-label>
+            <input matInput type="date" [value]="end" (change)="onEndChange($any($event.target).value)" data-test="end">
+          </mat-form-field>
+        </div>
+        <div class="form__hint panel-muted">
+          {{ picking ? 'Kliknij dzień końcowy urlopu w kalendarzu.' : 'Możesz też zaznaczyć zakres, klikając dni w kalendarzu.' }}
+        </div>
+
+        @if (preview; as p) {
+          <div class="summary" data-test="preview">
+            <div class="summary__row" title="Święta nie są pomijane automatycznie">
+              <span>Dni robocze w zakresie <span class="panel-muted">ⓘ</span></span>
+              <strong data-test="preview-days">{{ daysLabel(p.workingDays) }}</strong>
+            </div>
+            @for (year of p.years; track year.year) {
+              <div class="summary__row">
+                <span>Po dodaniu pozostanie{{ p.years.length > 1 ? ' (' + year.year + ')' : '' }}</span>
+                <strong [class.summary__negative]="(year.remainingAfter ?? 0) < 0" data-test="preview-after">
+                  {{ year.remainingAfter === undefined ? '…' : daysLabel(year.remainingAfter) }}
+                </strong>
+              </div>
+              @if ((year.remainingAfter ?? 0) < 0) {
+                <div class="panel-error" data-test="over-pool">{{ overPoolText(year.remainingAfter!, year.year) }}</div>
+              }
+            }
+          </div>
+        }
+
+        @if (rangeError) {
+          <div class="panel-error" data-test="range-error">{{ rangeError }}</div>
+        }
+        @if (formError) {
+          <div class="panel-error" data-test="form-error">{{ formError }}</div>
+        }
+
+        <div class="form__actions">
+          <button mat-raised-button [disabled]="!canSave" (click)="save()" data-test="save">
+            {{ editing ? 'Zapisz zmiany' : 'Dodaj urlop' }}
+          </button>
+          @if (editing) {
+            <button mat-raised-button class="motrio-btn-secondary" (click)="cancelEdit()">Anuluj</button>
+            <div class="panel-spacer"></div>
+            <button mat-button class="form__delete" (click)="askDelete(editing)">Usuń</button>
+          }
+        </div>
+
+        <div class="list">
+          <div class="list__title">
+            Urlopy pracownika w {{ formYear }}
+          </div>
+          @for (leave of employeeLeaves; track leave.id) {
+            <div class="list__item" [class.list__item--past]="isPast(leave)" data-test="employee-leave">
+              <button class="list__open" (click)="editLeave(leave)" title="Edytuj urlop">
+                <span class="list__range">{{ formatPl(leave.startDate) }} – {{ formatPl(leave.endDate) }}</span>
+                <span class="panel-muted">{{ daysLabel(leave.workingDays) }}</span>
+              </button>
+              <button class="panel-x-button" (click)="askDelete(leave)" title="Usuń urlop" aria-label="Usuń urlop">×</button>
+            </div>
+          } @empty {
+            <div class="panel-muted">Brak zapisanych urlopów w {{ formYear }}.</div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

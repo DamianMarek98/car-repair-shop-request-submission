@@ -6,6 +6,7 @@ import car.repair.shop.repair.request.exception.RepairRequestMissingCarInformati
 import car.repair.shop.repair.request.exception.RepairRequestRodoException;
 import car.repair.shop.repair.request.exception.RepairRequestStateException;
 import car.repair.shop.repair.request.exception.RepairRequestValidationException;
+import car.repair.shop.team.exception.TeamException;
 import jakarta.validation.ValidationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -53,5 +54,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RepairRequestRodoException.class)
     public ResponseEntity<String> handleRepairRequestRodoException(RepairRequestRodoException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+
+    @ExceptionHandler(TeamException.class)
+    public ResponseEntity<TeamErrorResponse> handleTeamException(TeamException e) {
+        return ResponseEntity.status(e.getCode().getStatus()).body(new TeamErrorResponse(e.getCode().name(), e.getMessage()));
+    }
+
+    public record TeamErrorResponse(String code, String message) {
     }
 }

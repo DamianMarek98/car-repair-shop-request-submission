@@ -108,3 +108,183 @@ a {
   color: #546e7a;
   border-color: #aeb9c1;
 }
+
+/* ===== Team panels (Zespół / Urlopy / Raport) - shared, kept global so each component stays
+   under the 4 kB per-component style budget in angular.json ===== */
+.panel-card {
+  background: var(--motrio-card);
+  border-radius: var(--motrio-radius);
+  box-shadow: var(--motrio-shadow);
+  overflow: hidden;
+}
+
+.panel-card__title {
+  background: var(--motrio-navy);
+  color: #ffffff;
+  min-height: 56px;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.panel-chip {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 14px;
+  border-radius: 14px;
+  background: #eef1f4;
+  border: 1px solid #c5ccd4;
+  font-size: 13px;
+  font-weight: 700;
+  color: #4f6073;
+  white-space: nowrap;
+}
+
+.panel-chip--negative {
+  color: #b4152b;
+  border-color: #e7a3ad;
+  background: #fbe9ec;
+}
+
+.panel-error {
+  color: #b4152b;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.panel-muted {
+  color: #5b6577;
+}
+
+.panel-link {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--motrio-navy);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* body has .mat-typography, whose "h1" rule is more specific than a bare class */
+.mat-typography .panel-title,
+.panel-title {
+  margin: 0;
+  font-size: 24px;
+  line-height: 32px;
+  letter-spacing: normal;
+  font-weight: 700;
+  color: var(--motrio-navy);
+}
+
+.panel-spacer {
+  flex: 1;
+}
+
+/* small round "×" delete button */
+.panel-x-button {
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 15px;
+  background: transparent;
+  color: #c8102e;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.panel-x-button:hover {
+  background: #fbe9ec;
+}
+
+/* Material-free button in the Motrio look, for lazy screens where MatButtonModule would cost
+   initial-bundle size (see year-report.component.ts) */
+.panel-button {
+  display: inline-flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 22px;
+  border: 1px solid var(--motrio-red);
+  border-radius: var(--motrio-radius);
+  background: var(--motrio-red);
+  color: #ffffff;
+  font: 600 14px 'Poppins', Arial, sans-serif;
+  letter-spacing: 0.5px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.panel-button:hover:not([disabled]) {
+  background: var(--motrio-red-hover);
+}
+
+.panel-button[disabled] {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.panel-button--secondary,
+.panel-button--secondary:hover:not([disabled]) {
+  background: #ffffff;
+  color: var(--motrio-red);
+}
+
+/* ===== Print (Raport roczny) - global, because the sidebar lives in app.component =====
+   One A4 page, black on white, no navigation or buttons. */
+@media print {
+  @page {
+    size: A4;
+    margin: 15mm;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+  }
+
+  .sidebar,
+  .no-print,
+  .mat-mdc-snack-bar-container {
+    display: none !important;
+  }
+
+  .layout {
+    display: block !important;
+    min-height: 0 !important;
+  }
+
+  .content {
+    padding: 0 !important;
+    background: #ffffff !important;
+  }
+
+  .report {
+    max-width: none !important;
+  }
+
+  .report .panel-card {
+    box-shadow: none;
+    border: 1px solid #000000;
+  }
+
+  .report *,
+  .report .panel-card__title {
+    color: #000000 !important;
+    background: transparent !important;
+    border-color: #000000 !important;
+  }
+
+  .report .panel-card__title {
+    border-bottom: 1px solid #000000;
+  }
+
+  .report table,
+  .report tr {
+    page-break-inside: avoid;
+  }
+}
