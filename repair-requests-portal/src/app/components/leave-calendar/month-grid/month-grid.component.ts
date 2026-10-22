@@ -68,7 +68,7 @@ export class MonthGridComponent implements OnChanges {
     const employee = this.employees.get(slot.leave.employeeId);
     const name = employee ? `${employee.firstName} ${employee.lastName}` : '';
     return `${name}: ${formatPl(slot.leave.startDate)} – ${formatPl(slot.leave.endDate)}`
-      + ` (${daysLabel(slot.leave.workingDays)} roboczych)`;
+      + ` (${daysLabel(slot.leave.workingDays)})`;
   }
 
   background(slot: CalendarSlot): string {

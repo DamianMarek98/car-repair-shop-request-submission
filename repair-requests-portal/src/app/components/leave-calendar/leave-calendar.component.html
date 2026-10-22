@@ -115,7 +115,7 @@
             <div class="list__item" [class.list__item--past]="isPast(leave)" data-test="employee-leave">
               <button class="list__open" (click)="editLeave(leave)" title="Edytuj urlop">
                 <span class="list__range">{{ formatPl(leave.startDate) }} – {{ formatPl(leave.endDate) }}</span>
-                <span class="panel-muted">{{ daysLabel(leave.workingDays) }} roboczych</span>
+                <span class="panel-muted">{{ daysLabel(leave.workingDays) }}</span>
               </button>
               <button class="panel-x-button" (click)="askDelete(leave)" title="Usuń urlop" aria-label="Usuń urlop">×</button>
             </div>
