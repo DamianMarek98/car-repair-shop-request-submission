@@ -53,6 +53,22 @@ awslocal dynamodb create-table \
   --billing-mode PAY_PER_REQUEST \
   > /dev/null
 
+# Mirrors @DynamoDBTable Employee (team module): hash key id, no GSI - 10-15 rows, always scanned.
+awslocal dynamodb create-table \
+  --table-name employee \
+  --attribute-definitions AttributeName=id,AttributeType=S \
+  --key-schema AttributeName=id,KeyType=HASH \
+  --billing-mode PAY_PER_REQUEST \
+  > /dev/null
+
+# Mirrors @DynamoDBTable Leave (team module): hash key id, no GSI - scanned and filtered in memory.
+awslocal dynamodb create-table \
+  --table-name employee_leave \
+  --attribute-definitions AttributeName=id,AttributeType=S \
+  --key-schema AttributeName=id,KeyType=HASH \
+  --billing-mode PAY_PER_REQUEST \
+  > /dev/null
+
 # No SES setup: shop and the confirmation Lambda use SES v2, which LocalStack community does
 # not emulate - their e-mails go to the mail-sink container instead (http://localhost:8025).
 

@@ -5,16 +5,20 @@ set -euo pipefail
 
 DIR="$(cd "$(dirname "$0")" && pwd)"
 
-docker compose -f "$DIR/docker-compose.yml" up -d
+# --force-recreate: always a fresh container, so the logs checked below are from this start only
+# and the tables start empty (a restarted old container would keep its old log lines).
+docker compose -f "$DIR/docker-compose.yml" up -d --force-recreate
 
 echo "[renocar] waiting for LocalStack resources..."
+# Not grep -q: it exits on the first match, docker logs then dies of SIGPIPE and pipefail
+# reports the whole check as failed.
 for _ in $(seq 1 90); do
-  if docker logs renocar-localstack 2>&1 | grep -q "resources ready"; then
+  if docker logs renocar-localstack 2>&1 | grep "resources ready" >/dev/null; then
     break
   fi
   sleep 2
 done
-if ! docker logs renocar-localstack 2>&1 | grep -q "resources ready"; then
+if ! docker logs renocar-localstack 2>&1 | grep "resources ready" >/dev/null; then
   echo "[renocar] LocalStack init did not finish - check: docker logs renocar-localstack" >&2
   exit 1
 fi

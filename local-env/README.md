@@ -24,7 +24,7 @@ with empty tables.
 
 | Component | Local | Notes |
 |---|---|---|
-| DynamoDB `repair_request` (+ `SubmittedAtIndex`, `TrackingTokenIndex`, stream), `unavailable_day` | LocalStack `:4566` | created by `init/ready.d/10-resources.sh` |
+| DynamoDB `repair_request` (+ `SubmittedAtIndex`, `TrackingTokenIndex`, stream), `unavailable_day`, `employee`, `employee_leave` | LocalStack `:4566` | created by `init/ready.d/10-resources.sh` |
 | `shop` | host `:8080`, profile `local` | `application-local.properties` |
 | Consumer Lambda (production submit path) | LocalStack Lambda | not used by the local form (see below); call it with `local:submit-via-lambda` |
 | Notification Lambda → SNS | LocalStack Lambda, triggered by the stream | the SNS topic delivers to SQS queue `local-notifications` |
@@ -61,6 +61,22 @@ curl -X DELETE localhost:8025/emails            # clear the mail sink
   consumer's `sample-asap.json`).
 - **The notification Lambda skips a request whose first name is exactly `test`**, as in
   production.
+
+## Zespół i Urlopy (team & leave panels)
+
+The expected numbers in `spec/05-team-and-leave-plan.md` §6.0 need a fixed "today" and seed data:
+
+```bash
+npm run local:up                                            # fresh, empty tables
+CAR_REPAIR_SHOP_CLOCK_FIXEDDATE=2026-11-02 npm run local:shop   # backend thinks today is Mon 2 Nov 2026
+npm run local:seed-team                                     # 8 workers + their leave, via the API
+```
+
+- The fixed date works **only in the `local` profile** (`ClockConfig`); time still moves from
+  midnight of that day. Without the variable the shop uses the real date.
+- The seed refuses to run when employees already exist. Re-seed with `local:down` + `local:up`.
+  It prints every `POOL_EXCEEDED` warning; the scenario has exactly one (Joanna, 2026, −2).
+- Inspect: `./local-env/aws-local.sh dynamodb scan --table-name employee` (or `employee_leave`).
 
 ## After changing code
 

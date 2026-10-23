@@ -1,6 +1,9 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
+// Never print errors: the response must be pure JSON (form.js parses it), and any
+// notice/deprecation (e.g. old PHPMailer on PHP 8.5) would corrupt it. Errors go to the log.
+ini_set('display_errors', 0);
+ini_set('display_startup_errors', 0);
+ini_set('log_errors', 1);
 error_reporting(E_ALL);
 /*
 Tested working with PHP5.4 and above (including PHP 7 )
