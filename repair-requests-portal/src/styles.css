@@ -149,6 +149,75 @@ a {
   background: #fbe9ec;
 }
 
+/* "Valid until" dates (Zespół: Badania lekarskie, Szkolenie BHP) - global to keep team.component.css under budget */
+.panel-expiry {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+}
+
+.panel-expiry__date {
+  display: inline-flex;
+  align-items: center;
+  height: 26px;
+  padding: 0 9px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.panel-expiry__note,
+.panel-hint {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.panel-expiry--none .panel-expiry__date,
+.panel-hint--none {
+  color: #5b6577;
+}
+
+.panel-expiry--warning .panel-expiry__date {
+  background: #fdf3d7;
+  border-color: #f0d48a;
+  font-weight: 700;
+}
+
+.panel-expiry--danger .panel-expiry__date {
+  background: #fbe9ec;
+  border-color: #e7a3ad;
+  font-weight: 700;
+}
+
+.panel-expiry--warning .panel-expiry__date,
+.panel-expiry--warning .panel-expiry__note,
+.panel-hint--warning {
+  color: #8a5a00;
+}
+
+.panel-expiry--danger .panel-expiry__date,
+.panel-expiry--danger .panel-expiry__note,
+.panel-hint--danger {
+  color: #b4152b;
+}
+
+.panel-hint {
+  min-height: 15px;
+  margin-top: 4px;
+}
+
+/* date fields stacked one per row, so the long labels fit the editor */
+.panel-dates {
+  display: grid;
+  gap: 12px;
+}
+
+.panel-dates .mat-mdc-form-field {
+  width: 100%;
+}
+
 .panel-error {
   color: #b4152b;
   font-weight: 600;

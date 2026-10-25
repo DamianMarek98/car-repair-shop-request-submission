@@ -1,5 +1,5 @@
 import {
-  addDays, compareIso, daysBetween, formatPl, isoDate, isoWeekday, isValidIsoDate, isWeekend, monthOf, yearOf
+  addDays, addMonths, fromLocalDate, toLocalDate, compareIso, daysBetween, formatPl, isoDate, isoWeekday, isValidIsoDate, isWeekend, monthOf, yearOf
 } from './iso-date';
 
 describe('iso-date', () => {
@@ -41,5 +41,23 @@ describe('iso-date', () => {
 
   it('formats the Polish way', () => {
     expect(formatPl('2026-12-28')).toBe('28.12.2026');
+  });
+
+  it('adds calendar months, clamping to the end of the month', () => {
+    expect(addMonths('2026-11-02', 1)).toBe('2026-12-02');
+    expect(addMonths('2026-11-02', 3)).toBe('2027-02-02');
+    expect(addMonths('2026-01-31', 1)).toBe('2026-02-28');
+    expect(addMonths('2028-02-29', 12)).toBe('2029-02-28');
+    expect(addMonths('2026-03-31', 1)).toBe('2026-04-30');
+    expect(addMonths('2026-12-15', 1)).toBe('2027-01-15');
+    expect(addMonths('2026-01-15', -1)).toBe('2025-12-15');
+  });
+
+  it('converts to and from a date picker\'s local-midnight Date', () => {
+    const date = toLocalDate('2026-11-10');
+
+    expect([date.getFullYear(), date.getMonth(), date.getDate(), date.getHours()]).toEqual([2026, 10, 10, 0]);
+    expect(fromLocalDate(date)).toBe('2026-11-10');
+    expect(fromLocalDate(new Date(2027, 0, 1, 23, 59))).toBe('2027-01-01');
   });
 });

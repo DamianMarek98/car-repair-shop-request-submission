@@ -52,6 +52,8 @@ public class TeamFacade {
     private static final int MAX_NAME_LENGTH = 60;
     private static final int MIN_YEAR = 2000;
     private static final int MAX_YEAR = 2100;
+    /** Sanity limit for valid-until dates - catches typos such as 2206. */
+    static final int MAX_EXPIRY_YEARS_AHEAD = 10;
 
     private static final Collator POLISH = Collator.getInstance(Locale.forLanguageTag("pl-PL"));
     private static final Comparator<Employee> BY_NAME = Comparator
@@ -84,6 +86,10 @@ public class TeamFacade {
                 ? DEFAULT_ANNUAL_DAYS
                 : validPool(command.defaultAnnualDays()));
         employee.setAnnualDaysByYear(new HashMap<>());
+        employee.setMedicalExamValidUntil(validExpiryDate(command.medicalExamValidUntil(), null,
+                TeamErrorCode.INVALID_MEDICAL_EXAM_DATE));
+        employee.setBhpTrainingValidUntil(validExpiryDate(command.bhpTrainingValidUntil(), null,
+                TeamErrorCode.INVALID_BHP_TRAINING_DATE));
         employee.setColorIndex(firstFreeColorIndex(allEmployees()));
         employee.setCreatedAt(nowUtc());
         employee.setUpdatedAt(employee.getCreatedAt());
@@ -99,6 +105,10 @@ public class TeamFacade {
         var lastName = validName(command.lastName(), "Last name");
         int oldDefault = employee.getDefaultAnnualDays();
         int newDefault = command.defaultAnnualDays() == null ? oldDefault : validPool(command.defaultAnnualDays());
+        var medicalExam = validExpiryDate(command.medicalExamValidUntil(), employee.getMedicalExamValidUntil(),
+                TeamErrorCode.INVALID_MEDICAL_EXAM_DATE);
+        var bhpTraining = validExpiryDate(command.bhpTrainingValidUntil(), employee.getBhpTrainingValidUntil(),
+                TeamErrorCode.INVALID_BHP_TRAINING_DATE);
         var leaves = leavesOf(id);
 
         if (newDefault != oldDefault) {
@@ -107,6 +117,8 @@ public class TeamFacade {
         employee.setFirstName(firstName);
         employee.setLastName(lastName);
         employee.setDefaultAnnualDays(newDefault);
+        employee.setMedicalExamValidUntil(medicalExam);
+        employee.setBhpTrainingValidUntil(bhpTraining);
         employee.setUpdatedAt(nowUtc());
 
         var saved = employeeRepository.save(employee);
@@ -280,6 +292,7 @@ public class TeamFacade {
     private EmployeeView view(Employee employee, Collection<Leave> leaves, int year, LocalDate today) {
         return new EmployeeView(employee.getId(), employee.getFirstName(), employee.getLastName(),
                 employee.getColorIndex(), employee.getDefaultAnnualDays(),
+                employee.getMedicalExamValidUntil(), employee.getBhpTrainingValidUntil(),
                 LeaveBalanceCalculator.balance(employee, leaves, year, today));
     }
 
@@ -316,6 +329,23 @@ public class TeamFacade {
                     field + " must be 1-" + MAX_NAME_LENGTH + " characters");
         }
         return trimmed;
+    }
+
+    /**
+     * A new or changed date must be after today and at most {@link #MAX_EXPIRY_YEARS_AHEAD} years ahead.
+     * An unchanged date is accepted as is - otherwise a worker whose exam has expired couldn't be saved
+     * at all, not even to fix a name. Null clears the date.
+     */
+    private LocalDate validExpiryDate(LocalDate date, LocalDate stored, TeamErrorCode code) {
+        if (date == null || date.equals(stored)) {
+            return date;
+        }
+        var today = today();
+        if (!date.isAfter(today) || date.isAfter(today.plusYears(MAX_EXPIRY_YEARS_AHEAD))) {
+            throw new TeamException(code, "Date must be after today and at most "
+                    + MAX_EXPIRY_YEARS_AHEAD + " years ahead");
+        }
+        return date;
     }
 
     private static int validPool(int days) {

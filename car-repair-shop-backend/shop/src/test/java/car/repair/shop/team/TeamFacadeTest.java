@@ -160,6 +160,79 @@ class TeamFacadeTest {
         assertRejected(() -> teamFacade.deleteEmployee("missing"), TeamErrorCode.EMPLOYEE_NOT_FOUND);
     }
 
+    @Test
+    void expiryDates_onCreate_mustBeAfterTodayAndAtMost10YearsAhead() {
+        var today = LocalDate.of(2026, 11, 2);
+
+        var view = teamFacade.createEmployee(withDates(today.plusDays(1), today.plusYears(10)));
+        assertThat(view.medicalExamValidUntil()).isEqualTo("2026-11-03");
+        assertThat(view.bhpTrainingValidUntil()).isEqualTo("2036-11-02");
+
+        assertRejected(() -> teamFacade.createEmployee(withDates(today, null)), TeamErrorCode.INVALID_MEDICAL_EXAM_DATE);
+        assertRejected(() -> teamFacade.createEmployee(withDates(today.minusDays(1), null)), TeamErrorCode.INVALID_MEDICAL_EXAM_DATE);
+        assertRejected(() -> teamFacade.createEmployee(withDates(today.plusYears(10).plusDays(1), null)),
+                TeamErrorCode.INVALID_MEDICAL_EXAM_DATE);
+    }
+
+    @Test
+    void expiryDates_areOptional() {
+        var view = teamFacade.createEmployee(withDates(null, null));
+
+        assertThat(view.medicalExamValidUntil()).isNull();
+        assertThat(view.bhpTrainingValidUntil()).isNull();
+    }
+
+    @Test
+    void expiryDates_eachFieldHasItsOwnCode() {
+        assertRejected(() -> teamFacade.createEmployee(withDates(LocalDate.of(2027, 1, 1), LocalDate.of(2026, 1, 1))),
+                TeamErrorCode.INVALID_BHP_TRAINING_DATE);
+        assertRejected(() -> teamFacade.createEmployee(withDates(LocalDate.of(2026, 1, 1), LocalDate.of(2027, 1, 1))),
+                TeamErrorCode.INVALID_MEDICAL_EXAM_DATE);
+    }
+
+    @Test
+    void expiryDates_onUpdate_unchangedPastDateIsKept() {
+        var employee = employee("k", 0, 26);
+        employee.setMedicalExamValidUntil(LocalDate.of(2026, 10, 1));   // expired a month ago
+        employee.setBhpTrainingValidUntil(LocalDate.of(2026, 11, 2));   // last valid day is today
+        when(employeeRepository.findById("k")).thenReturn(Optional.of(employee));
+
+        var view = teamFacade.updateEmployee("k", new EmployeeCommand("Katarzyna", "Wiśniewska", null,
+                LocalDate.of(2026, 10, 1), LocalDate.of(2026, 11, 2)));
+
+        assertThat(view.firstName()).isEqualTo("Katarzyna");
+        assertThat(view.medicalExamValidUntil()).isEqualTo("2026-10-01");
+        assertThat(view.bhpTrainingValidUntil()).isEqualTo("2026-11-02");
+    }
+
+    @Test
+    void expiryDates_onUpdate_changedPastDateIsRejected() {
+        var employee = employee("k", 0, 26);
+        employee.setMedicalExamValidUntil(LocalDate.of(2026, 10, 1));
+        when(employeeRepository.findById("k")).thenReturn(Optional.of(employee));
+
+        assertRejected(() -> teamFacade.updateEmployee("k", new EmployeeCommand("Katarzyna", "Wiśniewska", null,
+                LocalDate.of(2026, 10, 2), null)), TeamErrorCode.INVALID_MEDICAL_EXAM_DATE);
+        assertThat(employee.getMedicalExamValidUntil()).isEqualTo("2026-10-01");
+    }
+
+    @Test
+    void expiryDates_onUpdate_nullClearsTheDate() {
+        var employee = employee("k", 0, 26);
+        employee.setMedicalExamValidUntil(LocalDate.of(2027, 5, 1));
+        employee.setBhpTrainingValidUntil(LocalDate.of(2027, 6, 1));
+        when(employeeRepository.findById("k")).thenReturn(Optional.of(employee));
+
+        var view = teamFacade.updateEmployee("k", new EmployeeCommand("Katarzyna", "Wiśniewska", null));
+
+        assertThat(view.medicalExamValidUntil()).isNull();
+        assertThat(view.bhpTrainingValidUntil()).isNull();
+    }
+
+    private static EmployeeCommand withDates(LocalDate medicalExam, LocalDate bhpTraining) {
+        return new EmployeeCommand("Jan", "Testowy", null, medicalExam, bhpTraining);
+    }
+
     private static void assertRejected(Runnable call, TeamErrorCode code) {
         assertThatThrownBy(call::run)
                 .isInstanceOf(TeamException.class)

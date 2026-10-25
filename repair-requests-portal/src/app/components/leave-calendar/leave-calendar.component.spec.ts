@@ -16,8 +16,9 @@ describe('LeaveCalendarComponent', () => {
   let leaveService: jasmine.SpyObj<LeaveService>;
   let snackBar: jasmine.SpyObj<MatSnackBar>;
 
-  const joanna = { id: 'j', firstName: 'Joanna', lastName: 'Lewandowska', colorIndex: 3, defaultAnnualDays: 26 };
-  const piotr = { id: 'p', firstName: 'Piotr', lastName: 'Kamiński', colorIndex: 4, defaultAnnualDays: 26 };
+  const noDates = { medicalExamValidUntil: null, bhpTrainingValidUntil: null };
+  const joanna = { id: 'j', firstName: 'Joanna', lastName: 'Lewandowska', colorIndex: 3, defaultAnnualDays: 26, ...noDates };
+  const piotr = { id: 'p', firstName: 'Piotr', lastName: 'Kamiński', colorIndex: 4, defaultAnnualDays: 26, ...noDates };
   const piotrsLeave: Leave = {
     id: 'l1', employeeId: 'p', startDate: '2026-11-09', endDate: '2026-11-13', workingDays: 5,
     workingDaysByYear: { '2026': 5 },

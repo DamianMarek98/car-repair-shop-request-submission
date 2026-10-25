@@ -233,6 +233,85 @@ class EmployeeIntegrationTest extends TeamIntegrationTest {
                 .andExpect(jsonPath("$.colorIndex").value(0));
     }
 
+    @Test
+    void expiryDates_roundTripAsIsoDates() throws Exception {
+        mvc.perform(post(EMPLOYEES).with(user("test"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"firstName\":\"Tomasz\",\"lastName\":\"Nowak\","
+                                + "\"medicalExamValidUntil\":\"2027-08-15\",\"bhpTrainingValidUntil\":\"2026-12-03\"}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.medicalExamValidUntil").value("2027-08-15"))
+                .andExpect(jsonPath("$.bhpTrainingValidUntil").value("2026-12-03"));
+
+        mvc.perform(get(EMPLOYEES).with(user("test")))
+                .andExpect(jsonPath("$.employees[0].medicalExamValidUntil").value("2027-08-15"))
+                .andExpect(jsonPath("$.employees[0].bhpTrainingValidUntil").value("2026-12-03"));
+    }
+
+    @Test
+    void expiryDates_updateWithoutThem_clearsThem() throws Exception {
+        var id = givenEmployeeWithDates(LocalDate.of(2027, 8, 15), LocalDate.of(2026, 12, 3));
+
+        mvc.perform(put(EMPLOYEES + "/{id}", id).with(user("test"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"firstName\":\"Tomasz\",\"lastName\":\"Nowak\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.medicalExamValidUntil").doesNotExist())
+                .andExpect(jsonPath("$.bhpTrainingValidUntil").doesNotExist());
+
+        var stored = employeeRepository.findById(id).orElseThrow();
+        assertThat(stored.getMedicalExamValidUntil()).isNull();
+        assertThat(stored.getBhpTrainingValidUntil()).isNull();
+    }
+
+    @Test
+    void expiryDates_unchangedExpiredDateDoesNotBlockSave() throws Exception {
+        var id = givenEmployeeWithDates(LocalDate.of(2026, 10, 1), null);
+
+        mvc.perform(put(EMPLOYEES + "/{id}", id).with(user("test"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"firstName\":\"Tomek\",\"lastName\":\"Nowak\",\"medicalExamValidUntil\":\"2026-10-01\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.firstName").value("Tomek"))
+                .andExpect(jsonPath("$.medicalExamValidUntil").value("2026-10-01"));
+    }
+
+    @Test
+    void expiryDates_todayOrPast_isRejectedWithFieldCode() throws Exception {
+        mvc.perform(post(EMPLOYEES).with(user("test"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"firstName\":\"Jan\",\"lastName\":\"Testowy\",\"medicalExamValidUntil\":\"2026-11-02\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("INVALID_MEDICAL_EXAM_DATE"));
+
+        mvc.perform(post(EMPLOYEES).with(user("test"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"firstName\":\"Jan\",\"lastName\":\"Testowy\",\"bhpTrainingValidUntil\":\"2026-10-30\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("INVALID_BHP_TRAINING_DATE"));
+
+        assertThat(employeeRepository.findAll()).isEmpty();
+    }
+
+    @Test
+    void expiryDates_rowWrittenBeforeTheFeature_readsAsNull() throws Exception {
+        givenEmployee("Piotr", "Kamiński", 26, Map.of());
+
+        mvc.perform(get(EMPLOYEES).with(user("test")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.employees[0].lastName").value("Kamiński"))
+                .andExpect(jsonPath("$.employees[0].medicalExamValidUntil").doesNotExist())
+                .andExpect(jsonPath("$.employees[0].bhpTrainingValidUntil").doesNotExist());
+    }
+
+    /** Written straight to the table, so a past date can be stored (as one that has expired since). */
+    private String givenEmployeeWithDates(LocalDate medicalExam, LocalDate bhpTraining) {
+        var employee = givenEmployee("Tomasz", "Nowak", 26, Map.of());
+        employee.setMedicalExamValidUntil(medicalExam);
+        employee.setBhpTrainingValidUntil(bhpTraining);
+        return employeeRepository.save(employee).getId();
+    }
+
     private String createEmployee(String firstName, String lastName, int defaultDays) throws Exception {
         var body = objectMapper.writeValueAsString(Map.of(
                 "firstName", firstName, "lastName", lastName, "defaultAnnualDays", defaultDays));

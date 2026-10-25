@@ -65,7 +65,7 @@ The expected numbers in `spec/05-team-and-leave-plan.md` §6.0 need a fixed "tod
 ```bash
 npm run local:up                                            # fresh, empty tables
 CAR_REPAIR_SHOP_CLOCK_FIXEDDATE=2026-11-02 npm run local:shop   # backend thinks today is Mon 2 Nov 2026
-npm run local:seed-team                                     # 8 workers + their leave, via the API
+npm run local:seed-team                                     # 8 workers + their leave + medical/BHP dates, via the API
 ```
 
 - The fixed date works **only in the `local` profile** (`ClockConfig`); time still moves from
@@ -73,6 +73,13 @@ npm run local:seed-team                                     # 8 workers + their 
 - The seed refuses to run when employees already exist. Re-seed with `local:down` + `local:up`.
   It prints every `POOL_EXCEEDED` warning; the scenario has exactly one (Joanna, 2026, −2).
 - Inspect: `./local-env/aws-local.sh dynamodb scan --table-name employee` (or `employee_leave`).
+- **Medical / BHP dates** (`spec/05-team-medical-and-bhp-dates-plan.md` §6.0): the seed covers
+  every colour on 2026-11-02, including the exact 1- and 3-month boundaries. The API refuses
+  past dates, so to see the **expired** states, stop only `local:shop` and start it again with
+  a later date. The data stays in LocalStack:
+  - `CAR_REPAIR_SHOP_CLOCK_FIXEDDATE=2026-11-10`: Katarzyna's exam shows "wygasa dziś";
+  - `CAR_REPAIR_SHOP_CLOCK_FIXEDDATE=2027-01-04`: Katarzyna "wygasło 55 dni temu", Joanna's BHP
+    "wygasło 62 dni temu", and saving Katarzyna still works (an unchanged date isn't re-checked).
 
 ## After changing code
 

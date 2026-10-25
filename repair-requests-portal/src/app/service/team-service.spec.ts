@@ -36,7 +36,10 @@ describe('TeamService', () => {
   });
 
   it('creates and updates with the command body', () => {
-    const command = { firstName: 'Jan', lastName: 'Testowy', defaultAnnualDays: 20 };
+    const command = {
+      firstName: 'Jan', lastName: 'Testowy', defaultAnnualDays: 20,
+      medicalExamValidUntil: '2027-05-01', bhpTrainingValidUntil: null,
+    };
 
     service.create(command).subscribe();
     const create = http.expectOne(base);
