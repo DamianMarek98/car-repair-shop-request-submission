@@ -62,6 +62,22 @@
   flex: 0 0 40px;
 }
 
+.mat-column-leave {
+  flex: 0 0 150px;
+  gap: 6px;
+}
+
+.mat-column-medical,
+.mat-column-bhp {
+  flex: 0 0 136px;
+  padding: 8px 4px;
+}
+
+.team__pool {
+  font-size: 13px;
+  white-space: nowrap;
+}
+
 .team__chevron {
   color: #5b6577;
   font-size: 20px;

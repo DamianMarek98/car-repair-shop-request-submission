@@ -73,3 +73,24 @@ export function daysBetween(from: IsoDate, to: IsoDate): number {
 export function formatPl(date: IsoDate): string {
   return `${date.slice(8, 10)}.${date.slice(5, 7)}.${date.slice(0, 4)}`;
 }
+
+/** Calendar months, clamped to the end of the month: '2026-01-31' + 1 → '2026-02-28'. */
+export function addMonths(date: IsoDate, months: number): IsoDate {
+  const [year, month, day] = date.split('-').map(Number);
+  const monthIndex = (month - 1) + months;
+  const targetYear = year + Math.floor(monthIndex / 12);
+  const targetMonth = ((monthIndex % 12) + 12) % 12 + 1;
+  const lastDay = new Date(Date.UTC(targetYear, targetMonth, 0)).getUTCDate();
+  return isoDate(targetYear, targetMonth, Math.min(day, lastDay));
+}
+
+/** Local-midnight `Date` for a date picker. `new Date('YYYY-MM-DD')` would be UTC midnight instead. */
+export function toLocalDate(date: IsoDate): Date {
+  const [year, month, day] = date.split('-').map(Number);
+  return new Date(year, month - 1, day);
+}
+
+/** The calendar day a date picker's local `Date` stands for. */
+export function fromLocalDate(date: Date): IsoDate {
+  return isoDate(date.getFullYear(), date.getMonth() + 1, date.getDate());
+}

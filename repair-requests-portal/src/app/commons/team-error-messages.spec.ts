@@ -2,8 +2,9 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { GENERIC_TEAM_ERROR, TEAM_ERROR_MESSAGES, teamErrorMessage, teamErrorMessageForCode } from './team-error-messages';
 
 describe('team-error-messages', () => {
-  // every code the shop's TeamErrorCode can return (phases 1-2)
-  const BACKEND_CODES = ['EMPLOYEE_NOT_FOUND', 'INVALID_NAME', 'INVALID_POOL', 'INVALID_YEAR', 'LEAVE_NOT_FOUND',
+  // every code the shop's TeamErrorCode can return
+  const BACKEND_CODES = ['EMPLOYEE_NOT_FOUND', 'INVALID_NAME', 'INVALID_POOL', 'INVALID_YEAR',
+    'INVALID_MEDICAL_EXAM_DATE', 'INVALID_BHP_TRAINING_DATE', 'LEAVE_NOT_FOUND',
     'INVALID_RANGE', 'NO_WORKING_DAYS', 'TOO_FAR_AHEAD', 'LEAVE_OVERLAP', 'EMPLOYEE_CHANGE_NOT_ALLOWED',
     'INVALID_QUERY'];
 

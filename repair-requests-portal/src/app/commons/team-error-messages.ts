@@ -9,6 +9,8 @@ export const TEAM_ERROR_MESSAGES: Record<string, string> = {
   INVALID_NAME: 'Imię i nazwisko muszą mieć od 1 do 60 znaków.',
   INVALID_POOL: 'Pula urlopu musi być liczbą całkowitą od 0 do 365.',
   INVALID_YEAR: 'Nieprawidłowy rok.',
+  INVALID_MEDICAL_EXAM_DATE: 'Data ważności badań lekarskich musi być w przyszłości (najpóźniej za 10 lat).',
+  INVALID_BHP_TRAINING_DATE: 'Data ważności szkolenia BHP musi być w przyszłości (najpóźniej za 10 lat).',
   LEAVE_NOT_FOUND: 'Nie znaleziono urlopu. Odśwież stronę.',
   INVALID_RANGE: 'Nieprawidłowy zakres dat: koniec nie może być przed początkiem, a urlop nie może trwać dłużej niż 60 dni.',
   NO_WORKING_DAYS: 'Wybrany zakres obejmuje tylko weekend.',

@@ -32,24 +32,25 @@
           <mat-header-cell *matHeaderCellDef>Nazwisko</mat-header-cell>
           <mat-cell *matCellDef="let e">{{ e.lastName }}</mat-cell>
         </ng-container>
-        <ng-container matColumnDef="pool">
-          <mat-header-cell *matHeaderCellDef>Pula ({{ year }})</mat-header-cell>
-          <mat-cell *matCellDef="let e">{{ daysLabel(e.balance.pool) }}</mat-cell>
-        </ng-container>
-        <ng-container matColumnDef="taken">
-          <mat-header-cell *matHeaderCellDef>Wykorzystano</mat-header-cell>
-          <mat-cell *matCellDef="let e">{{ daysLabel(e.balance.taken) }}</mat-cell>
-        </ng-container>
-        <ng-container matColumnDef="planned">
-          <mat-header-cell *matHeaderCellDef>Zaplanowano</mat-header-cell>
-          <mat-cell *matCellDef="let e">{{ daysLabel(e.balance.planned) }}</mat-cell>
-        </ng-container>
-        <ng-container matColumnDef="remaining">
-          <mat-header-cell *matHeaderCellDef>Pozostało</mat-header-cell>
+        <ng-container matColumnDef="leave">
+          <mat-header-cell *matHeaderCellDef>Urlop ({{ year }})</mat-header-cell>
           <mat-cell *matCellDef="let e">
             <span class="panel-chip" [class.panel-chip--negative]="e.balance.remaining < 0" data-test="remaining">
               {{ daysLabel(e.balance.remaining) }}
             </span>
+            <span class="team__pool panel-muted">z {{ daysLabel(e.balance.pool) }}</span>
+          </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="medical">
+          <mat-header-cell *matHeaderCellDef>Badania lekarskie</mat-header-cell>
+          <mat-cell *matCellDef="let e">
+            <ng-container *ngTemplateOutlet="expiryCell; context: { $implicit: e.medicalExamValidUntil }"></ng-container>
+          </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="bhp">
+          <mat-header-cell *matHeaderCellDef>Szkolenie BHP</mat-header-cell>
+          <mat-cell *matCellDef="let e">
+            <ng-container *ngTemplateOutlet="expiryCell; context: { $implicit: e.bhpTrainingValidUntil }"></ng-container>
           </mat-cell>
         </ng-container>
         <ng-container matColumnDef="open">
@@ -111,6 +112,33 @@
             }
           </div>
 
+          <div class="panel-dates">
+            <div>
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>Badania lekarskie ważne do</mat-label>
+                <input matInput [matDatepicker]="medicalPicker" formControlName="medicalExamValidUntil" placeholder="dd.mm.rrrr"
+                       [min]="minDate('medicalExamValidUntil')" [max]="maxDate" (click)="medicalPicker.open()" data-test="medical-date">
+                <mat-datepicker-toggle matIconSuffix [for]="medicalPicker"></mat-datepicker-toggle>
+                <mat-datepicker #medicalPicker></mat-datepicker>
+              </mat-form-field>
+              <div class="panel-hint panel-hint--{{ fieldExpiry('medicalExamValidUntil').level }}" data-test="medical-hint">
+                {{ fieldExpiry('medicalExamValidUntil').hint }}
+              </div>
+            </div>
+            <div>
+              <mat-form-field appearance="outline" subscriptSizing="dynamic">
+                <mat-label>Szkolenie BHP ważne do</mat-label>
+                <input matInput [matDatepicker]="bhpPicker" formControlName="bhpTrainingValidUntil" placeholder="dd.mm.rrrr"
+                       [min]="minDate('bhpTrainingValidUntil')" [max]="maxDate" (click)="bhpPicker.open()" data-test="bhp-date">
+                <mat-datepicker-toggle matIconSuffix [for]="bhpPicker"></mat-datepicker-toggle>
+                <mat-datepicker #bhpPicker></mat-datepicker>
+              </mat-form-field>
+              <div class="panel-hint panel-hint--{{ fieldExpiry('bhpTrainingValidUntil').level }}" data-test="bhp-hint">
+                {{ fieldExpiry('bhpTrainingValidUntil').hint }}
+              </div>
+            </div>
+          </div>
+
           @if (selected) {
             <div class="stats">
               <div class="stats__label">Pozostało dni urlopu w {{ year }}</div>
@@ -149,3 +177,13 @@
     </div>
   </div>
 </div>
+
+<!-- one "valid until" cell: date chip coloured by expiry, with a short note when it needs attention -->
+<ng-template #expiryCell let-date>
+  <div class="panel-expiry panel-expiry--{{ expiry(date).level }}" [attr.data-status]="expiry(date).status" data-test="expiry">
+    <span class="panel-expiry__date">{{ date ? formatPl(date) : '—' }}</span>
+    @if (expiry(date).note) {
+      <span class="panel-expiry__note">{{ expiry(date).note }}</span>
+    }
+  </div>
+</ng-template>

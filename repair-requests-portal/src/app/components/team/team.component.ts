@@ -2,6 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -10,6 +12,11 @@ import { MatTableModule } from '@angular/material/table';
 import { RouterLink } from '@angular/router';
 import { concatMap, Observable, of } from 'rxjs';
 import { daysLabel } from '../../commons/days-label';
+import {
+  earliestExpiryDate, Expiry, expiryOf, isExpiryDateAllowed, latestExpiryDate
+} from '../../commons/expiry-status';
+import { formatPl, fromLocalDate, IsoDate, toLocalDate } from '../../commons/iso-date';
+import { PL_DATE_FORMATS, PlDateAdapter } from '../../commons/pl-date-adapter';
 import { teamErrorMessage, teamErrorMessageForCode } from '../../commons/team-error-messages';
 import { Employee, EmployeeCommand } from '../../models/employee';
 import { EmployeeList } from '../../models/employee-list';
@@ -20,21 +27,32 @@ const DEFAULT_POOL = 26;
 const MAX_POOL = 365;
 const MAX_NAME_LENGTH = 60;
 
+/** The two "valid until" form controls, named like their `Employee` fields. */
+type ExpiryField = 'medicalExamValidUntil' | 'bhpTrainingValidUntil';
+
 /**
- * Zespół: employees with their leave pool for the selected year. The year selector, "today" and every
- * number come from the backend (`EmployeeList`); this component only edits names and pools.
+ * Zespół: employees with their leave pool for the selected year, plus their medical-exam and BHP
+ * "valid until" dates. The year selector, "today" and every number come from the backend
+ * (`EmployeeList`); this component edits names, pools and the two dates.
  */
 @Component({
   selector: 'app-team',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, MatTableModule, MatFormFieldModule, MatInputModule, MatSelectModule,
-    MatButtonModule, MatDialogModule, RouterLink],
+    MatButtonModule, MatDialogModule, MatDatepickerModule, RouterLink],
+  // the two "ważne do" pickers: Polish calendar, Monday first, dd.mm.rrrr input
+  providers: [
+    { provide: DateAdapter, useClass: PlDateAdapter },
+    { provide: MAT_DATE_LOCALE, useValue: 'pl-PL' },
+    { provide: MAT_DATE_FORMATS, useValue: PL_DATE_FORMATS },
+  ],
   templateUrl: './team.component.html',
   styleUrl: './team.component.css'
 })
 export class TeamComponent implements OnInit {
-  readonly displayedColumns = ['firstName', 'lastName', 'pool', 'taken', 'planned', 'remaining', 'open'];
+  readonly displayedColumns = ['firstName', 'lastName', 'leave', 'medical', 'bhp', 'open'];
   readonly daysLabel = daysLabel;
+  readonly formatPl = formatPl;
 
   list: EmployeeList | null = null;
   year: number | undefined;
@@ -54,6 +72,9 @@ export class TeamComponent implements OnInit {
       lastName: [''],
       yearPool: [DEFAULT_POOL],
       defaultAnnualDays: [DEFAULT_POOL],
+      // date pickers hold local-midnight Dates (or null); converted to IsoDate on load and save
+      medicalExamValidUntil: [null as Date | null],
+      bhpTrainingValidUntil: [null as Date | null],
     });
   }
 
@@ -73,6 +94,44 @@ export class TeamComponent implements OnInit {
 
   get isCurrentYear(): boolean {
     return !!this.list && this.year === Number(this.list.today.slice(0, 4));
+  }
+
+  /** the backend's today; the dates' colours never read the browser clock */
+  get today(): IsoDate {
+    return this.list?.today ?? '';
+  }
+
+  /**
+   * Earliest day the picker offers: tomorrow, or the stored date when that is earlier - an unchanged
+   * expired date stays valid (plan §3.1), so the picker must not flag it.
+   */
+  minDate(field: ExpiryField): Date | null {
+    if (!this.today) {
+      return null;
+    }
+    const earliest = earliestExpiryDate(this.today);
+    const stored = this.selected?.[field];
+    return toLocalDate(stored && stored < earliest ? stored : earliest);
+  }
+
+  get maxDate(): Date | null {
+    return this.today ? toLocalDate(latestExpiryDate(this.today)) : null;
+  }
+
+  expiry(date: IsoDate | null): Expiry {
+    return expiryOf(date, this.today);
+  }
+
+  /** Hint under a date field: its live expiry state, or why the typed date can't be saved. */
+  fieldExpiry(field: ExpiryField): Expiry {
+    if (this.hasUnreadableDate(field)) {
+      return { status: 'EXPIRED', level: 'danger', note: '', hint: 'Nieprawidłowa data, wpisz dd.mm.rrrr' };
+    }
+    const value = this.isoValue(field);
+    if (!isExpiryDateAllowed(value, this.selected?.[field] ?? null, this.today)) {
+      return { status: 'EXPIRED', level: 'danger', note: '', hint: 'Wpisz datę w przyszłości (najpóźniej za 10 lat)' };
+    }
+    return this.expiry(value);
   }
 
   /** share of the pool already used or planned, for the progress bar (0-100) */
@@ -97,6 +156,8 @@ export class TeamComponent implements OnInit {
       lastName: employee.lastName,
       yearPool: employee.balance.pool,
       defaultAnnualDays: employee.defaultAnnualDays,
+      medicalExamValidUntil: employee.medicalExamValidUntil ? toLocalDate(employee.medicalExamValidUntil) : null,
+      bhpTrainingValidUntil: employee.bhpTrainingValidUntil ? toLocalDate(employee.bhpTrainingValidUntil) : null,
     });
   }
 
@@ -104,7 +165,10 @@ export class TeamComponent implements OnInit {
     this.isNew = true;
     this.selected = null;
     this.formError = '';
-    this.form.setValue({ firstName: '', lastName: '', yearPool: DEFAULT_POOL, defaultAnnualDays: DEFAULT_POOL });
+    this.form.setValue({
+      firstName: '', lastName: '', yearPool: DEFAULT_POOL, defaultAnnualDays: DEFAULT_POOL,
+      medicalExamValidUntil: null, bhpTrainingValidUntil: null,
+    });
   }
 
   cancel(): void {
@@ -122,8 +186,14 @@ export class TeamComponent implements OnInit {
       firstName: (value.firstName ?? '').trim(),
       lastName: (value.lastName ?? '').trim(),
       defaultAnnualDays: value.defaultAnnualDays,
+      // an empty picker is null, which clears the date
+      medicalExamValidUntil: this.isoValue('medicalExamValidUntil'),
+      bhpTrainingValidUntil: this.isoValue('bhpTrainingValidUntil'),
     };
-    const invalid = validate(command, value.yearPool);
+    // unreadable typed text leaves the control at null - never save that as "no date"
+    const invalid = this.hasUnreadableDate('medicalExamValidUntil') ? 'INVALID_MEDICAL_EXAM_DATE'
+      : this.hasUnreadableDate('bhpTrainingValidUntil') ? 'INVALID_BHP_TRAINING_DATE'
+      : validate(command, value.yearPool, this.selected, this.today);
     if (invalid) {
       this.formError = teamErrorMessageForCode(invalid);
       return;
@@ -143,6 +213,16 @@ export class TeamComponent implements OnInit {
         concatMap(saved => yearPool !== saved.defaultAnnualDays ? this.teamService.setPool(saved.id, year, yearPool) : of(saved)));
     }
     this.run(save$, saved => saved.id);
+  }
+
+  private isoValue(field: ExpiryField): IsoDate | null {
+    const date: Date | null = this.form.get(field)?.value ?? null;
+    return date ? fromLocalDate(date) : null;
+  }
+
+  /** Text typed into a picker that isn't a dd.mm.rrrr date. */
+  private hasUnreadableDate(field: ExpiryField): boolean {
+    return !!this.form.get(field)?.hasError('matDatepickerParse');
   }
 
   /** Drops the hand-typed pool of the selected year, so the default applies again. */
@@ -206,7 +286,7 @@ export class TeamComponent implements OnInit {
 }
 
 /** Returns the backend error code the same input would produce, so the message is identical. */
-function validate(command: EmployeeCommand, yearPool: unknown): string | null {
+function validate(command: EmployeeCommand, yearPool: unknown, stored: Employee | null, today: IsoDate): string | null {
   const nameOk = (name: string) => name.length >= 1 && name.length <= MAX_NAME_LENGTH;
   if (!nameOk(command.firstName) || !nameOk(command.lastName)) {
     return 'INVALID_NAME';
@@ -214,6 +294,12 @@ function validate(command: EmployeeCommand, yearPool: unknown): string | null {
   const poolOk = (days: unknown) => Number.isInteger(days) && (days as number) >= 0 && (days as number) <= MAX_POOL;
   if (!poolOk(command.defaultAnnualDays) || !poolOk(yearPool)) {
     return 'INVALID_POOL';
+  }
+  if (!isExpiryDateAllowed(command.medicalExamValidUntil, stored?.medicalExamValidUntil ?? null, today)) {
+    return 'INVALID_MEDICAL_EXAM_DATE';
+  }
+  if (!isExpiryDateAllowed(command.bhpTrainingValidUntil, stored?.bhpTrainingValidUntil ?? null, today)) {
+    return 'INVALID_BHP_TRAINING_DATE';
   }
   return null;
 }
